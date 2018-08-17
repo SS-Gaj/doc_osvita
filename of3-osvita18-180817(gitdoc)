@@ -94,3 +94,28 @@ ss@office:~/Documents/git_doc/osvita$
     Проверяю на https://github.com/SS-Gaj/doc_osvita/pulls - ЕСТЬ!!!!
 9)  Копирую ЭТОТ файл в папку 
 10) Делаю коммит, пуш;
+****
+11) В этом месте 
+		я попытался склонировать ЭТОТ репозиторий (из Гитхаб) на свой Сервер,
+		но папка оказалась пустой!!
+12) Возвратился на офПК 
+		и доделал следующее:
+		ss@office:~/Documents/git_doc/doc_osvita$ git push origin master
+		Username for 'https://github.com': SS-Gaj
+		Password for 'https://SS-Gaj@github.com': 
+		Counting objects: 59, done.
+		Delta compression using up to 2 threads.
+		Compressing objects: 100% (58/58), done.
+		Writing objects: 100% (59/59), 257.73 KiB | 0 bytes/s, done.
+		Total 59 (delta 7), reused 0 (delta 0)
+		remote: Resolving deltas: 100% (7/7), done.
+		To https://github.com/SS-Gaj/doc_osvita.git
+		 * [new branch]      master -> master
+		ss@office:~/Documents/git_doc/doc_osvita$ 
+13) Опять попробовал на Сервере clone - ПОЛУЧИЛОСЬ!!!!
+14) Возвращаюсь на офПК,
+		дописываю в ЭТОТ файл с п.11) - ЭТОТ файл уже в папке /home/ss/Documents/git_doc/doc_osvita,
+		делаю еще один коммит + пуш;
+		
+
+
