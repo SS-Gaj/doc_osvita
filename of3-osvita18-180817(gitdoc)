@@ -1,0 +1,96 @@
+**** 2018.08.17 ****
+Давно собирался работать с файлами описания моих проектов на Git;
+Сделаю ЭТО сегодня, в процессе создания Проекта /osvita - после завершения of2-osvita17-180816(book);
+Называю ЭТОТ файл /home/ss/Documents/my_projects/osvita/of3-osvita18-180817(gitdoc)
+
+Сделаю репозиторий 
+и помещу в него ВСЕ созданные до сегодняшнего дня файлы, описывающие Проект /osvita;
+Затем подтяну в этот репозиторий другие док-ты - мое изучение Rails независимо от проекта;
+Или м.б.создам для этого другой репозиторий.
+
+Итак, 
+1) создаю папку git_doc;
+2) и копирую в нее ВСЮ папку /home/ss/Documents/my_projects/osvita
+=> /home/ss/Documents/git_doc/osvita; **//- переименовал в /home/ss/Documents/git_doc/doc_osvita в п.6 ниже;
+   Удаляю из НОВОЙ папки ЭТОТ файл, поскольку запишу его ПОСЛЕ окончания всех работ - см.п.9 дальше;
+3) захожу в ЭТУ новую папку
+    и инициирую репозиторий - см.МХ р"1.3.1 Установка и настройка", часть "Первоначальная настройка репозитория";
+    
+    ss@office:~/Documents/git_doc/osvita$ git init
+    Initialized empty Git repository in /home/ss/Documents/git_doc/osvita/.git/
+    ss@office:~/Documents/git_doc/osvita$ 
+4)  git add .
+ss@office:~/Documents/git_doc/osvita$ git status
+On branch master
+
+Initial commit
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+	new file:   Gemfile_devise_at180629
+	new file:   Gemfile_master_at180629
+	new file:   activerecord.en.yml
+	new file:   app/users/confirmations_controller.rb
+	new file:   app/users/omniauth_callbacks_controller.rb
+	new file:   app/users/passwords_controller.rb
+	new file:   app/users/registrations_controller.rb
+	new file:   app/users/sessions_controller.rb
+	new file:   app/users/unlocks_controller.rb
+	new file:   development (copy).log
+	new file:   devise-translate.rb
+	new file:   devise_devise_at180629.rb
+	new file:   devise_master_at180629.rb
+	new file:   en.yml
+	new file:   hm-osvita1-180612(rvm)_at180613
+	new file:   hm-osvita1-180612(xron)_at180613
+	new file:   hm-osvita2-180613(start)_at180613
+	new file:   hm-osvita8-180626(heroku)
+	new file:   hm-osvita8-180626(heroku-1)
+	new file:   hm-osvita8-180626(heroku-2)
+	new file:   hm-osvita8.1-180704(heroku)
+	new file:   hm-osvita9-180702(git)
+	new file:   hm_mail_180706
+	new file:   my_migration_to_order_180803.doc
+	new file:   of1-osvita16-1800809(clon)
+	new file:   of2-osvita17-180816(book)
+	new file:   of2-osvita17-180816(book)_p
+	new file:   schema_fromNB.rb
+	new file:   srv-osvita1-180612(rvm)
+	new file:   srv-osvita1-180612(xron)
+	new file:   srv-osvita10-180704(locale)
+	new file:   srv-osvita10-180706(locale2)
+	new file:   srv-osvita11-180711(lorder)
+	new file:   srv-osvita12-180712(lprofile)
+	new file:   srv-osvita12-180712(lprofile)_pk
+	new file:   srv-osvita12-180712(lprofile)_pkk
+	new file:   srv-osvita12-180712(lprofile-1)
+	new file:   srv-osvita13-180802(lprofile2)
+	new file:   srv-osvita14-180803(category)
+	new file:   srv-osvita15-180803(order2)
+	new file:   srv-osvita15-180803(order2).doc
+	new file:   srv-osvita16-180807(payment)
+	new file:   srv-osvita3-180614(pull-start)
+	new file:   srv-osvita4-180614(home-page)
+	new file:   srv-osvita5-180619(devise)
+	new file:   srv-osvita5-180619(devise)_p
+	new file:   srv-osvita6-180620(devise2)
+	new file:   srv-osvita6-180620(devise2)_p
+	new file:   srv-osvita7-180622(mailer)
+	new file:   srv-osvita7-180622(mailer)_at180629
+	new file:   srv-osvita7-180704(locale)
+	new file:   srv-osvita8-180626(heroku)
+	new file:   time_zone
+
+ss@office:~/Documents/git_doc/osvita$ 
+
+5) затем по МХ я подошел к команде 
+    git remote add origin https://github.com/<username>/first_app.git
+    и обнаружил, что на Гитхабе УЖЕ ЕСТЬ 'ostita.git'!!
+6)  Решил поменять на 'doc_osvita' - поменял имя созданной в п.2 выше папки - вроде бы "сошло" нормально!!!!
+7)  Создал новый репозиторий на Гитхабе с именем 'doc_osvita';
+8)  Выполняю команду
+    git remote add origin https://github.com/SS-Gaj/doc_osvita.git
+    Проверяю на https://github.com/SS-Gaj/doc_osvita/pulls - ЕСТЬ!!!!
+9)  Копирую ЭТОТ файл в папку 
+10) Делаю коммит, пуш;
