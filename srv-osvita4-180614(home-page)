@@ -1,0 +1,854 @@
+**** 2018.06.14 ****
+Пред.файл 
+[1] - srv-osvita3-180614(pull-start);
+См.также 
+[2] - srv-osvita1-180612(xron);
+
+Здесь изложен листинг терминала соотв.п.3 [2]:
+"заменяю дефолтную страницу в сгенерированном Проекте на "свою" "домашнюю""
+
+*/- 1.1
+Пока (на этом начальном этапе) "домашней" страницей 
+у меня будет страница:
+- с Главным меню;
+- и рекламной заставкой в центре экрана;
+Реализую я эту страницу прямо в файле application.html.erb,
+который расположен в папке ~/rails_projects/osvita/app/views/layouts
+
+*/- 1.2
+Сходу файл содержит:
+alex@www:~/rails_projects$ cat /home/alex/rails_projects/osvita/app/views/layouts/application.html.erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Osvita</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
+alex@www:~/rails_projects$ 
+
+*/- 1.3
+Смотрю на свой Проект /poisk, коротый реально работает с Bootstrap:
+/home/alex/rails_projects/poisk9/app/views/layouts/application.html.erb;
+
+Копирую его (/poisk9),
+и полностью вставяю в /osvita;
+
+*/- 1.4
+Сравниваю со старым тексом,
+и отмечаю про себя отличия:
+1)
+  <%= stylesheet_link_tag ...
+и
+  <%= javascript_include_tag ...
+немного отличаются "концовкой" - пока оставлю как в /poisk9;
+Правда, обе эти строки у меня закоментированы,
+ну и оставлю их пока закоментированными;
+
+2) <%= csrf_meta_tags %> есть и там и там;
+3) <%= csp_meta_tag %>
+  был в дефоттном /osvita 
+  и нет в /poisk8 - бодавляю;
+  
+*/- 2
+Поскольку курсы по Ютубу уже идут с Bootstrap 4,
+и Гугл мне сразу выдал ссылку на подключение к Rails тоже версии 4,
+https://launchschool.com/blog/integrating-rails-and-bootstrap-part-1
+то буду и я подключать вер.4;
+
+*/- 2.1
+Из указанной выше ссылки перехожу на Главный сайт
+https://getbootstrap.com/docs/4.1/getting-started/download/
+
+нехожу сдесь раздел "BootstrapCDN"
+1. Skip the download with BootstrapCDN to deliver cached version of Bootstrap’s compiled CSS and JS to your project.
+Пропустите загрузку с помощью BootstrapCDN, чтобы доставить кэшированную версию скомпилированных CSS и JS Bootstrap в ваш проект.
+
+1.1
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+1.2
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+2. Если вы используете наш скомпилированный JavaScript, не забудьте включить в него CDN-версии jQuery и Popper.js.
+
+2.1
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+2.2
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+*/- 2.2
+Заменяю сообв.строки в application.html.erb,
+поскольку в /poisk9  у меня была версия 3.3.7;
+Причем,
+"1.1" вставляю вмесьто <link ...
+сразу за <!-- Bootstrap CSS -->  
+
+"1.2" вставляю вместо <script ...
+сразу за <!-- Latest compiled and minified JavaScript -->
+(самое последнее перед </body>);
+
+"2.1"  и "2.2" вставляю вместо <script ...
+сразу за 
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+
+*/- 2.3
+А вот <link ...
+после 
+    <!-- Optional theme -->
+просто "вырезаю" (он ниже),
+поскольку на сайте Bootstrap об этом здесь ничего не говорится (м.б.будет дальше): 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+*/- 3.1
+Далее на сайте Bootstrap в разделе RubyGems
+Install Bootstrap in your Ruby apps using Bundler (recommended) and RubyGems by adding the following line to your Gemfile:
+
+gem 'bootstrap', '~> 4.1.1'
+
+- вставляю;
+
+*/- 3.2
+Затем по ссылке в том же разделе перехожу на Гитхаб:
+https://github.com/twbs/bootstrap-rubygem/blob/master/README.md
+
+где инструкции продолжаются;
+
+*/- 3.3
+... "Ensure that sprockets-rails is at least v2.3.2."
+
+и нахожу в /poisk9/Gemfile
+gem 'sprockets-rails', '~> 3.0' #'>= 2.1.4'
+
+и копирую в /osvita/Gemfile;
+
+
+*/ - 3.4
+В Уроке №2 ЮТ 
+еще добавляется
+gem 'rails-assets-tether', '>= 1.1.0'
+
+но я на Гитхабе у себя такого не нашел (у него вер.4.0)
+
+*/- 3.5
+"Import Bootstrap styles in app/assets/stylesheets/application.scss"
+
+// Custom bootstrap variables must be set or imported *before* bootstrap.
+@import "bootstrap";
+
+У себя нашел
+/home/alex/rails_projects/osvita/app/assets/stylesheets/application.css
+cat /home/alex/rails_projects/osvita/app/assets/stylesheets/application.css:
+
+alex@www:~/rails_projects$ cat /home/alex/rails_projects/osvita/app/assets/stylesheets/application.css
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+alex@www:~/rails_projects$ 
+
+... поэтому сначала его переименовываю в .scss ;
+
+*/- 3.6
+Для сравнения нахожу
+alex@www:~/rails_projects$ cat /home/alex/rails_projects/poisk9/app/assets/stylesheets/application.scss
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ * "bootstrap-sprockets" must be imported before "bootstrap" and "bootstrap/variables"
+*/
+@import "bootstrap-sprockets";
+@import "bootstrap";
+alex@www:~/rails_projects$ 
+
+*/- 3.6
+Теперь добавляю
+@import "bootstrap";
+
+в коней своего 
+/home/alex/rails_projects/osvita/app/assets/stylesheets/application.scss
+
+а строку
+// Custom bootstrap variables must be set or imported *before* bootstrap.
+которая возможно явл-ся комментариями в синтаксисе .scss,
+пока добавлять не буду;
+
+*/- 3.7
+"Then, remove all the *= require and *= require_tree statements from the Sass file. Instead, use @import to import Sass files."
+Затем удалите все инструкции * = require и * = require_tree из файла Sass. Вместо этого используйте @import для импорта файлов Sass.
+
+Удаляю ...
+
+... и хоть я не знаю, "чем мне ответить" на фразу "...Вместо этого используйте @import для импорта файлов Sass." - скопирую имеющуюся строку 
+@import "bootstrap-sprockets";
+из /poisk9 и вставлю в /psvita:
+
+Сохраняю и закрываю его (/osvita/app/assets/stylesheets/application.scss);
+
+*/- 3.8
+"Bootstrap JavaScript depends on jQuery. If you're using Rails 5.1+, add the jquery-rails gem to your Gemfile:
+
+gem 'jquery-rails'
+"
+... копирую из Gemfile /poisk9;
+
+
+*/- 3.9
+"Add Bootstrap dependencies and Bootstrap to your application.js:
+
+//= require jquery3
+//= require popper
+//= require bootstrap-sprockets
+"
+
+*/- 3.10
+Открываю ../poisk9/app/assets/javascripts/application.js
+
+alex@www:~/rails_projects$ cat /home/alex/rails_projects/poisk9/app/assets/javascripts/application.js 
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+// or any plugin's vendor/assets/javascripts directory can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file.
+//
+// Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
+// about supported directives.
+//
+//= require jquery
+//= require bootstrap-sprockets
+//= require jquery_ujs
+//= require turbolinks
+//= require_tree .
+alex@www:~/rails_projects$ 
+
+*/- 3.11
+Сейчас у меня
+alex@www:~/rails_projects$ cat /home/alex/rails_projects/osvita/app/assets/javascripts/application.js
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, or any plugin's
+// vendor/assets/javascripts directory can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file. JavaScript code in this file should be added after the last require_* statement.
+//
+// Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
+// about supported directives.
+//
+//= require rails-ujs
+//= require activestorage
+//= require turbolinks
+//= require_tree .
+alex@www:~/rails_projects$ 
+
+*/- 3.11
+Сравнивая эти 3 множества делаю вывод, 
+что
+1) все 3 строки
+//= require jquery3
+//= require popper
+//= require bootstrap-sprockets
+
+нужно добавить,
+
+... и тогда в /poisk9 есть еще одна
+//= require jquery_ujs
+которую в /osvita добавлять не буду;
+
+
+*/- 4.1
+Копирую из /poisk9
+_shim.html.erb,
+_header.html.erb,
+_footer.html.erb
+в неизменном виде;
+
+*/- 4.2
+alex@www:~/rails_projects/osvita$ bundle install
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies....
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Fetching autoprefixer-rails 8.6.2
+Installing autoprefixer-rails 8.6.2
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Fetching popper_js 1.12.9
+Installing popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Fetching bootstrap 4.1.1
+Installing bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Fetching jquery-rails 4.3.3
+Installing jquery-rails 4.3.3
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 21 Gemfile dependencies, 82 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4.3
+Обновляю http://localhost:3000 - опять получаю дефолтную страницу;
+
+... Это значит, что:
+- синтаксических ошибок в моих изменениях нет;
+- добавленный в Gemfile гемы подключились успешно;
+- ЯтД, Bootstrap подключился успешно;
+
+
+**** 2018.06.15 ****
+*/- 5
+Теперь нужно,
+чтобы вместо дефолтной страницы Rails загружалась моя!!
+
+*/- 5.1
+Смотрю на 
+http://guides.rubyonrails.org/getting_started.html
+
+чать
+Getting Started with Rails
+
+раздел 
+4.2 Say "Hello", Rails
+
+Здесь описан такой путь:
+1) Создается новый контроллер
+  bin/rails generate controller Welcome index
+  Теперь нужно просто в URL добавить имя экжшена:
+  http://localhost:3000/welcome;
+    
+2) Указывается корневой маршрут
+  root 'welcome#index'
+  Теперь можно указывать просто http://localhost:3000
+  
+*/- 5.2
+Аналогичный этап в МХ изложен в разделе "3.1 Статические страницы"
+$ rails generate controller StaticPages home help --no-test-framework
+
+*/- 5.3
+Буду посматривать вв /poisk9;
+
+*/- 5.4
+Создаю контроллер Welcome;
+rails generate controller Welcome index --no-test-framework
+
+alex@www:~/rails_projects/osvita$ rails generate controller Welcome index --no-test-framework
+Running via Spring preloader in process 9191
+      create  app/controllers/welcome_controller.rb
+       route  get 'welcome/index'
+      invoke  erb
+      create    app/views/welcome
+      create    app/views/welcome/index.html.erb
+      invoke  helper
+      create    app/helpers/welcome_helper.rb
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/welcome.coffee
+      invoke    scss
+      create      app/assets/stylesheets/welcome.scss
+alex@www:~/rails_projects/osvita$ 
+
+*/- 5.5
+В браузере ввожу
+  http://localhost:3000
+получаю дефолтную страницу;
+
+Затем добавляю
+  http://localhost:3000/welcome/index
+- получаю ошибку из моего текста в /home/alex/rails_projects/osvita/app/views/layouts/_header.html.erb,
+  поскольку там прописаны маршруты для /poisk9:
+  
+  ActionView::Template::Error (undefined local variable or method `root_path' for #<#<Class:0x007fb15407c800>:0x00000005116390>
+Did you mean?  font_path):
+     8:               <span class="icon-bar"></span>
+     9:               <span class="icon-bar"></span>
+    10:             </button>
+    11:             <%= link_to "mySearch", root_path, class: "navbar-brand" %>
+    12:           </div>
+    13:           <div id="navbar" class="navbar-collapse collapse">
+    14:             <ul class="nav navbar-nav">
+  
+app/views/layouts/_header.html.erb:11:in `_app_views_layouts__header_html_erb__3208715068715865059_70199798398740'
+app/views/layouts/application.html.erb:25:in `_app_views_layouts_application_html_erb__4432472925503795589_70199797886860'
+
+*/- 5.6
+Забью их пока '#';
+строка 11
+            <%= link_to "mySearch", root_path, class: "navbar-brand" %>
+
+строки 36, 37
+                  <li><%= link_to "Show List",  bands_path %></li>
+                  <li><%= link_to "Update List",  new_band_path %></li>
+
+строки 49, 50
+                  <li><%= link_to "Show List",  tapes_path %></li>
+                  <li><%= link_to "Обновить ленту",  new_tape_path %></li>
+  
+строки 62, 63
+                <li><%= link_to "searchSets", sets_path %></li>
+                <li><%= link_to "Help",  help_path %></li>
+
+*/- 5.7
+Обновляю
+http://localhost:3000/welcome/index
+
+- ПОЛУЧИЛОСЬ!!!!
+Вывелся сгенерированный вьюэр
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/app/views/welcome/index.html.erb
+<h1>Welcome#index</h1>
+<p>Find me in app/views/welcome/index.html.erb</p>
+alex@www:~/rails_projects/osvita$ 
+
+*/- 5.8
+Однако,
+из всех пунктов меню 
+отобразилось только одно - "mySearch";
+
+Точнее, это даже не пункт меню, а логотип сайта /poisk9;
+
+Хотя надпись "Welcome..." явно в шрифтах Bootstrap;
+
+Значит,
+- Bootstrap подцепился,
+- но классы для пунктов меню другие;
+- или же что-то с jQuery или JavaScript;
+
+*/- 6
+Нашел рус.сайт по Bootstrap 4.1.1
+http://bootstrap-4.ru/docs/4.1/getting-started/download/
+
+*/- 6.1
+Перехожу на вкладку "Примеры",
+на которой нажимаю кнопку "Скачать исходный код",
+и получаю bootstrap-4.1.1.zip;
+
+Разархивирую в /home/alex/Bootstrap/bootstrap-4.1.1;
+
+Внутри нахожу /home/alex/Bootstrap/bootstrap-4.1.1/docs/4.1/examples;
+
+*/- 6.2
+В "Примерах" выбираю "Базовый шаблон";
+
+Нахожу его в папке /examples - /starter-template;
+Здесь кроме .html
+  файл ../examples/starter-template/index.html
+ есть еще .css
+  файл ../examples/starter-template/starter-template.css
+  
+*/- 6.3
+Перед тем, как менять 
+  ../osvita/app/views/layouts/_header.html.erb
+сделаю его копию - 1_header.html.erb,
+(затем в конце этого файла удаляю за ненадобностью, поскольку новый текст ОТЛИЧНО работает!!!!)
+
+а в _header.html.erb ВСЕ СТИРАЮ
+
+и буду переносить НУЖНЫЕ строки из ../examples/starter-template/index.html;
+
+Именно НУЖНЫЕ, а не ВСЕ,
+поскольку в файл ../examples/starter-template/index.html 
+выполнен со всеми разделами в соотв.с требованиями HTML,
+а у меня часть кода находится в application.html.erb, 
+а для _header.html.erb нужно, в основном,  только "тело" ну и буду смотреть, что еще;
+
+*/- 6.4
+В разделе
+<!-- Bootstrap core JavaScript
+обнаружил
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+
+которого у меня нет в application.html.erb,
+- нужно все-таки прояснить, что это
+и включить, если надо;
+
+*/- 6.5
+Обновляю
+http://localhost:3000/welcome/index
+
+- И ПРАКТИЧЕСКИ ДА!!!!
+
+Немного не так отобразилась центральня часть экрана - не те шрифты,
+а меню - как в "Примерах"!!!!
+
+*/- 6.6
+Переношу CSS-стили
+из
+../bootstrap-4.1.1/docs/4.1/examples/starter-template/starter-template.css
+в
+../osvita/app/assets/stylesheets/welcome.scss
+(вставляю в конец файла welcome.scss - изначально там ничего и не было, только комментарии);
+
+*/- 6.7
+Затем 
+в
+../app/views/layouts/_header.html.erb
+меняю
+    <link href="starter-template.css" rel="stylesheet">
+на
+    <link href="/home/alex/rails_projects/osvita/app/assets/stylesheets/welcome.scss" rel="stylesheet">
+
+Перегружаю - ничего не поменялось;
+
+*/- 6.8
+меняю на
+    <link href="/assets/stylesheets/welcome.scss" rel="stylesheet">
+
+- выдает ошибку = не читается файл 
+@import "bootstrap";
+или что-то с
+bootstrap-sprockets.
+
+Sass::SyntaxError in Welcome#index
+
+Showing /home/alex/rails_projects/osvita/app/views/layouts/application.html.erb where line #15 raised:
+
+File to import not found or unreadable: bootstrap-sprockets.
+Файл для импорта не найден или нечитабельный: bootstrap-sprockets.
+
+Load paths:
+  /home/alex/rails_projects/osvita/app/assets/config
+  /home/alex/rails_projects/osvita/app/assets/images
+  /home/alex/rails_projects/osvita/app/assets/javascripts
+  /home/alex/rails_projects/osvita/app/assets/stylesheets
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/coffee-rails-4.2.2/lib/assets/javascripts
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/jquery-rails-4.3.3/vendor/assets/javascripts
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/actioncable-5.2.0/lib/assets/compiled
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/activestorage-5.2.0/app/assets/javascripts
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/actionview-5.2.0/lib/assets/compiled
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/turbolinks-source-5.1.0/lib/assets/javascripts
+  /home/alex/rails_projects/osvita/node_modules
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/popper_js-1.12.9/assets/javascripts
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/bootstrap-4.1.1/assets/stylesheets
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/bootstrap-4.1.1/assets/javascripts
+  /home/alex/.rvm/gems/ruby-2.4.1/gems/bootstrap-4.1.1/assets/stylesheets
+
+Extracted source (around line #15):
+
+13
+14
+15
+              
+**** окно ошибок ****
+ */
+@import "bootstrap-sprockets";
+@import "bootstrap";
+**** КОНЕЦ окно ошибок ****
+
+*/- 6.9
+Удаляю
+@import "bootstrap-sprockets";
+(см.также п.3.3 выше и Гитхаб об этом)
+
+Обновляю - ОШИБКА ИСЧЕЗЛА!!!!
+НА ЭКРАНЕ "НУЖНАЯ" СТРАНИЦА!!!!
+
+Но шрифты опять не те и не там.
+Но и так достигнутое - успех,
+поскольку:
+- я раскомментировал (раньше, но не записал об этом своевременно)
+    <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+и ошибок нет, а значит, это работает;
+
+*/- 6.10
+Нажал в браузере <Ctrl-U> (!!!!)
+и увидел ошибки:
+
+<head> из _header.html.erb "влезает" в <body> application.html.erb!!
+
+Меняю _header.html.erb - убираю раздел
+<head>
+    <!-- Custom styles for this template -->
+    <link href="/assets/stylesheets/welcome.scss" rel="stylesheet">
+</head>
+
+а также теги  <body>
+и   </body>
+
+*/- 6.11
+Обновляю - картинка та же,
+но при <Ctrl-U> уже ошибок нет;
+
+*/- 7
+После беглого прочтения 
+http://v32.rusrails.ru/rusrails.all.pdf
+я немного вник в
+@import "bootstrap-sprockets";
+
+//= require bootstrap-sprockets
+и т.п.
+
+и понял,
+что в это нужно вникнуть,
+но на этом не нужно останавливаться, т.к.это касается только дизайна;
+Вникать нужно неспеша,
+и при этом двигаться вперед - разрабатывать функционал независимо от дизайна;
+
+Но чтобы "некрасивое" не резало глаз,
+немножко подправлю дизайн:
+
+
+*/- 7.1
+Из
+../layouts/_header.html.erb
+полностью вырежу блок с текстом
+(для которого как раз и не подтягиваются стили из
+../assets/stylesheets/welcome.scss):
+
+    <main role="main" class="container">
+
+      <div class="starter-template">
+        <h1>Bootstrap starter template</h1>
+        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+      </div>
+
+    </main><!-- /.container -->
+
+Обновляю браузер 
+и вижу, что текст "Welcome#index" вообще сместился после этого в самый верх,
+и аж залез под линию Главного меню!!
+И это правильно!!
+хоть и не нужно мне))
+
+*/- 7.2
+Еще раз рассматривая код в welcome.scss,
+я ОсВ(!!!!), что там есть указатель body;
+А я же убрал <body> из _header.html.erb!!!!
+Поэтому я переместил (!!!!) ВЕСЬ текст 
+из 
+	../app/assets/stylesheets/welcome.scss
+ в 
+	../app/assets/stylesheets/application.scss
+
+Обновляю браузер 
+- И ТЕКСТ СМЕСТИЛСЯ ВНИЗ!!!!
+Значит, КАСТОМНЫЕ СТИЛИ ПОДКЛЮЧАЮТСЯ!!!!
+Причет, подключаются ПО-УМОЛЧАНИЮ!!!!
+и для этого НЕ НУЖНО!!!! указывать соотв.файлы в 
+<!-- Custom styles for this template -->
+    <link href=...
+
+*/- 7.3
+Чтобы окончательно убедиться,
+что стили "видятся" Приложением (и чтобы повыделываться:),
+меняю 
+в ../app/assets/stylesheets/application.scss
+body {
+  padding-top: 5rem;
+}
+на 
+body {
+  padding-top: 8rem;
+}
+
+Обновляю - ОТРАБОТАЛО!!!!
+
+*/- 7.4
+Для красоты
+кое-что перевожу на рус.
+
+*/- 8 коммит, пуш
+git commit -m "master-2srv: home page"
+git push -u origin master
+git remote add origin https://github.com/SS-Gaj/osvita.git
+git push https://github.com/SS-Gaj/osvita.git
+
+alex@www:~/rails_projects/osvita$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   Gemfile.lock
+	deleted:    app/assets/stylesheets/application.css
+	modified:   app/views/layouts/application.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/javascripts/welcome.coffee
+	app/assets/stylesheets/application.scss
+	app/assets/stylesheets/welcome.scss
+	app/controllers/welcome_controller.rb
+	app/helpers/welcome_helper.rb
+	app/views/layouts/1_header.html .erb
+	app/views/layouts/_footer.html.erb
+	app/views/layouts/_header.html.erb
+	app/views/layouts/_shim.html.erb
+	app/views/welcome/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "master-2srv: home page"
+[master f9796ba] master-2srv: home page
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 14 files changed, 195 insertions(+), 8 deletions(-)
+ create mode 100644 app/assets/javascripts/welcome.coffee
+ rename app/assets/stylesheets/{application.css => application.scss} (84%)
+ create mode 100644 app/assets/stylesheets/welcome.scss
+ create mode 100644 app/controllers/welcome_controller.rb
+ create mode 100644 app/helpers/welcome_helper.rb
+ create mode 100644 app/views/layouts/1_header.html .erb
+ create mode 100644 app/views/layouts/_footer.html.erb
+ create mode 100644 app/views/layouts/_header.html.erb
+ create mode 100644 app/views/layouts/_shim.html.erb
+ create mode 100644 app/views/welcome/index.html.erb
+alex@www:~/rails_projects/osvita$ git push -u origin master
+fatal: remote error: 
+  You can't push to git://github.com/SS-Gaj/osvita.git
+  Use https://github.com/SS-Gaj/osvita.git
+alex@www:~/rails_projects/osvita$ git push origin master
+fatal: remote error: 
+  You can't push to git://github.com/SS-Gaj/osvita.git
+  Use https://github.com/SS-Gaj/osvita.git
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 26, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (24/24), done.
+Writing objects: 100% (26/26), 5.64 KiB | 0 bytes/s, done.
+Total 26 (delta 6), reused 0 (delta 0)
+remote: Resolving deltas: 100% (6/6), completed with 6 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   c055dc1..f9796ba  master -> master
+alex@www:~/rails_projects/osvita$ 
+

@@ -1,0 +1,525 @@
+**** 2018.06.26 ****
+Предыдущий файл - 
+[1] - mailer
+12] - srv-osvita6-180620(devise2);
+[3]
+
+Поскольку работа с mailer'ом застопорилась,
+то я эту верку оставляю ('devise') незаконченной (ее я деляю на сервере),
+а продолжу работу в другом направлении, где возможно продвижение (как мне сейчас кажется);
+
+Причем, поскольку ветка 'devise' имеется только на сервера (на 2018.06.26),
+то на НБ я сделаю новую ветку,
+сделяю в ней работу до какого-то результата,
+закоммитю и запушу (через master),
+а затем сгружу ее на сервер из Гитхаба;
+
+*/- 1.1
+ss@DEBIAN:~/rails_projects/osvita$ git branch
+* master
+
+ss@DEBIAN:~/rails_projects/osvita$ git log --pretty=format:'%h %s' -5
+2bc170b devise-2srv: flash add
+d289c92 devise-1srv: devise install
+f9796ba master-2srv: home page
+c055dc1 master-1: start
+
+*/- 1.2
+Поскольку ближайшей целью является размещение на heroku,
+то и верту назову ...
+
+ss@DEBIAN:~/rails_projects/osvita$ git checkout -b heroku
+Switched to a new branch 'heroku'
+
+*/- 2.1
+Поменяю адрес отправителя почты, 
+как это у меня в п.??? [2];
+в ../osvita/config/initializers/devise.rb
+было (я закоментировал)
+  # config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
+я вставил
+  config.mailer_sender = 'osvmailer@osvitahrk.com'
+
+*/- 2.2
+Поскольку для heroku рекомендуют указывать конкретные версии гемов,
+то просмотрю стой Gemfile и там, где нет версии, выберу ее из Gemfile.lock с приставкой '~>'
+gem 'devise', '~> 4.4.3'
+gem "letter_opener", '~> 1.6.0'
+gem 'spring', '~> 2.0.2'
+
+ss@DEBIAN:~/rails_projects/osvita$ bundle install
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies...
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Using autoprefixer-rails 8.6.2
+Using bcrypt 3.1.12
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using orm_adapter 0.5.0
+Using responders 2.4.0
+Using warden 1.2.7
+Using devise 4.4.3
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using jquery-rails 4.3.3
+Using launchy 2.4.3
+Using letter_opener 1.6.0
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Gems in the group production were not installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+*/- 2.3
+ss@DEBIAN:~/rails_projects/osvita$ bundle info bundler
+  * bundler (1.16.2)
+	Summary: The best way to manage your application's dependencies
+	Homepage: http://bundler.io
+	Path: /home/ss/.rvm/gems/ruby-2.4.1/gems/bundler-1.16.2
+ss@DEBIAN:~/rails_projects/osvita$ 
+
+*/- 2.4
+Соответственно разделу "Getting Started with Rails 5.x on Heroku"
+сверяю свой ../osvita/config/database.yml
+
+1) 
+# The specified database role being used to connect to postgres.
+ To create additional roles in postgres see `$ createuser --help`.
+When left blank, postgres will use the default role. This is
+the same name as the operating system user that initialized the database.
+
+  #username: osvita
+
+Указанная роль базы данных используется для подключения к postgres.
+  Чтобы создать дополнительные роли в postgres, см. `$ Createuser --help`.
+Если оставить пустым, postgres будет использовать роль по умолчанию. Это
+то же имя, что и пользователь операционной системы, который инициализировал базу данных.
+
+Учитывая эти примечания,
+я бы раскомментировал   
+  #username: osvita
+
+хотя у меня работало и с закомментированным.
+
+Дочитав до конца, я понял(!!!!) - почему так:
+указанное выше относится к среде разработки,
+а в среде production
+явно указано
+  username: osvita
+
+Т.е., мой database.yml полностью соотвеоствует указанному на сайте Heroku!!!!
+
+*/- 3.1
+Для проверки работы введу еще одного пользователя;
+user03
+edc345
+
+- РАБОТАЕТ!!!!
+
+*/- 4.1 коммит, пуш
+(Сначала ошибочно пушу 'heroku',
+потом - merge ее с master,
+и пушу его (master):
+
+ss@DEBIAN:~/rails_projects/osvita$ git status
+On branch heroku
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   Gemfile.lock
+	modified:   config/initializers/devise.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+ss@DEBIAN:~/rails_projects/osvita$ git add .
+ss@DEBIAN:~/rails_projects/osvita$ git commit -m "master-5: to heroku"
+[heroku 65c9223] master-5: to heroku
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+ss@DEBIAN:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git 
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 7, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (7/7), 694 bytes | 0 bytes/s, done.
+Total 7 (delta 6), reused 0 (delta 0)
+remote: Resolving deltas: 100% (6/6), completed with 6 local objects.
+To https://github.com/SS-Gaj/osvita.git
+ * [new branch]      heroku -> heroku
+
+ss@DEBIAN:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+
+ss@DEBIAN:~/rails_projects/osvita$ git merge heroku
+Updating 2bc170b..65c9223
+Fast-forward
+ Gemfile                       | 6 +++---
+ Gemfile.lock                  | 6 +++---
+ config/initializers/devise.rb | 3 ++-
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+ss@DEBIAN:~/rails_projects/osvita$ git branch
+  heroku
+* master
+
+ss@DEBIAN:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Total 0 (delta 0), reused 0 (delta 0)
+To https://github.com/SS-Gaj/osvita.git
+   2bc170b..65c9223  master -> master
+
+ss@DEBIAN:~/rails_projects/osvita$ git log
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+
+commit f9796ba0345f57742909c55a9b85ec8b31d607b5
+Author: alex <alex@www>
+Date:   Fri Jun 15 19:00:58 2018 +0300
+
+    master-2srv: home page
+
+commit c055dc163c48d135ec4933be06a764c658f5b3d2
+Author: Alex <sashagajdarenko@gmail.com>
+:
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+
+commit f9796ba0345f57742909c55a9b85ec8b31d607b5
+Author: alex <alex@www>
+Date:   Fri Jun 15 19:00:58 2018 +0300
+
+    master-2srv: home page
+
+commit c055dc163c48d135ec4933be06a764c658f5b3d2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Thu Jun 14 00:07:13 2018 +0300
+
+    master-1: start
+~
+
+*/- 
+Похоже, что у меня не сохранилась часть терминала
+- создание сайта на heroku,
+- пуш на него
+
+Нашел в истории браузера
+https://salty-harbor-78667.herokuapp.com/
+
+Запустил - вывелась моя страница!!!!
+
+*/- 
+Запишу это имя в 
+/home/ss/rails_projects/osvita/config/environments/production.rb
+
+как это было сделано в
+/home/ss/rails_projects/osvita/config/environments/development.rb
+
+И еще в логе нашел
+2018-06-26T11:24:23.155912+00:00 heroku[router]: at=info method=GET path="/assets/stylesheets/custom.css.scss" host=salty-harbor-78667.herokuapp.com request_id=4cfe125f-0dcd-4474-81f5-b4af628717c8 fwd="85.90.218.17" dyno=web.1 connect=0ms service=4ms status=404 bytes=1902 protocol=https
+
+где 
+host=salty-harbor-78667.herokuapp.com
+
+
+*/-
+коммит, пуш
+
+ss@DEBIAN:~/rails_projects/osvita$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   config/environments/production.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+ss@DEBIAN:~/rails_projects/osvita$ git add .
+ss@DEBIAN:~/rails_projects/osvita$ git commit -m "master-6: to heroku add prod-host"
+[master 48cb792] master-6: to heroku add prod-host
+ 1 file changed, 4 insertions(+)
+
+ss@DEBIAN:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git 
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 5, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 636 bytes | 0 bytes/s, done.
+Total 5 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   65c9223..48cb792  master -> master
+
+ss@DEBIAN:~/rails_projects/osvita$ git push heroku master
+Counting objects: 5, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 636 bytes | 0 bytes/s, done.
+Total 5 (delta 3), reused 0 (delta 0)
+remote: Compressing source files... done.
+remote: Building source:
+remote: 
+remote: -----> Ruby app detected
+remote: -----> Compiling Ruby/Rails
+remote: -----> Using Ruby version: ruby-2.4.1
+remote: -----> Installing dependencies using bundler 1.15.2
+
+**//- 1
+remote:        Running: bundle install --without development:test --path vendor/bundle --binstubs vendor/bundle/bin -j4 --deployment
+remote:        Warning: the running version of Bundler (1.15.2) is older than the version that created the lockfile (1.16.2). We suggest you upgrade to the latest version of Bundler by running `gem install bundler`.
+remote:        Fetching gem metadata from https://rubygems.org/.........
+remote:        Fetching version metadata from https://rubygems.org/..
+remote:        Fetching dependency metadata from https://rubygems.org/.
+remote:        Using rake 12.3.1
+remote:        Using concurrent-ruby 1.0.5
+remote:        Using minitest 5.11.3
+remote:        Using thread_safe 0.3.6
+remote:        Using builder 3.2.3
+remote:        Using erubi 1.7.1
+remote:        Using mini_portile2 2.3.0
+remote:        Using crass 1.0.4
+remote:        Using rack 2.0.5
+remote:        Using nio4r 2.3.1
+remote:        Using websocket-extensions 0.1.3
+remote:        Using mini_mime 1.0.0
+remote:        Using arel 9.0.0
+remote:        Using mimemagic 0.3.2
+remote:        Using execjs 2.7.0
+remote:        Using bcrypt 3.1.12
+remote:        Using msgpack 1.2.4
+remote:        Using popper_js 1.12.9
+remote:        Using rb-fsevent 0.10.3
+remote:        Using ffi 1.9.25
+remote:        Using bundler 1.15.2
+remote:        Using coffee-script-source 1.12.2
+remote:        Using method_source 0.9.0
+remote:        Using thor 0.20.0
+remote:        Using orm_adapter 0.5.0
+remote:        Using multi_json 1.13.1
+remote:        Using pg 1.0.0
+remote:        Using puma 3.11.4
+remote:        Using tilt 2.0.8
+remote:        Using turbolinks-source 5.1.0
+remote:        Using i18n 1.0.1
+remote:        Using tzinfo 1.2.5
+remote:        Using nokogiri 1.8.2
+remote:        Using rack-test 1.0.0
+remote:        Using warden 1.2.7
+remote:        Using sprockets 3.7.1
+remote:        Using mail 2.7.0
+remote:        Using marcel 0.3.2
+remote:        Using autoprefixer-rails 8.6.2
+remote:        Using uglifier 4.1.11
+remote:        Using websocket-driver 0.7.0
+remote:        Using bootsnap 1.3.0
+remote:        Using rb-inotify 0.9.10
+remote:        Using coffee-script 2.4.1
+remote:        Using turbolinks 5.1.1
+remote:        Using activesupport 5.2.0
+remote:        Using loofah 2.2.2
+remote:        Using sass-listen 4.0.0
+remote:        Using rails-dom-testing 2.0.3
+remote:        Using globalid 0.4.1
+remote:        Using activemodel 5.2.0
+remote:        Using jbuilder 2.7.0
+remote:        Using rails-html-sanitizer 1.0.4
+remote:        Using sass 3.5.6
+remote:        Using activejob 5.2.0
+remote:        Using activerecord 5.2.0
+remote:        Using actionview 5.2.0
+remote:        Using actionpack 5.2.0
+remote:        Using bootstrap 4.1.1
+remote:        Using actioncable 5.2.0
+remote:        Using actionmailer 5.2.0
+remote:        Using activestorage 5.2.0
+remote:        Using railties 5.2.0
+remote:        Using sprockets-rails 3.2.1
+remote:        Using coffee-rails 4.2.2
+remote:        Using responders 2.4.0
+remote:        Using jquery-rails 4.3.3
+remote:        Using rails 5.2.0
+remote:        Using sass-rails 5.0.7
+remote:        Using devise 4.4.3
+remote:        Bundle complete! 24 Gemfile dependencies, 70 gems now installed.
+remote:        Gems in the groups development and test were not installed.
+remote:        Bundled gems are installed into ./vendor/bundle.
+remote:        Bundle completed (2.97s)
+remote:        Cleaning up the bundler cache.
+
+**//- 1.2
+remote:        Warning: the running version of Bundler (1.15.2) is older than the version that created the lockfile (1.16.2). We suggest you upgrade to the latest version of Bundler by running `gem install bundler`.
+remote:        The latest bundler is 1.16.2, but you are currently running 1.15.2.
+remote:        To update, run `gem install bundler`
+remote: -----> Installing node-v8.10.0-linux-x64
+remote: -----> Detecting rake tasks
+remote: -----> Preparing app for Rails asset pipeline
+remote:        Running: rake assets:precompile
+remote:        Yarn executable was not detected in the system.
+remote:        Download Yarn at https://yarnpkg.com/en/docs/install
+remote:        Asset precompilation completed (1.46s)
+remote:        Cleaning assets
+remote:        Running: rake assets:clean
+remote: -----> Detecting rails configuration
+remote: 
+remote: ###### WARNING:
+remote:        You set your `config.active_storage.service` to :local in production.
+remote:        If you are uploading files to this app, they will not persist after the app
+remote:        is restarted, on one-off dynos, or if the app has multiple dynos
+remote:        Heroku applications have an ephemeral file system. To
+remote:        persist uploaded files, please use a service such as S3 and update your Rails
+remote:        configuration.
+remote:        
+remote:        For more information can be found in this article:
+remote:          https://devcenter.heroku.com/articles/active-storage-on-heroku
+remote:        
+remote: 
+remote: ###### WARNING:
+remote:        We detected that some binary dependencies required to
+remote:        use all the preview features of Active Storage are not
+remote:        present on this system.
+remote:        
+remote:        For more information please see:
+remote:          https://devcenter.heroku.com/articles/active-storage-on-heroku
+remote:        
+remote: 
+remote: ###### WARNING:
+remote:        No Procfile detected, using the default web server.
+remote:        We recommend explicitly declaring how to boot your server process via a Procfile.
+remote:        https://devcenter.heroku.com/articles/ruby-default-web-server
+remote: 
+remote: -----> Discovering process types
+remote:        Procfile declares types     -> (none)
+remote:        Default types for buildpack -> console, rake, web, worker
+remote: 
+remote: -----> Compressing...
+remote:        Done: 48.2M
+remote: -----> Launching...
+remote:        Released v6
+remote:        https://salty-harbor-78667.herokuapp.com/ deployed to Heroku
+remote: 
+remote: Verifying deploy... done.
+To https://git.heroku.com/salty-harbor-78667.git
+   65c9223..48cb792  master -> master
+ss@DEBIAN:~/rails_projects/osvita$ 
+
+
+*/-
+
+При регистрации
+
+Регистрация
+1 error prohibited this user from being saved:
+Email has already been taken

@@ -1,0 +1,930 @@
+**** 2018.06.20 ****
+Пред.файл 
+[1] - srv-osvita5-180619(devise);
+
+*/-1
+Поскольку ввод первого пользователя (см.[1], п.3.8)
+похоже был неудачным, поработаю в консоле, как это делается в МХ, 
+см.раздел "6.1.3 Создание объектов user";
+
+*/- 1.1
+Сначала перехожу на ветку
+alex@www:~/rails_projects/osvita$ git checkout deviseSwitched to branch 'devise'
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+
+*/- 1.2
+... и захожу в песочницу:
+
+alex@www:~/rails_projects/osvita$ rails console --sandbox
+Running via Spring preloader in process 12291
+Loading development environment in sandbox (Rails 5.2.0)
+Any modifications you make will be rolled back on exit
+
+*/- 1.3
+И оказалось, что 1-й пользователь ЗАПИСАН В БД!!!!
+
+2.4.1 :001 > User.all
+  User Load (1.4ms)  SELECT  "users".* FROM "users" LIMIT $1  [["LIMIT", 11]]
+ => #<ActiveRecord::Relation [#<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-06-19 15:53:40">]> 
+
+только мне непонятно - почему так мало полей??
+
+*/- 1.4
+Дальше по МХ 
+User.new
+выводит поля БД:
+2.4.1 :004 >   User.new
+ => #<User id: nil, email: "", created_at: nil, updated_at: nil> 
+
+У меня родилось беспокойство,
+что поскольку я не создал "роль Postgres" = 'osvita',
+то теперь создалась "урезанная" БД User.
+Бред, конечно,
+но где же все поля?? - Они есть!!!! - см.п.1.12;
+
+Или, м.б., Active Record выводит только "доступные" поля,
+а остальные являются "служебными" ?? - Они есть!!!! - см.п.1.12;
+
+Я еще раз просмотрел файлы
+/home/alex/rails_projects/osvita/db/migrate/20180619142722_devise_create_users.rb
+/home/alex/rails_projects/osvita/db/schema.rb
+/home/alex/rails_projects/osvita/app/views/devise/registrations/new.html.erb
+
+- там все поля есть!!!! - Они есть!!!! - см.п.1.12;
+
+Создаю "роль Postgres" = 'osvita',
+
+*/- 1.5
+alex@www:/$ sudo su - postgres
+
+*/- 1.6
+postgres@www:~$ psql
+psql (10.4 (Debian 10.4-2.pgdg80+1))
+Type "help" for help.
+
+postgres=# \du
+
+*/- 1.7
+                                   List of roles
+ Role name |                         Attributes                         | Member of 
+-----------+------------------------------------------------------------+-----------
+ alex      | Superuser, Create role, Create DB                          | {}
+ poisk9    | Create DB                                                  | {alex}
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+
+
+*/- 1.8
+По образцу
+sudo -u alex createuser -d -w -g alex poisk9
+
+alex@www:/$ sudo -u alex createuser -d -w -g alex osvita
+alex@www:/$ sudo su - postgres
+postgres@www:~$ psql
+psql (10.4 (Debian 10.4-2.pgdg80+1))
+Type "help" for help.
+
+postgres=# \du
+                                   List of roles
+ Role name |                         Attributes                         | Member of 
+-----------+------------------------------------------------------------+-----------
+ alex      | Superuser, Create role, Create DB                          | {}
+ osvita    | Create DB                                                  | {alex}
+ poisk9    | Create DB                                                  | {alex}
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+
+postgres=# 
+
+*/- 1.10
+Возвращаюсь в консоль:
+
+alex@www:~/rails_projects/osvita$ rails console --sandbox
+Running via Spring preloader in process 12627
+Loading development environment in sandbox (Rails 5.2.0)
+Any modifications you make will be rolled back on exit
+2.4.1 :001 > User.new
+ => #<User id: nil, email: "", created_at: nil, updated_at: nil> 
+
+*/- 1.11
+Согласно МХ создаю нового пользователя ... 
+(он почему то не записался ни с "правильным" адресом почты, ни с неправильным) :
+**//- ЯтД, не записался потому, что я не заполнил поле пароля - см.в МХ "6.3.5 Создание пользователя"
+
+по образцу
+user = User.new(name: "Michael Hartl", email: "mhartl@example.com")
+user.save
+пишу
+user = User.new(email: "mhartl@example.com")
+
+2.4.1 :004 >   user = User.new(email: "mhartl@example.com")
+ => #<User id: nil, email: "mhartl@example.com", created_at: nil, updated_at: nil> 
+
+2.4.1 :005 > user.save
+   (0.3ms)  SAVEPOINT active_record_1
+  User Exists (2.3ms)  SELECT  1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2  [["email", "mhartl@example.com"], ["LIMIT", 1]]
+   (0.4ms)  ROLLBACK TO SAVEPOINT active_record_1
+ => false 
+
+2.4.1 :006 > user3 = User.new(email: "")
+ => #<User id: nil, email: "", created_at: nil, updated_at: nil> 
+
+2.4.1 :007 > user.save
+   (0.4ms)  SAVEPOINT active_record_1
+  User Exists (0.9ms)  SELECT  1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2  [["email", "mhartl@example.com"], ["LIMIT", 1]]
+   (0.4ms)  ROLLBACK TO SAVEPOINT active_record_1
+ => false 
+
+2.4.1 :008 > User.count
+   (9.4ms)  SELECT COUNT(*) FROM "users"
+ => 1 
+
+*/- 1.12
+Пробую еще такую хитроть для проверки наличия полей в User:
+
+2.4.1 :011 > user1 = User.find(1)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ => #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-06-19 15:53:40"> 
+
+2.4.1 :012 > user1.email
+ => "oo.gaydar@gmail.com" 
+
+2.4.1 :013 > user1.created_at
+ => Tue, 19 Jun 2018 15:53:40 UTC +00:00 
+
+2.4.1 :014 > user1.encrypted_password
+ => "$2a$11$e0CmaPlMWvHI/ZG2HhxbuesNGTL5.KDfD1XQThb4aZIwJUeR0uYte" 
+
+2.4.1 :015 > user1.sign_in_count
+ => 0 
+
+2.4.1 :016 > user1.locked_at
+ => nil 
+
+2.4.1 :017 > user1.foo
+NoMethodError: undefined method `foo' for #<User:0x007f9bd82f6f40>
+	from (irb):17
+2.4.1 :018 > 
+
+Похоже, что ВСЕ ПОЛЯ НА МЕСТЕ!!!!
+
+Поэтому закончу с консолью ...
+
+*/- 2
+и просто просмотрю МХ дальше.
+
+*/- 2.1
+Просматривая валидацию ("6.2 Валидации User")
+смотрю в соотв.rb в своем Приложении /osvita
+и ничего похожено не вижу.
+
+Делаю вывод, что все это "скрыто" внутри гема 'devise';
+
+Хотя вспоминая документацию,
+помню, что кое что указывается в "открытом" для редактирования файле 
+/home/alex/rails_projects/osvita/config/initializers/devise.rb
+
+(см.также мой перевод этого файла в /home/alex/Documents/my_projects/osvita/devise.rb)
+
+В разделе
+**** ==> Configuration for :validatable ****
+есть
+config.password_length = 6..128
+и
+config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
+
+Причем, валидация для email у МХ мощнее))
+
+VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+
+
+*/- 2.2
+В разделе МХ "6.3.1 Зашифрованный пароль" указано,
+что для шифрования пароля нужно добавить
+gem 'bcrypt'
+
+Провврил свой Gemfile - он у меня закоментирован и не самый свежий!
+# gem 'bcrypt', '~> 3.1.7'
+
+Проверил Gemfile.lock - там есть bcrypt (3.1.12)
+
+Думаю, что будет правильно раскомментировать его в  Gemfile и указать свежую версию!!!!
+gem 'bcrypt', '~> 3.1.12'
+
+*/- 2.3
+Двигаюсь дальше по МХ 
+- "Chapter 7 Регистрация"
+-- "7.1 Демонстрация пользователей"
+--- "7.1.1 Отладка и окружения Rails"
+
+---- "Листинг 7.1. Добавление отладочной информации к шаблону сайта.
+app/views/layouts/application.html.erb "
+
+- думаю, это мне не помешает!!
+
+Аналогично Листинг 7.1.,
+добавляю в ../osvita/app/views/layouts/application.html.erb
+<%= debug(params) if Rails.env.development? %>
+
+Обновляю - ВЫВОДИТСЯ!!!!
+
+*/- 2.4
+Добавлю стили, как и в МХ,
+Листинг 7.2. Добавление кода для красивого блока с отладочной информацией, включая примесь Sass.
+app/assets/stylesheets/custom.css.scss 
+
+Сначала создаю файл  app/assets/stylesheets/custom.css.scss 
+- он уже подключен у меня в /layouts/application.html.erb;
+
+alex@www:/$ touch /home/alex/rails_projects/osvita/app/assets/stylesheets/custom.css.scss
+
+Затем из Листинг 7.2.
+добавлю только свой фрагмент:
+@import "bootstrap";
+
+/* miscellaneous */
+
+.debug_dump {
+  clear: both;
+  float: left;
+  width: 100%;
+  margin-top: 45px;
+  @include box_sizing;
+}
+
+Обновляю - ничего не меняется (текст там же);
+
+*/- 2.5
+Меняю расширение файла
+custom.css.scss
+на 
+custom.scss
+
+Обновляю - ничего не меняется (текст там же);
+
+*/- 2.6
+Переношу фрагмент в application.scss,
+
+Обновляю - вылезаетс ошибка  в   @include box_sizing;
+
+*/- 2.7
+Чтобы не тратить время,
+просто заменяю
+на 
+-moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+как показано в МХ дальше;
+
+Обновляю - есть какие то изменения: текст немного сдвинулся вниз,
+но не так, как в МХ.
+Оставляю так.
+
+*/- 3.1
+Возвращаюсь в ЮТ, №12, 26:00
+Добавляю
+  gem "letter_opener"
+
+*/- 3.2
+alex@www:~/rails_projects/osvita$ bundle install
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies....
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Using autoprefixer-rails 8.6.2
+Using bcrypt 3.1.12
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using orm_adapter 0.5.0
+Using responders 2.4.0
+Using warden 1.2.7
+Using devise 4.4.3
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using jquery-rails 4.3.3
+Fetching launchy 2.4.3
+Installing launchy 2.4.3
+Fetching letter_opener 1.6.0
+Installing letter_opener 1.6.0
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+alex@www:~/rails_projects/osvita$ 
+
+
+*/- 3.3
+Затем соотв.док-и
+
+Then set the delivery method in config/environments/development.rb
+
+config.action_mailer.delivery_method = :letter_opener
+config.action_mailer.perform_deliveries = true
+
+... но на ЮТ добавляют только 1-ю строку. 
+Я тоже ...
+
+*/- 3.4
+alex@www:~/rails_projects/osvita$ bundle install
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies....
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Using autoprefixer-rails 8.6.2
+Using bcrypt 3.1.12
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using orm_adapter 0.5.0
+Using responders 2.4.0
+Using warden 1.2.7
+Using devise 4.4.3
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using jquery-rails 4.3.3
+Fetching launchy 2.4.3
+Installing launchy 2.4.3
+Fetching letter_opener 1.6.0
+Installing letter_opener 1.6.0
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+alex@www:~/rails_projects/osvita$ rails server
+
+*/- 3.5
+Запускаю сервер,
+Ввожу нового пользователя -
+user01@gmail.com
+qaz123
+
+- открылась новая страница в браузере = "перехватчик" почты (благодаря gem "letter_opener"),
+где я нажал ссылку подтверждения;
+
+Затем нажимаю "Вход",
+ввожу почту и пароль этого пользователя - 
+и в Главном меню ПОЯВЛЯЕТСЯ кнопка "Выход"!!!!
+а "Вход" и "Регистрация" исчезают!!!!
+
+Делаю еще одного пользавателя
+user02@gmail.com
+wsx234
+
+и проделываю ТО ЖЕ САМОЕ!!!!
+
+**** 2018/06/21 ****
+*/- 4
+Теперь нужно добавить flash;
+
+*/- 4.1
+На ЮТ это устанавливается в Уроке 3, 10:00;
+Про вывод (view) flash начинается на 11:50;
+Я добавляю (также, как и на ЮТ) в ../app/views/layouts/application.html.erb
+прямо после
+    <%= render 'layouts/header' %>
+пишу
+<!-- Вывод flash  -->
+  <div class="container main">
+    <div class="row">
+      <div class="col-md-12">
+        <% flash.each do |name, message| %>
+          <div class="alert alert-success">
+          <%= message %>             
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div><!-- /Вывод flash  -->
+
+*/- 4.2
+Затем добавляю в ../app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  # protect_from_forgery with: :exception
+  add_flash_types :success, :danger
+end
+
+Причем,
+у меня было пусто,
+а на ЮТ уже была строка
+  protect_from_forgery with: :exception
+ 
+Я встречал ее в описании  Devise, что для Rails 5 что то поменялось;
+Поэтому добавлю ее и себе, но закоментирую;
+
+позже я еще добавил 
+  add_flash_types :info, :success, :warning, :danger
+
+*/- 4.3
+Запускаю сервер, 
+обновляю браузер,
+захожу на "Вход" - там мои реквизиты (т.к.oo.gaydar@gmail.com - это пользователь №1);
+Но при нажатии "Log in' - ВЫВОДИТ!!!! сообщение на зеленом поле Your email address has been successfully confirmed. !!!!
+
+*/- 4.4
+Ввожу нового пользователя
+user03@gmail.com
+edc345
+
+- ВЫВОДИТ ДРУГОЕ!!!! сообщение на зеленом поле (не сохранил) об успешносм входе!!!!
+
+Хотя я потом "нашел" на Главной странице такое сообщение:
+
+A message with a confirmation link has been sent to your email address. Please follow the link to activate your account.
+
+Дело в том, что сейчас у меня после Рег.процесс передается на Главную страницу,
+а flash не стирается - вот оно и осталось))
+
+*/- 4.5
+Дальше, как и в ЮТ, 
+заменяю ... чтобы выводились все виды уведомлений:
+
+          <div class="alert alert-<%= name %>">
+
+Обновляю - теперь у меня все выводится на белое))
+Я понял почему - у меня не присваивается name: в контроллерах!!!!
+
+*/- 5
+Теперь перехожу на ЮТ №12 
+чтобы посмотреть там образец изменений для того,
+чтобы flash работала после установки Devise;
+
+*/- 5.1
+После установки Devise (см.п.2.3 в [1])
+вывелась Инструкция,
+где 3-м пунктом было:
+
+ 3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%= notice %></p>
+       <p class="alert"><%= alert %></p>
+      
+и собираюсь добавить указанные там изменения для flash;
+
+Однако автов ЮТ подходит несколько "ширше" flash не только с Devise;
+Поверю ему, и последую за ним;
+
+*/- 5.2
+(5:24) Меняю, как и на ЮТ, в ../app/views/layouts/application.html.erb
+
+        <% flash.each do |name, message| %>
+          <div class="alert alert-<%= bootstrap_class_for(name) %>">
+          <button class="close" data-dismisse="alert">times;</button>
+          <%= message %>             
+          </div>
+        <% end %>
+
+но поскольку мне непонятен значек перед times,
+то я строку 
+          <button class="close" data-dismisse="alert">times;</button>
+пока убираю:
+
+*/- 5.3
+Создаю в ../app/helpers/application_helper.rb
+соотв.ЮТ;
+
+Обновляю - ошибок НЕТ!!!!
+но ничего и не поменялось на экране.
+
+*/*- 5.4
+Поскольку на зеленом фоне смотрится лучше,
+то верну (пока) из п.4.1
+          <div class="alert alert-success">
+
+*/- 5.5 коммит, пуш
+alex@www:~/rails_projects/osvita$ git status
+On branch devise
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   Gemfile.lock
+	modified:   app/assets/stylesheets/application.scss
+	modified:   app/controllers/application_controller.rb
+	modified:   app/helpers/application_helper.rb
+	modified:   app/views/layouts/application.html.erb
+	modified:   config/environments/development.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/stylesheets/custom.scss
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "devise-2srv: flash add"[devise 2bc170b] devise-2srv: flash add
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 8 files changed, 56 insertions(+), 2 deletions(-)
+ create mode 100644 app/assets/stylesheets/custom.scss
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge deviseUpdating d289c92..2bc170b
+Fast-forward
+ Gemfile                                   |  3 ++-
+ Gemfile.lock                              |  6 ++++++
+ app/assets/stylesheets/application.scss   | 12 ++++++++++++
+ app/assets/stylesheets/custom.scss        | 11 +++++++++++
+ app/controllers/application_controller.rb |  2 ++
+ app/helpers/application_helper.rb         |  9 +++++++++
+ app/views/layouts/application.html.erb    | 14 +++++++++++++-
+ config/environments/development.rb        |  1 +
+ 8 files changed, 56 insertions(+), 2 deletions(-)
+ create mode 100644 app/assets/stylesheets/custom.scss
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.gitwarning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+fatal: unable to access 'https://github.com/SS-Gaj/osvita.git/': Failed to connect to github.com port 443: Network is unreachable
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS_Gaj
+Password for 'https://SS_Gaj@github.com': 
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/SS-Gaj/osvita.git/'
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 19, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (19/19), done.
+Writing objects: 100% (19/19), 2.43 KiB | 0 bytes/s, done.
+Total 19 (delta 9), reused 0 (delta 0)
+remote: Resolving deltas: 100% (9/9), completed with 9 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   d289c92..2bc170b  master -> master
+alex@www:~/rails_projects/osvita$ 
+
+
+*/- 5.6
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* master
+alex@www:~/rails_projects/osvita$ git checkout devise
+Switched to branch 'devise'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 5.7
+Прослушивая другое ЮТ,
+там отключили модуль 'Confirmable', 
+который "позволяет отправлять письмо с инструкциями для подтверждения аккаунта, созданного во время регистрации."
+
+Во-1х, м.б.и мне отключить?
+во-2х, значит поле, которое фиксирует ответ из почты тоже д.б. "промаркировано" этим модулем?
+
+*/- 6
+Сравню в консоле поля для меня и зарегистрированных:
+
+alex@www:~/rails_projects/osvita$ rails console
+Running via Spring preloader in process 24051
+Loading development environment (Rails 5.2.0)
+
+2.4.1 :001 > user1 = User.find(1)
+  User Load (1.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ => #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-06-20 14:20:50"> 
+
+2.4.1 :002 > user2 = User.find(2)
+  User Load (1.0ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<User id: 2, email: "user01@gmail.com", created_at: "2018-06-20 14:52:20", updated_at: "2018-06-21 08:46:22"> 
+2.4.1 :003 > user2.confirmation_token
+ => "J3_1tf2k95JvTXjHm5kz" 
+2.4.1 :004 > user3 = User.find(3)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 3], ["LIMIT", 1]]
+ => #<User id: 3, email: "user02@gmail.com", created_at: "2018-06-20 14:54:30", updated_at: "2018-06-21 09:17:25"> 
+
+*/- 6.2
+Выбираю из /home/alex/rails_projects/osvita/db/migrate/20180619142722_devise_create_users.rb
+поля для модуля Confirmable:
+      ## Confirmable
+      t.string   :confirmation_token
+      t.datetime :confirmed_at
+      t.datetime :confirmation_sent_at
+      t.string   :unconfirmed_email # Only if using reconfirmable - пояснение этого см.в onfig/initializers/devise.rb,
+парамерт config.reconfirmable = true
+
+*/- 6.3
+...и сравниваю их;
+
+2.4.1 :005 > user3.confirmation_token
+ => "jL3fyDGYQzMz4PC8T1qx" 
+
+2.4.1 :006 > user1.confirmation_token
+ => "ZCknyehPxx_1NpEpQjPe" 
+
+2.4.1 :007 > user1.confirmed_at
+ => nil 
+
+2.4.1 :008 > user2.confirmed_at
+ => Wed, 20 Jun 2018 14:52:53 UTC +00:00 
+
+2.4.1 :009 > user3.confirmed_at
+ => Wed, 20 Jun 2018 14:54:58 UTC +00:00 
+
+2.4.1 :010 > user1.confirmation_sent_at
+ => Tue, 19 Jun 2018 15:53:40 UTC +00:00 
+
+2.4.1 :011 > user2.confirmation_sent_at
+ => Wed, 20 Jun 2018 14:52:20 UTC +00:00 
+
+2.4.1 :012 > user3.confirmation_sent_at
+ => Wed, 20 Jun 2018 14:54:30 UTC +00:00 
+
+2.4.1 :013 > user1.unconfirmed_email
+ => nil 
+
+2.4.1 :014 > user2.unconfirmed_email
+ => nil 
+
+2.4.1 :015 > user3.unconfirmed_email
+ => nil 
+
+Получается, что у тех, кто сделал подтверждение,
+в поле 'confirmed_at' стоит дата,
+а у меня nil;
+
+*/- 7.1
+Перехваченные сообщения о регистраации записываются в файлы,
+которые хранятся в папке ../osvita/tmp/letter_opener
+
+Здесь сам файл имеет одно и тоже имя rich.html,
+но он "обвернут" в еще одну папку - для каждого пользователя:
+
+../osvita/tmp/letter_opener/1529506341_6683633_a13c8ab/rich.html
+
+*/- 7.2
+Поскольку в этом сообщенни адрес почты-отправителя
+From:
+    please-change-me-at-config-initializers-devise@example.com
+
+то, ЯтП, может с таким адресом письмо попало мне в спам?
+Проверил - нет.
+Но на всяки случай поменяю адрес на "нормальный"
+(см. ../osvita/config/initializers/devise.rb)
+
+Было
+config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
+
+я его закомент.и записал в новой строке
+config.mailer_sender = 'osvita@example.com'
+
+*/- 7.3
+... нашел еще интересные настройки:
+1) "Период, когда пользователю разрешен доступ к веб-сайту 
+даже без подтверждающие их учетную запись.
+... Значение по умолчанию - 0.days, что означает
+пользователь не может получить доступ к веб-сайту 
+без подтверждения своей учетной записи."
+
+  # config.allow_unconfirmed_access_for = 2.days
+
+2) "Период, когда пользователю разрешено подтвердить свою учетную запись 
+    до того, как токен становится недействительным. 
+    Например, если установлено значение 3.days, пользователь может подтвердить
+    их счет в течение 3 дней после отправки почты, 
+    но на четвертый день его учетная запись не может быть подтвержден с помощью токена.
+    Значение по умолчанию равно нулю, 
+    то есть нет ограничений на то, как долго может перед подтверждением их учетной записи."
+      
+  # config.confirm_within = 3.days
+  
+Поскольку этот параметр записан в конфиге,
+значит, я могу поменять его на конкретное число дней,
+и моя незавершенная регистрация аннулируется.
+
+
+*/- 7.4
+Попробавал еще раз без 
+  # gem "letter_opener"
+
+и
+  # config.action_mailer.delivery_method = :letter_opener
+
+- не получилось((
+
+Вводил еще своих 2 адреса - 
+sashagajdarenko@gmail.com
+oo.kabas@gmail.com
+
+- теперь они оба "зависли"))
+
+След.файл srv-osvita7-180622(mailer)

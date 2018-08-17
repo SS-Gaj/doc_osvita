@@ -1,0 +1,1067 @@
+**** 2018.08.03 ****
+Пред.файлы:
+[1] - srv-osvita13-180802(lprofile2), где я сделал Профиль со входом через User,
+[2] - srv-osvita14-180803(category), где я сделал создание категории "по умолчанию = абитуриент" в момент Регистрации;
+[3] - srv-osvita11-180711(lorder), где я сгенерировал ресурс Order;
+[4] - srv-osvita15-180803(order2).doc;
+[5] - my_migration_to_order_180803.doc;
+[6] - /Documents/Rails/Devise/Profile/3rus_API_Associations.doc;
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+* master
+  order
+  profile
+  profile2
+
+alex@www:~/rails_projects/osvita$ git co -b order2
+Switched to a new branch 'order2'
+
+*/- 1.2
+Здесь я буду связывать БД Order (счета) с User (пользователи) и с их Профилем (Profile);
+
+Сначала нужно упорядочить поля Order,
+т.к. при создании (см.п.3 [3]) были допущены ошибки;
+
+Затем нужно установить АССОЦИАЦИИ, я думаю так:
+
+****  Отступление:
+*/- 1.3
+Когда я открыл /app/models/order.rb,
+то обнаружил, что там уже кое-что записано:
+
+class Order < ApplicationRecord
+  belongs_to :user
+  validates :id_user, presence: true
+end
+
+и вспомнил, что это я делал в [3], нашел, что это было в п.4.2;
+
+Поэтому открыл и /app/models/user.rb,
+где связь с Order
+я закоммент:
+class User < ApplicationRecord
+  # has_many :orders
+  has_one :profile
+...
+end
+
+а в /app/models/profile.rb (для полноты картины)
+class Profile < ApplicationRecord
+  belongs_to :user
+end
+
+*/- 1.4
+При создании Order (п.3.2, 3.3 [3])
+были сгенерированы поля:
+
+id_user:    integer
+order_num:  integer
+date_at:    date
+date_end:   date
+content:    string
+
+*/- 1.5
+Кроме того, в п.4.3 [3] я нашел, 
+что индекс я добавлял вручную, 
+
+" Запишу вручную ... и тоже по 2-м полям:
+add_index :orders, [:id_user, :created_at] "
+
+и это строка есть в /osvita/db/migrate/20180712083445_create_orders.rb:
+
+class CreateOrders < ActiveRecord::Migration[5.2]
+  def change
+    create_table :orders do |t|
+      t.integer :id_user
+      t.integer :order_num
+      t.date :date_at
+      t.date :date_end
+      t.string :content
+
+      t.timestamps
+    end
+  add_index :orders, [:id_user, :created_at]
+  end
+end
+
+*/- 1.6
+а в файле /db/schema.rb 
+для Order имеется:
+
+create_table "orders", force: :cascade do |t|
+    t.integer "id_user"
+    t.integer "order_num"
+    t.date "date_at"
+    t.date "date_end"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["id_user", "created_at"], name: "index_orders_on_id_user_and_created_at"
+  end
+**** КОНЕЦ Отступления
+
+*/- 2.1
+Сейчас мне представляется более правильной такая структура:
+
+User связан ТОЛЬКО с Profile,
+а уже Profile связан с Order;
+
+Тогда Ассоциации д.б. такие:
+class User < ApplicationRecord
+  has_one :profile
+...
+end
+
+class Profile < ApplicationRecord
+  belongs_to :user	# т.е., профиль принадлежит одному юзеру ...
+  has_many :orders	# ... и имеет МНОГО счетов
+end 
+
+class Order < ApplicationRecord
+  belongs_to :profile	# каждый счет относится ТОЛЬКО к одному ПРОФИЛЮ (а значит, и к одному юзеру)
+end
+
+
+Пока вручную ничего УДАЛЯТЬ и ДОБАВЛЯТЬ не буду,
+возможно ЭТО будет сделано автоматически при миграции.
+А поля в Order мне все-равно нужно менять;
+
+*/- 2.2
+План замены такой:
+1)  Удалить поле "id_user",
+    причем, не просто удалить, а удалить, как индексное поле
+    - тогда, ЯтД, уберутся и соотв.записи об Ассоциациях во всех задействованых файлах:
+
+2)  Тут еще попутно родитась мысль,
+    что для ассоциации Order с Profile 
+    в качестве первичного ключа в Profile нужно использовать не 'id', а 'user_id';
+    Тогда в Order'e будет находиться 'id' @user'a, 
+    хотя никакой прямой ассоциации между Order и User нет!!
+    
+3)  Добавить поле 'suma' с типом 'money';
+
+**** 2018.06.06 ****
+Для выполнения п.2.2 проработал материал - см.[4] и [5];
+
+*/- 3.1
+Как указано в п.2.1 [4],
+выполняю команду 
+rails generate migration AddSumaToOrders suma:money
+
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+  master
+  order
+* order2
+  profile
+
+alex@www:~/rails_projects/osvita$ rails generate migration AddSumaToOrders suma:money
+Running via Spring preloader in process 2232
+      invoke  active_record
+      create    db/migrate/20180806151748_add_suma_to_orders.rb
+
+alex@www:~/rails_projects/osvita$ cat db/migrate/20180806151748_add_suma_to_orders.rb
+class AddSumaToOrders < ActiveRecord::Migration[5.2]
+  def change
+    add_column :orders, :suma, :money
+  end
+end
+alex@www:~/rails_projects/osvita$ 
+
+cat /db/migrate/20180806151748_add_suma_to_orders.rb
+
+ */- 3.2
+Как указано в п.2.2 [4],
+созданной миграции добавляю
+add_reference :orders, :profile, foreign_key: true
+remove_index :orders, [:id_user, :created_at]
+
+*/- 3.3
+Запускаю 
+alex@www:~/rails_projects/osvita$ bundle exec rake db:migrate
+== 20180806151748 AddSumaToOrders: migrating ==================================
+-- add_column(:orders, :suma, :money)
+   -> 0.0539s
+-- add_reference(:orders, :profile, {:foreign_key=>true})
+   -> 0.2447s
+-- remove_index(:orders, [:id_user, :created_at])
+   -> 0.0266s
+== 20180806151748 AddSumaToOrders: migrated (0.3257s) =========================
+
+alex@www:~/rails_projects/osvita$ 
+
+*/- 3.4
+Проверяю файлы:
+
+- в /db/schema.rb
+  create_table "orders", force: :cascade do |t|
+    t.integer "id_user"
+    t.integer "order_num"
+    t.date "date_at"
+    t.date "date_end"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.money "suma", scale: 2
+    t.bigint "profile_id"
+    t.index ["profile_id"], name: "index_orders_on_profile_id"
+  end
+
+- в /app/models/user.rb
+class User < ApplicationRecord
+  # has_many :orders
+  has_one :profile
+...
+end
+
+- в /app/models/order.rb
+class Order < ApplicationRecord
+  belongs_to :user
+  validates :id_user, presence: true
+end
+
+- /app/models/profile.rb
+class Profile < ApplicationRecord
+  belongs_to :user
+end
+
+*/- 3.5
+Оказалось, что:
+- столбец "id_user" не удалился - он и теперь есть в /db/schema.rb,
+			и про удаление ничего не упоминается в выводе на терминал после выполнения команды миграции;
+	Пусть пока остается - м.б. переименую под другой какой-нибудь нужный))
+- наверное, отменилось просто индексирование по  "id_user" - об этом есть сообщение на терминал;
+- добавился столбец "suma" с типом money - это видно и из вывода на терминал, и из /db/schema.rb;
+- организовалось индексирование - видно  и из вывода на терминал, и из /db/schema.rb,
+  однако, я не указал, что нужно индексировать по "user_id", поэтому индексирование установлено,
+  ЯтД, по 'id' БД 'profile';
+
+*/- 3.6
+Далее, 
+в моделях НИЧЕГО НЕ ПОМЕНЯЛОСЬ 
+- даже не удалилась связь 
+  belongs_to :user
+  из /app/models/order.rb, 
+  что, как мне казалось, д.б.б. удалиться, поскольку удаление индекса произошло "по правилам";
+  
+- также не добавилось в /app/models/order.rb
+  belongs_to :profile
+
+- ...и не добавилось в /app/models/profile.rb
+  .....
+  
+как я ожидал.
+
+Нужно это сделать вручную.
+
+**** 2018.06.07 ****
+
+*/- 4
+Добавляю нужные ассоциации
+и удаляю старые, ненужные теперь;
+
+class Order < ApplicationRecord
+  belongs_to :profile
+end
+
+class Profile < ApplicationRecord
+  belongs_to :user
+  has_many :orders
+end
+
+class User < ApplicationRecord
+  has_one :profile
+...
+end
+
+*/- 5
+Делаю ДОБАВЛЕНИЕ СЧЕТА!!!!
+в /app/controllers/orders_controller.rb
+
+Хотя добавление будет производиться в контроллере 'Profile',
+отталкиваться нужно от 'current_user';
+
+*/- 5.1
+Сначала найти 
+    @profile = current_user.profile
+затем 
+  СОЗДАТЬ
+  ПРИВЯЗАННЫЙ 
+к нему новый счет:
+
+Для этой операции нашел МЕТОД из ассоциаций - см. в [6] р.6.1.15:
+
+По образцу
+@book = @author.books.create(published_at: Time.now,
+                                 book_number: "A12345")
+
+пишу для себя с учетом имеющихся полей (п.3.4 выше):
+    t.integer "id_user"
+    t.integer "order_num"                 запишу как "порядковый номер" а "/ user_id" можно добавлять;
+    t.date "date_at"                      сегодня
+    t.date "date_end"                     сегодня + 3мес
+    t.string "content"                    "За тестирование"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.money "suma", scale: 2              "25,75", т.е.$1
+
+*/- 5.2
+order_num = Order.count + 1
+2.4.1 :005 > order_num = Order.count + 1
+   (29.5ms)  SELECT COUNT(*) FROM "orders"
+ => 1 
+
+*/- 5.3
+2.4.1 :006 > date_at = Time.now
+ => 2018-08-07 10:24:47 +0300 
+2.4.1 :007 > 
+
+*/- 5.4
+Попробую формулы из МХ 
+1.year.from_now
+  => Sun, 13 Mar 2011 03:38:55 UTC +00:00
+10.weeks.ago
+ 
+2.4.1 :004 > 3.months.from_now
+ => Wed, 07 Nov 2018 07:20:31 UTC +00:00 
+
+Тогда
+date_end = 3.months.from_now
+2.4.1 :007 > date_end = 3.months.from_now
+ => Wed, 07 Nov 2018 07:26:02 UTC +00:00 
+
+*/- 5.5
+content = "За тестирование"
+
+*/- 5.6
+suma = 25,75
+
+*/- 5.7
+Итогоdate_end
+@order = @profile.orders.create(order_num: Order.count + 1,
+                                date_at: Time.now,
+                                date_end: 3.months.from_now,
+                                content: "За тестирование",
+                                suma = 25,75)
+
+*/- 5.8
+Попробую сделать запись в БД в консоле-"песочнице":
+rails console --sandbox
+
+Сначала 
+@order = Order.new(order_num: Order.count + 1,
+                   date_at: Time.now,
+                   date_end: 3.months.from_now,
+                   content: "За тестирование",
+                   suma: 25.75)
+
+*/- 5.9
+Теперь
+
+2.4.1 :022 > @profile = Profile.find(2)
+  Profile Load (39.3ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<Profile id: 2, category: "abytura", user_id: 2, created_at: "2018-07-24 16:00:38", updated_at: "2018-07-24 16:00:38"> 
+2.4.1 :023 > 
+
+@order = @profile.orders.create(order_num: Order.count + 1,
+                   date_at: Time.now,
+                   date_end: 3.months.from_now,
+                   content: "За тестирование",
+                   suma: 25.75)
+
+2.4.1 :023 > @order = @profile.orders.create(order_num: Order.count + 1,
+2.4.1 :024 >                        date_at: Time.now,
+2.4.1 :025 >                        date_end: 3.months.from_now,
+2.4.1 :026 >                        content: "За тестирование",
+2.4.1 :027 >                        suma: 25.75)
+   (0.7ms)  SELECT COUNT(*) FROM "orders"
+   (0.4ms)  SAVEPOINT active_record_1
+  Order Create (72.5ms)  INSERT INTO "orders" ("order_num", "date_at", "date_end", "content", "created_at", "updated_at", "suma", "profile_id") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"  [["order_num", 1], ["date_at", "2018-08-07"], ["date_end", "2018-11-07"], ["content", "За тестирование"], ["created_at", "2018-08-07 07:49:49.718925"], ["updated_at", "2018-08-07 07:49:49.718925"], ["suma", 25.75], ["profile_id", 2]]
+   (0.4ms)  RELEASE SAVEPOINT active_record_1
+ => #<Order id: 1, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 07:49:49", updated_at: "2018-08-07 07:49:49", suma: 25.75, profile_id: 2> 
+2.4.1 :028 > Order.count
+   (0.7ms)  SELECT COUNT(*) FROM "orders"
+ => 1 
+2.4.1 :029 > 
+
+ПОЛУЧАЕТСЯ!!!!
+
+*/- 5.10
+Выхожу из "песочницы",
+захожу в обычную консоль -
+2.4.1 :001 > Order.count
+   (1.3ms)  SELECT COUNT(*) FROM "orders"
+ => 0 
+2.4.1 :002 > 
+
+запись не сохранилась!!!!
+
+*/- 6
+Встраиваю этот код в контроллер /app/controllers/orders_controller.rb;
+
+*/- 6.1
+Сейчас
+  def new
+    @order = Order.new
+  end
+
+записываю
+  def new
+    #@order = Order.new
+    @profile = current_user.profile
+    @order = @profile.orders.create(order_num: Order.count + 1,
+                   date_at: Time.now,
+                   date_end: 3.months.from_now,
+                   content: "За тестирование",
+                   suma: 25.75)
+  end
+
+Тут у меня возникли сомнения по поводу следующего.
+1)В исх.текте экшена "def new" был метод "new",
+  а я заменил его на "create";
+  Разница в том, что "new" НЕ сохраняет запись СРАЗУ,
+  а сохранение происходит после нажатия клавиши "Save" на форме ввода, которая рендерится сразу же за экшеном.
+  Здесь это /app/views/orders/new.html.erb - _form.html.erb;
+  
+  У меня метод "create" СРАЗУ и СОХРАНЯЕТ новую запись!!
+  Значит, на форму у меня будут выводиться уже заполненные поля,
+  а кнопкой "Save" я их еще раз сохраняю в БД.
+  Т.е., их можно и исправить.
+  
+  В принципе, тоже приемлемо.
+  М.б. когда-нибудь найду обсуждение этого вопроса, пока оставляю так.
+  
+2) Также ОсВ на   def create,
+   где 
+   @order = Order.new(order_params)
+   Тоже запомню, но пока оставляю, как есть.
+   
+*/- 6.2
+В цепочке 
+  /app/views/orders/new.html.erb - _form.html.erb
+new.html.erb - чистая формальность,
+а основная работа происходит в _form.html.erb;
+Его приведу к своим потребам;
+
+Сейчас
+alex@www:~/rails_projects/osvita$ cat app/views/orders/new.html.erb
+<h1>New Order</h1>
+
+<%= render 'form', order: @order %>
+
+<%= link_to 'Back', orders_path %>
+alex@www:~/rails_projects/osvita$ cat app/views/orders/_form.html.erb
+<%= form_with(model: order, local: true) do |form| %>
+  <% if order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+      <ul>
+      <% order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :id_user %>
+    <%= form.number_field :id_user %>
+  </div>
+
+  <div class="field">
+    <%= form.label :order_num %>
+    <%= form.number_field :order_num %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date_at %>
+    <%= form.date_select :date_at %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date_end %>
+    <%= form.date_select :date_end %>
+  </div>
+
+  <div class="field">
+    <%= form.label :content %>
+    <%= form.text_field :content %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+alex@www:~/rails_projects/osvita$ 
+
+*/- 6.3
+Вместо ввода "id_user"
+сделаю вывод "Пользователя" и "Категории",
+а также добавлю ввод в поле "suma" - но сходу не нашел тип поля в форме вывода,
+поэтому пока не буду включать его в текст программы (а здесь оставлю);
+
+<%= form_with(model: order, local: true) do |form| %>
+  <% if order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+      <ul>
+      <% order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <p>Пользователь: <%= current_user.email %> </p>
+  </div>
+
+  <div class="field">
+    <p>Категория: <%= @profile.category %> </p>
+  </div>
+
+  <div class="field">
+    <%= form.label :order_num %>
+    <%= form.number_field :order_num %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date_at %>
+    <%= form.date_select :date_at %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date_end %>
+    <%= form.date_select :date_end %>
+  </div>
+
+  <div class="field">
+    <%= form.label :content %>
+    <%= form.text_field :content %>
+  </div>
+
+  <div class="field">
+    <%= form.label :suma %>
+    <%= form.text_field :suma %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+
+*/- 6.4
+Добавляю маршрут "new_order_path";
+Для этого заменю
+  <a class="dropdown-item" href="#">Получить счет на оплату</a>
+по образцу
+  <%= link_to 'Профиль 2', profileshow_path, class: "dropdown-item" %>
+
+Получаю
+  <%= link_to 'Получить счет на оплату', new_order_path, class: "dropdown-item" %>
+
+*/- 6.5
+Запускаю - похоже, что УСПЕШНО!!!!
+После "Вход" user03
+выбираю "Получить счет ...",
+наживаю кнопку "Update ..."
+и мне вывело в режиме 'show' все данные!!!!
+
+*/- 6.6
+Подкорректирую вывод, т.к. там "лишний" 'id_user' и нет suma':
+Было
+cat app/views/orders/show.html.erb
+alex@www:~/rails_projects/osvita$ cat app/views/orders/show.html.erb
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Id user:</strong>
+  <%= @order.id_user %>
+</p>
+
+<p>
+  <strong>Order num:</strong>
+  <%= @order.order_num %>
+</p>
+
+<p>
+  <strong>Date at:</strong>
+  <%= @order.date_at %>
+</p>
+
+<p>
+  <strong>Date end:</strong>
+  <%= @order.date_end %>
+</p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @order.content %>
+</p>
+
+<%= link_to 'Edit', edit_order_path(@order) %> |
+<%= link_to 'Back', orders_path %>
+alex@www:~/rails_projects/osvita$ 
+
+Убираю 'id_user',
+добавляю "Пользователь" и "Категория" и "suma";
+
+Делаю еще одну запись для user03 - РАБОТАЕТ!!!!
+
+*/- 7
+Теперь добавлю в Профиль 
+вывод всех счетов;
+
+*/- 7.1
+Профиль формируется в /app/controllers/users/sessions_controller.rb
+и выводится в /app/views/users/sessions/show_profile.html.erb;
+
+Сейчас они такие:
+  def show_profile
+    @profile = current_user.profile
+  end
+
+alex@www:~/rails_projects/osvita$ cat app/views/users/sessions/show_profile.html.erb
+<p id="notice"><%= notice %></p>
+<p> Вход через User </p>
+
+<h2>
+  <strong> Профиль Пользователя</strong>
+</h2>
+
+<p>
+  <strong>Пользователь:</strong>
+  <%= current_user.email %>
+</p>
+
+<p>
+  <strong>Категория:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>Дата регистрации:</strong>
+  <%= current_user.created_at %>
+</p>
+
+<% unless @profile.category == "admin" %>
+  <p>
+    <strong>Оплаченный счет:</strong>
+  </p>
+<% else %>
+  <h3>
+    <strong> Права администратора </strong>
+  </h3>
+<% end %>
+
+*/- 7.2
+В def show_profile
+теперь нужно получить коллекцию счетов;
+
+Для этого воспользуюсь "6.1.1. collection":
+
+Метод collection возвращает Relation всех связанных объектов. Если нет связанных объектов, он возвращает пустой Relation.
+@books = @author.books
+
+у меня это будет
+
+@orders = @profile.orders
+
+*/- 7.3
+Для вывода в Профиле дополнительно к коллекции возпользуюсь "6.1.9. collection.empty?"
+
+Метод collection.empty? возвращает true, если коллекция не содержит каких-либо связанных объектов.
+<% if @author.books.empty? %>
+  No Books Found
+<% end %>
+
+и запишу
+<% unless @orders.empty? %>
+  Нет выписанных счетов
+<% else %>
+  <% @orders.each do |rec| %>
+    <%= rec.suma %>
+  <% end %>
+<% end %>
+
+Обновляю - но не вывелся список счетов;
+
+*/- 8
+Ищу причину в консоли
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ rails console
+Running via Spring preloader in process 3641
+Loading development environment (Rails 5.2.0)
+2.4.1 :001 > @profile = Profile.find(3)
+  Profile Load (1.0ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."id" = $1 LIMIT $2  [["id", 3], ["LIMIT", 1]]
+ => #<Profile id: 3, category: "abytura", user_id: 3, created_at: "2018-07-25 10:01:09", updated_at: "2018-07-25 10:01:09"> 
+2.4.1 :002 > @orders = @profile.orders
+  Order Load (1.0ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."profile_id" = $1 LIMIT $2  [["profile_id", 3], ["LIMIT", 11]]
+ => #<ActiveRecord::Associations::CollectionProxy []> 
+2.4.1 :003 > @orders.size
+   (1.2ms)  SELECT COUNT(*) FROM "orders" WHERE "orders"."profile_id" = $1  [["profile_id", 3]]
+ => 0 
+2.4.1 :004 > Order.all
+  Order Load (0.7ms)  SELECT  "orders".* FROM "orders" LIMIT $1  [["LIMIT", 11]]
+ => #<ActiveRecord::Relation [#<Order id: 2, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 08:53:31", updated_at: "2018-08-07 08:53:31", suma: 0.2575e2, profile_id: 4>, #<Order id: 3, id_user: nil, order_num: 2, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 09:04:14", updated_at: "2018-08-07 09:04:14", suma: 0.2575e2, profile_id: 4>, #<Order id: 4, id_user: nil, order_num: 3, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование по истории", created_at: "2018-08-07 09:34:19", updated_at: "2018-08-07 09:34:38", suma: 0.2575e2, profile_id: 4>]> 
+2.4.1 :005 > Order.count
+   (1.1ms)  SELECT COUNT(*) FROM "orders"
+ => 3 
+2.4.1 :006 > Order.find(1)
+  Order Load (1.0ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Order with 'id'=1
+	from (irb):6
+2.4.1 :007 > rec1 = Order.find(1)
+  Order Load (0.8ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Order with 'id'=1
+	from (irb):7
+2.4.1 :008 > rec1.order_num
+NoMethodError: undefined method `order_num' for nil:NilClass
+	from (irb):8
+2.4.1 :009 > rec1
+ => nil 
+2.4.1 :010 > Order.count
+   (0.8ms)  SELECT COUNT(*) FROM "orders"
+ => 3 
+2.4.1 :011 > rec1 = Order.find(1)
+  Order Load (1.0ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Order with 'id'=1
+	from (irb):11
+2.4.1 :012 > rec1 = Order.first
+  Order Load (0.8ms)  SELECT  "orders".* FROM "orders" ORDER BY "orders"."id" ASC LIMIT $1  [["LIMIT", 1]]
+ => #<Order id: 2, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 08:53:31", updated_at: "2018-08-07 08:53:31", suma: 0.2575e2, profile_id: 4> 
+2.4.1 :013 > rec1.id
+ => 2 
+2.4.1 :014 > rec1.order_num
+ => 1 
+2.4.1 :015 > rec1.date_at
+ => Tue, 07 Aug 2018 
+2.4.1 :016 > rec1.date_end
+ => Wed, 07 Nov 2018 
+2.4.1 :017 > rec1.suma
+ => 0.2575e2 
+2.4.1 :018 > rec1.profile_id
+ => 4 
+2.4.1 :019 > @profile = Profile.find(4)
+  Profile Load (0.8ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."id" = $1 LIMIT $2  [["id", 4], ["LIMIT", 1]]
+ => #<Profile id: 4, category: "abytura", user_id: 4, created_at: "2018-07-25 10:01:51", updated_at: "2018-07-25 10:01:51"> 
+2.4.1 :020 > @orders = @profile.orders
+  Order Load (1.0ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."profile_id" = $1 LIMIT $2  [["profile_id", 4], ["LIMIT", 11]]
+ => #<ActiveRecord::Associations::CollectionProxy [#<Order id: 2, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 08:53:31", updated_at: "2018-08-07 08:53:31", suma: 0.2575e2, profile_id: 4>, #<Order id: 3, id_user: nil, order_num: 2, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 09:04:14", updated_at: "2018-08-07 09:04:14", suma: 0.2575e2, profile_id: 4>, #<Order id: 4, id_user: nil, order_num: 3, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование по истории", created_at: "2018-08-07 09:34:19", updated_at: "2018-08-07 09:34:38", suma: 0.2575e2, profile_id: 4>]> 
+2.4.1 :021 > @orders.size
+   (1.0ms)  SELECT COUNT(*) FROM "orders" WHERE "orders"."profile_id" = $1  [["profile_id", 4]]
+ => 3 
+2.4.1 :022 > 
+
+
+2.4.1 :023 > @user = User.find(4)
+  User Load (0.9ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 4], ["LIMIT", 1]]
+ => #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-08-07 09:35:28"> 
+2.4.1 :024 > 
+
+
+Отладчик
+  def show_profile
+    @profile = current_user.profile
+    @orders = @profile.orders
+    byebug
+  end
+
+
+  ↳ app/controllers/users/sessions_controller.rb:26
+@_action_has_layout = true
+@_action_name = "show_profile"
+@_config = {}
+@_lookup_context = #<ActionView::LookupContext:0x007f8cf80c0ad0 @details_key=nil, @cache=true, @prefixes=["users/sessions", "devise/sessions", "devise", "app...
+@_params = <ActionController::Parameters {"controller"=>"users/sessions", "action"=>"show_profile", "locale"=>"en"} permitted: false>
+@_prefixes = ["users/sessions", "devise/sessions", "devise", "application"]
+@_request = #<ActionDispatch::Request:0x007f8cf80c2a10 @env={"rack.version"=>[1, 3], "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>true, "rack.multiproc...
+@_response = #<ActionDispatch::Response:0x007f8cf80c0e18 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Thread::Mutex:0x007f8cf80c0dc8>, @header={"X-Frame-Option...
+@_response_body = nil
+@_routes = nil
+@current_user = #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-08-07 09:52:25">
+@devise_mapping = #<Devise::Mapping:0x007f8d00cdf250 @scoped_path="users", @singular=:user, @class_name="User", @klass=#<Devise::Getter:0x007f8d00c9af60 @nam...
+@marked_for_same_origin_verification = true
+@orders = #<ActiveRecord::Associations::CollectionProxy [#<Order id: 2, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "...
+@profile = #<Profile id: 4, category: "abytura", user_id: 4, created_at: "2018-07-25 10:01:51", updated_at: "2018-07-25 10:01:51">
+(byebug) 
+
+
+*/- 8.2
+
+<% if @profile.orders.empty? %>
+  <p>
+    <strong>Нет выписанных счетов;</strong>
+  </p>
+<% else %>user06@gmail.com
+  <% @orders.each do |rec| %>
+    <%= rec.suma %>
+  <% end %>
+<% end %>
+
+*/- 8.3
+Но потом оказалось,
+что я перепутал 'unless' и  'if';
+Исправил - РАБОТАЕТ!!!!
+
+*/- 9
+Затем выскочила ошибка на user06 в def show_profile
+при выполнении
+  @orders = @profile.orders
+
+Я было подумал, что метод 'orders' не работает, когда не выписаны счета,
+и окружил эту команду
+
+  unless @profile.orders.empty?
+      @orders = @profile.orders
+  end
+  
+но ошибка осталась.
+
+Потом я  подумал, что у этого user06 нет Профиля!!!!
+
+Сейчас проверю;
+
+*/- 9.1
+Нашел, что
+2.4.1 :031 > @user = User.find(10)
+  User Load (1.0ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 10], ["LIMIT", 1]]
+ => #<User id: 10, email: "user06@gmail.com", created_at: "2018-08-03 14:48:57", updated_at: "2018-08-07 15:14:29"> 
+
+*/- 9.2
+Сначала выбираю id = 4,
+где есть профиль:
+
+2.4.1 :032 > @user = User.find(4)
+  User Load (1.0ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 4], ["LIMIT", 1]]
+ => #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-08-07 15:13:29"> 
+
+2.4.1 :033 > @profile = @user.profile
+  Profile Load (0.8ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 4], ["LIMIT", 1]]
+ => #<Profile id: 4, category: "abytura", user_id: 4, created_at: "2018-07-25 10:01:51", updated_at: "2018-07-25 10:01:51"> 
+
+2.4.1 :034 > @orders = @profile.orders
+  Order Load (0.8ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."profile_id" = $1 LIMIT $2  [["profile_id", 4], ["LIMIT", 11]]
+ => #<ActiveRecord::Associations::CollectionProxy [#<Order id: 2, id_user: nil, order_num: 1, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 08:53:31", updated_at: "2018-08-07 08:53:31", suma: 0.2575e2, profile_id: 4>, #<Order id: 3, id_user: nil, order_num: 2, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование", created_at: "2018-08-07 09:04:14", updated_at: "2018-08-07 09:04:14", suma: 0.2575e2, profile_id: 4>, #<Order id: 4, id_user: nil, order_num: 3, date_at: "2018-08-07", date_end: "2018-11-07", content: "За тестирование по истории", created_at: "2018-08-07 09:34:19", updated_at: "2018-08-07 09:34:38", suma: 0.2575e2, profile_id: 4>]> 
+
+*/- 9.3
+2.4.1 :035 > @user = User.find(10)
+  User Load (0.9ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 10], ["LIMIT", 1]]
+ => #<User id: 10, email: "user06@gmail.com", created_at: "2018-08-03 14:48:57", updated_at: "2018-08-07 15:14:29"> 
+ 
+2.4.1 :036 > @profile = @user.profile
+  Profile Load (0.7ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 10], ["LIMIT", 1]]
+ => nil 
+ 
+2.4.1 :037 > @orders = @profile.orders
+NoMethodError: undefined method `orders' for nil:NilClass
+	from (irb):37
+
+И выводит ошибку!!!!
+
+*/- 9.4
+Введу Профиль для user06:
+2.4.1 :038 > Profile.count
+   (0.8ms)  SELECT COUNT(*) FROM "profiles"
+ => 11 
+ 
+2.4.1 :039 > User.count
+   (1.2ms)  SELECT COUNT(*) FROM "users"
+ => 12 
+ 
+2.4.1 :040 > @user = User.find(10)
+  User Load (1.2ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 10], ["LIMIT", 1]]
+ => #<User id: 10, email: "user06@gmail.com", created_at: "2018-08-03 14:48:57", updated_at: "2018-08-07 15:14:29"> 
+ 
+2.4.1 :041 > @profile = @user.create_profile(category: "abytura")
+   (0.3ms)  BEGIN
+  Profile Create (28.6ms)  INSERT INTO "profiles" ("category", "user_id", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id"  [["category", "abytura"], ["user_id", 10], ["created_at", "2018-08-07 16:17:27.987798"], ["updated_at", "2018-08-07 16:17:27.987798"]]
+   (17.1ms)  COMMIT
+  Profile Load (0.7ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 10], ["LIMIT", 1]]
+ => #<Profile id: 12, category: "abytura", user_id: 10, created_at: "2018-08-07 16:17:27", updated_at: "2018-08-07 16:17:27"> 
+ 
+*/- 9.5
+Проверяю ... ДОБАВИЛОСЬ!!!!
+Ошибку НЕ ВЫВОДИТ!!!!
+
+2.4.1 :042 > Profile.count
+   (1.0ms)  SELECT COUNT(*) FROM "profiles"
+ => 12 
+
+2.4.1 :043 > @profile = @user.profile
+ => #<Profile id: 12, category: "abytura", user_id: 10, created_at: "2018-08-07 16:17:27", updated_at: "2018-08-07 16:17:27"> 
+
+2.4.1 :044 > @orders = @profile.orders
+  Order Load (0.8ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."profile_id" = $1 LIMIT $2  [["profile_id", 12], ["LIMIT", 11]]
+ => #<ActiveRecord::Associations::CollectionProxy []> 
+
+*/ 9.6
+Запускаю user06 в браузере -  РАБОТАЕТ!!!!
+
+*/- 10
+Немного приглажу вывод Профиля;
+
+*/- 10.1
+Сейчас
+alex@www:~/rails_projects/osvita$ cat app/views/users/sessions/show_profile.html.erb
+<p id="notice"><%= notice %></p>
+<p> Вход через User </p>
+
+<h2>
+  <strong> Профиль Пользователя</strong>
+</h2>
+
+<p>
+  <strong>Пользователь:</strong>
+  <%= current_user.email %>
+</p>
+
+<p>
+  <strong>Категория:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>Дата регистрации:</strong>
+  <%= current_user.created_at %>
+</p>
+
+<% unless @profile.category == "admin" %>
+
+<% if @profile.orders.empty? %>
+  <p>
+    <strong>Нет выписанных счетов;</strong>
+  </p>
+<% else %>
+  <% @orders.each do |rec| %>
+    <%= rec.suma %>
+  <% end %>
+<% end %>
+
+<% else %>
+  <h3>
+    <strong> Права администратора </strong>
+  </h3>
+
+<% end %>
+
+*/- 10.2
+Возьму для образца
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/poisk9/app/views/tapes/index.html.erb
+<h3>Полный список</h3>
+<div class="container">
+  <div class="row">
+      <%#= will_paginate %>
+  </div>
+
+  <div class="row">
+    <div class="col-md-1">Сайт-Статус</div>
+    <div class="col-md-1">Тэг</div>
+    <div class="col-md-5">Статья</div>
+    <div class="col-md-4">Комментарии</div>
+    <div class="col-md-1">Кнопки</div>
+  </div>
+
+  <% @tapes.each do |fact| %>
+    <div class="row">
+      <div class="col-md-1">
+        <%#= fact.tp_site.to_s + "-" + fact.tp_status.to_s + "-" + fact.tp_tag %>
+        <%= fact.tp_site.to_s + "-" + fact.tp_status.to_s %>
+      </div>
+      <div class="col-md-1">
+        <%= fact.tp_tag %>
+      </div>
+      <div class="col-md-4">
+        <%#= fact.tp_article %>
+     	  <%= link_to fact.tp_article, fact.tp_url %>   
+      </div>
+      <div class="col-md-5">
+        <%= fact.tp_comments %>
+      </div>
+      <div class="col-md-1">
+        <%#= link_to 'Show', tape %>
+        <%= link_to 'Edit', edit_tape_path(fact) %>
+        <%#= link_to 'Destroy', fact, method: :delete, data: { confirm: 'Are you sure?' } %>
+      </div>
+    </div>  <!--row-->
+  <%end%>
+  <div class="row">
+    <%#= will_paginate %>
+  </div>
+</div>  <!--container-->
+alex@www:~/rails_projects/osvita$ 
+
+*/- 10.3
+Проверяю - УРА-А-А!!!!
+РАБОТАЕТ!!!!
+
+*/- 10.4
+коммит, пуш
+
+alex@www:~/rails_projects/osvita$ git status
+On branch order2
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/controllers/orders_controller.rb
+	modified:   app/controllers/users/sessions_controller.rb
+	modified:   app/models/order.rb
+	modified:   app/models/profile.rb
+	modified:   app/models/user.rb
+	modified:   app/views/layouts/_header.html.erb
+	modified:   app/views/orders/_form.html.erb
+	modified:   app/views/orders/show.html.erb
+	modified:   app/views/users/sessions/show_profile.html.erb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	db/migrate/20180806151748_add_suma_to_orders.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "order2-11srv: associations User-Profile-Order"
+[order2 2e5deab] order2-11srv: associations User-Profile-Order
+ 10 files changed, 69 insertions(+), 13 deletions(-)
+ create mode 100644 db/migrate/20180806151748_add_suma_to_orders.rb
+alex@www:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 10 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge order2
+Updating 1cabf0f..2e5deab
+Fast-forward
+ app/controllers/orders_controller.rb            |  9 ++++++++-
+ app/controllers/users/sessions_controller.rb    |  5 ++---
+ app/models/order.rb                             |  3 +--
+ app/models/profile.rb                           |  1 +
+ app/models/user.rb                              |  1 -
+ app/views/layouts/_header.html.erb              |  2 +-
+ app/views/orders/_form.html.erb                 |  7 +++++--
+ app/views/orders/show.html.erb                  | 14 ++++++++++++--
+ app/views/users/sessions/show_profile.html.erb  | 33 ++++++++++++++++++++++++++++++++-
+ db/migrate/20180806151748_add_suma_to_orders.rb |  7 +++++++
+ 10 files changed, 69 insertions(+), 13 deletions(-)
+ create mode 100644 db/migrate/20180806151748_add_suma_to_orders.rb
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 23, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (20/20), done.
+Writing objects: 100% (23/23), 3.17 KiB | 0 bytes/s, done.
+Total 23 (delta 12), reused 0 (delta 0)
+remote: Resolving deltas: 100% (12/12), completed with 12 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   1cabf0f..2e5deab  master -> master
+alex@www:~/rails_projects/osvita$ 
+

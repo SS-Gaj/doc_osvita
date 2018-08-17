@@ -1,0 +1,625 @@
+**** 2018.07.06 ****
+Пред.файл [1] - srv-osvita10-180704(locale),
+в котором я выполнил локализацию (перевод на рус.)
+в соотв. с ЮТ №4;
+[2] - /home/alex/Documents/Rails/I18n/I18n-rus.docx;
+[3] - https://github.com/svenfuchs/rails-i18n = гем 'rails-i18n' на Гитхабе. Там же есть много ссылок на другие гемы. В частности - 'devise-i18n'. Не разбирался, что это. Возможно, это переводы;
+[4] - /home/alex/Documents/Rails/Загрузка_констант(API).doc = "Автозагрузка и перезагрузка констант";
+[5] - /home/alex/Documents/Rails/Конфигурирование.doc = "Конфигурирование приложений на Rails";
+
+
+
+Здесь продолжу эту тему в соотв. с ЮТ №5;
+
+*/- 1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+* master
+alex@www:~/rails_projects/osvita$ git checkout -b locale2
+Switched to a new branch 'locale2'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.1
+Согласно ЮТ 0:0
+открываю файл 
+/home/alex/rails_projects/osvita/config/application.rb
+где я раньше выставил
+    config.time_zone = 'Kyiv'
+    config.i18n.default_locale = :ru
+
+теперь добавляются "все доступные локали";
+В ЮТ автор дописывает
+    config.i18n.available_locales = [:ru, :en]
+а я напишу
+    config.i18n.available_locales = [:ru, :uk]
+
+
+*/- 2.2
+Дальше в ЮТ 1:10 
+как говорит автор,
+"все, что есть в роутере, обворачиваем в ... "
+У меня было
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/config/routes.rb
+Rails.application.routes.draw do
+  devise_for :users
+  root 'welcome#index'
+  get 'welcome/index'
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+alex@www:~/rails_projects/osvita$ 
+
+Стало
+Rails.application.routes.draw do
+  scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+    devise_for :users
+    root 'welcome#index'
+    get 'welcome/index'
+  end
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+
+*/- 2.3
+Согласно ЮТ 2:50
+в /home/alex/rails_projects/osvita/app/controllers/application_controller.rb
+добавляю
+Было
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  # protect_from_forgery with: :exception
+  add_flash_types :info, :success, :warning, :danger
+end
+
+Стало
+class ApplicationController < ActionController::Base
+  # protect_from_forgery with: :exception
+  add_flash_types :info, :success, :warning, :danger
+  before_action :set_locale
+  
+  private
+  def set_locale
+    I18n.locale = params[:locale] || I18m.default_locale
+  end
+  
+  def default_url_options(options = {})
+    { locale: I18n.locale}.merge options
+  end
+end
+
+*/- 2.4
+Согласно ЮТ 5:10
+добавляю кнопки в меню:
+В файл /home/alex/rails_projects/osvita/app/views/layouts/_header.html.erb
+
+          <li class="nav-item">
+            <%= link_to 'Рус.', { locale: :ru }, class: "nav-link" %>
+          </li>
+          </li>
+          <li class="nav-item">
+            <%= link_to 'Укр.', { locale: :uk }, class: "nav-link" %>
+          </li>
+
+*/- 2.5
+Запускаю - запускается,
+но когда в браузере обновляю страницу,
+то выскакивает ошибка:
+
+NameError in WelcomeController#index
+uninitialized constant ApplicationController::I18m
+
+Extracted source (around line #8):
+  private
+  def set_locale
+    I18n.locale = params[:locale] || I18m.default_locale
+  end
+  
+  def default_url_options(options = {})
+
+Насколько я понимаю,
+не инициализирована какая-то константа.
+
+Нужно глубже изучить I18m - см.дальше 
+
+**** 2018.07.07 ****
+*/- 3.1
+Дома изучаю I18m - см. [2];
+
+*/- 3.2
+Еще нашел гем на Гитхабе - [3];
+
+*/- 3.3
+Открыл свой Gemfile,
+и с удивлением выяснил,
+что у меня не установлен гем I18m ??!!
+**//- 1/3
+Затем я нашел в API - в самом начале, что I18m  "...поставляется с Ruby on Rails (начиная с Rails 2.2)";
+ЯтП, что он "встроен", и поэтому отдельно в Gemfile включать не нужно;
+Замет в Gemfile.lock нашел
+  i18n (1.0.1)
+//**
+
+Зашел на [3],
+и нашел там 
+	gem 'rails-i18n', '~> 5.1' # For 5.0.x, 5.1.x and 5.2.x
+- добавляю в свой 
+**// -2/3 Позже удалил - см.п."**//- 1/3" выше и прим.к [...] в самом начале этого файла
+
+*/- 3.4
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+* locale2
+  master
+alex@www:~/rails_projects/osvita$ 
+
+*/- 3.5
+Запускаю ... при этом ОсВ на сообщение системы ... 
+М.б. оно и раньше было ?
+А зачем у меня этот гем - tzinfo-data (>= 0) ?
+Это я установил, 
+или он был включен при генерации ?
+
+alex@www:~/rails_projects/osvita$ bundle install
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. 
+Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+**// - 1пер/3
+Зависимость tzinfo-data (> = 0) не будет использоваться ни одной из платформ, для которых устанавливается Bundler.
+Bundler устанавливает для ruby, но зависимость зависит только от x86-mingw32, x86-mswin32, x64-mingw32, java. Чтобы добавить эти платформы в пакет, запустите `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+//**
+
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies.....
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Using autoprefixer-rails 8.6.2
+Using bcrypt 3.1.12
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using orm_adapter 0.5.0
+Using responders 2.4.0
+Using warden 1.2.7
+Using devise 4.4.3
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using jquery-rails 4.3.3
+Using launchy 2.4.3
+Using letter_opener 1.6.0
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Fetching rails-i18n 5.1.1
+Installing rails-i18n 5.1.1
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 25 Gemfile dependencies, 90 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+alex@www:~/rails_projects/osvita$ 
+
+*/- 3.6
+Запускаю сервер,
+обновляю браузер - та же ошибка!!
+
+*/- 4.1
+Ищу причину в другом месте - /home/alex/rails_projects/osvita/app/controllers/application_controller.rb;
+Здесь у меня закомент.
+  # protect_from_forgery with: :exception
+
+Что то припоминаю, что это я же его и закоментировал;
+
+В ЮТ на этом месте -
+  protect_from_forgery with: :true
+Запишу себе точно так же, как на ЮТ;
+
+*/- 4.2
+Загружаю сервер,
+обновляю - выдало ошибку, что так нельзя:
+ArgumentError (Invalid request forgery protection method, use :null_session, :exception, or :reset_session):
+
+Удаляю
+  protect_from_forgery with: :true
+и раскомм.
+  protect_from_forgery with: :exception
+
+*/- 4.3
+Загружаю сервер,
+обновляю - выдало "знакомую" ошибку:
+
+NameError in WelcomeController#index
+uninitialized constant ApplicationController::I18m
+
+
+*/- 5
+Ищу причину в третьем месте - В [3] с ОсВ, 
+что в списке "Available locales are" есть 'ru', но нет 'uk';
+Правда, 'uk' есть в следующем списке - "Complete locales are",
+но все-таки это настораживает;
+
+Поэтому, попробую удалить "Укр.",
+и вернуть все к "рус/англ", как в ЮТ;
+
+*/- 6
+Для этого прослушаю заново ЮТ №4.2,
+и буду исправлять в соотв. с ним;
+
+*/- 6.1	(меняю :uk на :en)
+ЮТ 0:0 - /home/alex/rails_projects/osvita/config/application.rb
+    config.i18n.available_locales = [:ru, :en]
+
+ОсВ, что у меня 
+    config.time_zone = 'Kyiv'
+и
+    config.i18n.default_locale = :ru
+- может это мешает?
+
+*/- 6.2	(записываю как в [2])
+ЮТ 2:10
+/home/alex/rails_projects/osvita/config/routes.rb
+  # scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+  scope "(:locale)", locale: /en|ru/ do
+
+*/- 6.3	(ничего не меняется, т.к. ни :uk, ни :en не упоминается)
+ЮТ 2:45
+/home/alex/rails_projects/osvita/app/controllers/application_controller.rb
+
+*/- 6.4
+ЮТ 5:10
+/home/alex/rails_projects/osvita/app/views/layouts/_header.html.erb
+Было
+          <li class="nav-item">
+            <%= link_to 'Рус.', { locale: :ru }, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to 'Укр.', { locale: :uk }, class: "nav-link" %>
+          </li>
+Стало
+          <li class="nav-item">
+            <%= link_to 'Рус.', { locale: :ru }, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to 'Англ.', { locale: :en }, class: "nav-link" %>
+          </li>
+
+*/- 6.5
+
+Обновляю - ошибка
+Routing Error
+undefined method `before_action ' for ApplicationController:Class Did you mean? before_action
+
+*/- 6.6
+
+# app/controllers/application_controller.rb
+def default_url_options
+  { locale: I18n.locale }
+end
+
+**** 2018.07.10 ****
+*/ - 7
+Дополнительно еще почитал 
+[4] - "Автозагрузка и перезагрузка констант";
+[5] - "Конфигурирование приложений на Rails";
+
+*/- 7.1
+Первое, что бросилось в глаза - в [5], в разделе "3.5. Конфигурирование i18n"
+в команде
+config.i18n.available_locales
+
+'i18n', т.е. 'i'-маленькое, а у меня, мне кажется, было большое (??!!)
+Проверил - у меня тоже маленькое((
+
+*/- 7.2
+Пересматривая пп.6.1-6.4,
+составляю список файлов, 
+в которые я вносил изменения согласно ЮТ №4.2:
+
+п.6.1   /osvita/config/application.rb
+п.6.2   /osvita/config/routes.rb
+п.6.3   /osvita/app/controllers/application_controller.rb
+п.6.4   /osvita/app/views/layouts/_header.html.erb
+
+*/- 7.3
+Закоммент.в них ВСЕ изменения, 
+внесенные для переключения языков.
+Осталось следующее:
+
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/config/application.rb
+require_relative 'boot'
+
+require 'rails/all'
+
+# Require the gems listed in Gemfile, including any gems
+# you've limited to :test, :development, or :production.
+Bundler.require(*Rails.groups)
+
+module Osvita
+  class Application < Rails::Application
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 5.2
+
+    # Settings in config/environments/* take precedence over those specified here.
+    # Application configuration can go into files in config/initializers
+    # -- all .rb files in that directory are automatically loaded after loading
+    # the framework and any gems in your application.
+    # config.time_zone = 'Kyiv'
+    config.i18n.available_locales = [:en, :ru]
+    # config.i18n.default_locale = :ru
+  end
+end
+
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/config/routes.rb
+Rails.application.routes.draw do
+  # scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+  # scope "(:locale)", locale: /en|ru/ do
+    devise_for :users
+    # get '/:locale' => 'welcome#index'
+    root 'welcome#index'
+    get 'welcome/index'
+  # end
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+  add_flash_types :info, :success, :warning, :danger
+  # before_action :set_locale
+  
+  private
+
+  def set_locale
+   I18n.locale = params[:locale] || I18n.default_locale
+  end
+  
+  def default_url_options(options = {})
+    { locale: I18n.locale }.merge options
+  end
+end
+
+*/- 7.4
+В 
+/osvita/app/views/layouts/_header.html.erb
+меню осталось согласно п.6.4;
+
+*/- 7.5
+Запускаю Приложение - РАБОТАЕТ!!!!
+
+*/- 7.6
+Причем, локали устанавливаются!!!!
+
+например
+http://localhost:3000/users/sign_in?locale=en
+
+или
+http://localhost:3000/users/sign_up?locale=ru
+
+*/- 7.7
+Переписываю
+  def default_url_options
+    { locale: I18n.locale }
+  end
+прямо из API,
+
+раскомент.
+  # before_action :set_locale
+
+
+Обновляю - РАБОТАЕТ!!!!
+Значит, причина была в   def default_url_options!!!!
+
+*/- 7.8
+Раскомент. /osvita/config/routes.rb
+Перегружаю сервер,
+обновляю страницу - СИНТАКСИС ПОМЕНЯЛСЯ!!!!
+
+http://localhost:3000/ru/welcome/index
+
+http://localhost:3000/en/users/sign_in
+
+*/- 7.9
+Делаю подсветку выбранного пункта меню "Рус." или "Англ." - РАБОТАЕТ!!!!
+
+*/ - 8 
+Затем по ЮТ 7:50
+идет добавление "Рус/Англ" в адм.панель - у меня ее пока нет;
+
+*/- 9
+Дальше по ЮТ 8:50
+меняют кнопки - у меня таких нет, т.к.на ЮТ речь идет о БЛОГАХ,
+и они сделали "Сохранить/Изменить", а у меня нет такого;
+
+*/- 10.1
+Дальше по ЮТ 10:30
+создает переводы в en.yml;
+Для этого полностью копирует содержимое ru.yml,
+и переносит в en.yml,
+
+*/- 10.2
+Дальше по ЮТ 11:50
+создает activerecord.en.yml
+путем копировния и переименования activerecord.ru.yml,
+и меняет его внутренности;
+
+Перегружаю сервер,
+обновляю - ошибки...
+
+*/- 10.3
+
+I18n::InvalidLocaleData in Devise::Sessions#new
+
+Showing /home/alex/rails_projects/osvita/app/views/devise/sessions/new.html.erb where line #1 raised: 
+
+Это касается 
+/home/alex/rails_projects/osvita/app/views/devise/sessions/new.html.erb
+
+Там
+<h2><%= I18n.t('users.sessions.new.title') %></h2>
+
+*/- 10.4
+Т.к. пока не пойму в чем причина,
+заменяю на
+<h2>Вход</h2>
+
+Обновляю - не помогло: выскочила аналогичная ошибка, только в другой строчке:
+
+I18n::InvalidLocaleData in Devise::Sessions#new
+
+Showing /home/alex/rails_projects/osvita/app/views/devise/sessions/new.html.erb where line #5 raised:
+
+can not load translations from /home/alex/rails_projects/osvita/config/locales/activerecord.en.yml: #<Psych::SyntaxError: (<unknown>): did not find expected key while parsing a block mapping at line 12 column 9>
+
+Extracted source (around line #5):
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+  </div>
+
+На терминале сервера сообщ.об ошибке такое:
+"ActionView::Template::Error (can not load translations from /home/alex/rails_projects/osvita/config/locales/activerecord.en.yml: #<Psych::SyntaxError: (<unknown>): did not find expected key while parsing a block mapping at line 12 column 9>):
+
+Т.е, что то не то!!
+
+*/- 10.5
+Убираю 
+/home/alex/rails_projects/osvita/config/locales/activerecord.en.yml
+(удаляю из /app и переношу в 
+/home/alex/Documents/my_projects/osvita/activerecord.en.yml
+пока не разберусь;
+
+Перезагружаю сервер,
+обновряю браузер - РАБОТАЕТ!!!!
+
+*/- 10.6
+коммит, пуш
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+* locale2
+  master
+alex@www:~/rails_projects/osvita$ git status
+On branch locale2
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   app/controllers/application_controller.rb
+	modified:   app/views/devise/sessions/new.html.erb
+	modified:   app/views/layouts/_header.html.erb
+	modified:   config/application.rb
+	modified:   config/locales/en.yml
+	modified:   config/routes.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "locale2-7srv: ru:+en:"[locale2 cea8282] locale2-7srv: ru:+en:
+ 7 files changed, 45 insertions(+), 8 deletions(-)
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.gitUsername for 'https://github.com': 111
+Password for 'https://111@github.com': 
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/SS-Gaj/osvita.git/'
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 6 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge locale2Updating 5cf99e9..cea8282
+Fast-forward
+ Gemfile                                   |  1 +
+ app/controllers/application_controller.rb | 13 ++++++++++++-
+ app/views/devise/sessions/new.html.erb    |  2 +-
+ app/views/layouts/_header.html.erb        |  6 ++++++
+ config/application.rb                     |  5 +++--
+ config/locales/en.yml                     | 16 +++++++++++++++-
+ config/routes.rb                          | 10 +++++++---
+ 7 files changed, 45 insertions(+), 8 deletions(-)
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 17, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (16/16), done.
+Writing objects: 100% (17/17), 1.92 KiB | 0 bytes/s, done.
+Total 17 (delta 11), reused 0 (delta 0)
+remote: Resolving deltas: 100% (11/11), completed with 11 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   5cf99e9..cea8282  master -> master
+alex@www:~/rails_projects/osvita$ 
+
+*/- 10.6
+Дома pull на НБ,
+замет push на heroku - см. ;
+
+Проверил - РАБОТАЕТ!!!!
+
+Следующий файл - 

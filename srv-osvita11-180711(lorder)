@@ -1,0 +1,415 @@
+**** 2018.07.11 ****
+Пред.файл [1] - srv-osvita10-180706(locale2);
+
+Здесь двигаюсь дальше по разработке Проекта.
+Нужно сделать (из нового):
+- профиль Пользователя;
+- админ.часть;
+- выписывание счетов и их отправка по Е-почте;
+
+... и доделать "старое":
+- добавить "Укр";
+- доделать все переводы на англ.язык;
+- ... в т.ч.разобраться, почему создание файла activerecord.en.yml приводит к ошибкам
+    (см.п.10-2 - 10.4 [1]);
+- добиться отправки сообщения о регистрации на Е-почту Пользователя;
+- заснувати в Проекте возможность ... - сделал частично в п.2; 
+- ... доступа БЕЗ регистрации для некоторой части сайта,
+- ... с ТОЛЬКО с регистрацией для другой части;
+
+Здесь начну с простого:
+- в качестве демонстрации способности Приложения "фильтровать" доступ для заРег и НЕзаРег пользователей.
+сделаю 2 пункта Главного меню - см.п.2.3;
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+* master
+
+alex@www:~/rails_projects/osvita$ git config --global alias.co checkout
+
+alex@www:~/rails_projects/osvita$ git checkout -b order
+Switched to a new branch 'order'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2
+Сначала сделаю 2 пункта меню;
+
+*/- 2.1
+Прикреплю "Ввод/Рег", ... к праву;
+Просмотрел док-ю для вер.4.1.1 - в "Примерах" не нашел ничего подходящего;
+
+Для начала возьму прямо из ЮТ 5:10
+(опасаюсь, что это вер.3.7)
+
+там все "правые" кнопки взяты в ...
+<ul class="navbar-nav pull-xs-right">
+
+</ul>
+
+Причем, по количеству последующих </ul> я сделал вывод,
+что этот блок не внутри "фиксированного меню",
+а после.
+Но я сначала поставлю внутри,
+т.е. просто "охвачу" нужныые мне пункты
+ (мне так такжется логичнее);
+
+Обновляю - ничего не поменялось.
+
+*/- 2.2
+... выношу блок "правых" кнопок ЗА фиксирование Главного меню;
+
+Обновляю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 2.3
+Добавляю 2 "проверочных" пункта:
+1-й = "Свободный просмотр" будет доступен всем посетителям;
+2-й = "Только после Рег-и";
+
+1-й пункт поставлю сразу за пунктом "Главная",
+а 2-й - включу в условие (как "Выход");
+
+Обновляю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 2.4
+Иду глубже))
+Добавлю во 2-ю кнопку выпадающее меню:
+"Всем заРег"
+"Только после оплаты"
+Причем, 2-е - пока "запрещено"))
+
+Обновляю - работает, но через раз))
+Т.е., сразу после "Входа" 
+выпадающее меню выпадает,
+а после выбора какого-то пункта - потом уже не выпадает!!
+Правда, сейчас ссылки заглушены, может, когда туда поставить "настоящие" адреса,
+то будет нормально работать и при повторном выборе пункта "Только после Рег-и",
+(т.е.будет выпадать меню) - пока это не горит.
+
+Также я не нашел класса для "запретить" пункт;
+
+**** 2018.07.12 ****
+
+*/- 3
+Теперь сделаю модель для выписки счетов;
+
+Имя ресурса: Order
+
+*/- 3.1
+Буду делать с опцией scaffold и ключем --no-test-framework
+
+используя образцы (МХ раздел 2.2)
+rails generate scaffold User name:string email:string
+
+и "Листинг 3.4. Генерация контроллера StaticPages. "
+rails generate controller StaticPages home help --no-test-framework
+
+*/- 3.2
+Поля модели:
+id_user:    id пользователя из модели User, чтобы "ппривязать" счет к пользователю;
+order_num:  номер счета; Первоначально я думал сделать формат "id_user/№пп",
+            но поскольку это требует доп.обработки, то решил упростить: просто integer; 
+            А id_user можно потом "приклеить" из поля id_user;
+date_at:    Дата счета, она же дата начала "допуска" пользователя к материалам сайте;
+date_end:   Дата окончания "допуска" пользователя к материалам сайте;
+content:    "Назначение платежа"
+
+Тогда типы полей:
+
+id_user:    integer
+order_num:  integer
+date_at:    date
+date_end:   date
+content:    string
+
+*/- 3.3
+Генерирую ресурс:
+rails generate scaffold Order id_user:integer order_num:integer date_at:date date_end:date content:string --no-test-framework
+
+alex@www:~/rails_projects/osvita$ rails generate scaffold Order id_user:integer order_num:integer date_at:date date_end:date content:string --no-test-framework
+
+Running via Spring preloader in process 2417
+      invoke  active_record
+      create    db/migrate/20180712083445_create_orders.rb
+      create    app/models/order.rb
+      invoke  resource_route
+       route    resources :orders
+      invoke  scaffold_controller
+      create    app/controllers/orders_controller.rb
+      invoke    erb
+      create      app/views/orders
+      create      app/views/orders/index.html.erb
+      create      app/views/orders/edit.html.erb
+      create      app/views/orders/show.html.erb
+      create      app/views/orders/new.html.erb
+      create      app/views/orders/_form.html.erb
+      invoke    helper
+      create      app/helpers/orders_helper.rb
+      invoke    jbuilder
+      create      app/views/orders/index.json.jbuilder
+      create      app/views/orders/show.json.jbuilder
+      create      app/views/orders/_order.json.jbuilder
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/orders.coffee
+      invoke    scss
+      create      app/assets/stylesheets/orders.scss
+      invoke  scss
+      create    app/assets/stylesheets/scaffolds.scss
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4
+Просматриваю в /osvita 
+созданные элементы согласно списка в п.3.3;
+
+*/- 4.1
+В db/migrate/20180712083445_create_orders.rb
+ОсВ, что индексы не указаны.
+Для ориентира нахожу в МХ "10.1 Модель Micropost",
+поскольку там тоже есть связь двух БД - Микросообщений и Пользователей;
+
+Там в "Листинг 10.1. Миграция Micropost. (Обратите внимание на индекс на user_id и created_at.) "
+есть строка об индексах:
+
+add_index :microposts, [:user_id, :created_at]
+
+...хотя команда генерации модели - без каких либо ключей - см.чуть выше по МХ:
+$ rails generate model Micropost content:string user_id:integer
+
+
+Причем, в моделе Пользователя индексации нет!!
+- см."Листинг 6.2. Миграция для модели User (создающая таблицу users).
+db/migrate/[timestamp]_create_users.rb "
+**//- 1/4 Правда дальше я нашел и для User - см."Листинг 6.19. Миграция для реализации уникальности адреса электронной почты. "
+и команду ... перед ним:
+$ rails generate migration add_index_to_users_email
+Хотя речь там идет не о связях с Микросообщениямим, а об уникальности email. Просто достигается это при помощи индекса.
+
+*/- 4.2
+Дальше в разделе "10.1.3 Ассоциации Пользователь/Микросообщения"
+рассказано о связях между БД:
+"Используя belongs_to/has_many ассоциацию определенную в этом разделе, Rails строит методы показанные в Таблице 10.1."
+
+... а как их включать в МОДЕЛИ - указано в 
+"Листинг 10.7. Микросообщение пренадлежит пользователю.
+app/models/micropost.rb"
+class Micropost < ActiveRecord::Base
+  belongs_to :user
+  validates :user_id, presence: true
+end
+
+... и "Листинг 10.8. Пользователь имеет_много микросообщений.
+app/models/user.rb"
+class User < ActiveRecord::Base
+  has_many :microposts
+  .  .
+end
+
+Там же (в таблице Таблице 10.1) приведены МЕТОДЫ, которыми нужно пользоваться в таких СВЯЗЯХ,
+у меня это м.б.при выписывании счета(!!!!)
+
+*/- 4.3
+Из прочитанного в МХ я понял,
+что можно
+- либо применять команду типа
+  rails generate migration add_index_to_users_email
+- либо вручную записывать
+    add_index :microposts, [:user_id, :created_at]
+  в файл db/migrate/20180712083445_create_orders.rb;
+
+Запишу вручную ... и тоже по 2-м полям:
+add_index :orders, [:id_user, :created_at]
+
+*/- 4.4
+Теперь запишу Ассоциацим;
+Сравнивая Листинг 10.7, Листинг 10.8
+и свои /models/order.rb и /models/user.rb
+ОсВ, что у МХ
+class User < ActiveRecord::Base
+и
+class Micropost < ActiveRecord::Base
+
+а у меня
+class User < ApplicationRecord
+  has_many :orders
+и
+class Order < ApplicationRecord
+  belongs_to :user
+  validates :id_user, presence: true
+
+Ну попробую... вставляю
+
+
+*/- 4.5
+В /config/routes.rb 
+ОсВ, что 
+resources :orders
+не вложен в локали!!!!
+
+Проверяю командой rails routes
+
+Наверное, его тоже нужно вллжить? 
+Переношу "внутрь"!!
+
+*/- 4.6
+Просмотрел app/controllers/orders_controller.rb
+- там польный фарш, он напичкан всякими штучками;
+
+*/- 4.7
+alex@www:~/rails_projects/osvita$ bundle exec rake db:migrate
+== 20180712083445 CreateOrders: migrating =====================================
+-- create_table(:orders)
+   -> 0.3625s
+-- add_index(:orders, [:id_user, :created_at])
+   -> 0.0666s
+== 20180712083445 CreateOrders: migrated (0.4295s) ============================
+
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4.8
+Запускаю сервер, обновляю браузер - РАБОТАЕТ!!!!
+
+
+*/- 5
+коммит, пуш
+alex@www:~/rails_projects/osvita$ git log -3
+commit cea8282c371d6235362cc1a3f5851960ec3ff211
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 10 19:04:23 2018 +0300
+
+    locale2-7srv: ru:+en:
+
+commit 5cf99e9743d22d39b11286ff9b24bebf017b7473
+Author: alex <oo.gaydar@gmail.com>
+Date:   Fri Jul 6 16:09:49 2018 +0300
+
+    locale-6srv: ru:
+
+commit c3784540088427a622f514835b097a021efcb5b1
+Merge: 254bb99 10fb64b
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 3 16:27:53 2018 +0300
+
+    Merge branch 'devise'
+    
+    After correcting conflicts
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ git status
+On branch order
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/models/user.rb
+	modified:   app/views/devise/sessions/new.html.erb
+	modified:   app/views/layouts/_header.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/javascripts/orders.coffee
+	app/assets/stylesheets/orders.scss
+	app/assets/stylesheets/scaffolds.scss
+	app/controllers/orders_controller.rb
+	app/helpers/orders_helper.rb
+	app/models/order.rb
+	app/views/orders/
+	db/migrate/20180712083445_create_orders.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "order-8srv: Order db:migrate"[order 737bf59] order-8srv: Order db:migrate
+ 19 files changed, 355 insertions(+), 33 deletions(-)
+ create mode 100644 app/assets/javascripts/orders.coffee
+ create mode 100644 app/assets/stylesheets/orders.scss
+ create mode 100644 app/assets/stylesheets/scaffolds.scss
+ create mode 100644 app/controllers/orders_controller.rb
+ create mode 100644 app/helpers/orders_helper.rb
+ create mode 100644 app/models/order.rb
+ rewrite app/views/layouts/_header.html.erb (77%)
+ create mode 100644 app/views/orders/_form.html.erb
+ create mode 100644 app/views/orders/_order.json.jbuilder
+ create mode 100644 app/views/orders/edit.html.erb
+ create mode 100644 app/views/orders/index.html.erb
+ create mode 100644 app/views/orders/index.json.jbuilder
+ create mode 100644 app/views/orders/new.html.erb
+ create mode 100644 app/views/orders/show.html.erb
+ create mode 100644 app/views/orders/show.json.jbuilder
+ create mode 100644 db/migrate/20180712083445_create_orders.rb
+alex@www:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 7 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge order
+Updating cea8282..737bf59
+Fast-forward
+ app/assets/javascripts/orders.coffee       |  3 ++
+ app/assets/stylesheets/orders.scss         |  3 ++
+ app/assets/stylesheets/scaffolds.scss      | 84 ++++++++++++++++++++++++++++++
+ app/controllers/orders_controller.rb       | 74 ++++++++++++++++++++++++++
+ app/helpers/orders_helper.rb               |  2 +
+ app/models/order.rb                        |  4 ++
+ app/models/user.rb                         |  1 +
+ app/views/devise/sessions/new.html.erb     |  2 +-
+ app/views/layouts/_header.html.erb         | 59 +++++++++++++--------
+ app/views/orders/_form.html.erb            | 42 +++++++++++++++
+ app/views/orders/_order.json.jbuilder      |  2 +
+ app/views/orders/edit.html.erb             |  6 +++
+ app/views/orders/index.html.erb            | 35 +++++++++++++
+ app/views/orders/index.json.jbuilder       |  1 +
+ app/views/orders/new.html.erb              |  5 ++
+ app/views/orders/show.html.erb             | 29 +++++++++++
+ app/views/orders/show.json.jbuilder        |  1 +
+ config/routes.rb                           |  1 +
+ db/migrate/20180712083445_create_orders.rb | 14 +++++
+ 19 files changed, 345 insertions(+), 23 deletions(-)
+ create mode 100644 app/assets/javascripts/orders.coffee
+ create mode 100644 app/assets/stylesheets/orders.scss
+ create mode 100644 app/assets/stylesheets/scaffolds.scss
+ create mode 100644 app/controllers/orders_controller.rb
+ create mode 100644 app/helpers/orders_helper.rb
+ create mode 100644 app/models/order.rb
+ create mode 100644 app/views/orders/_form.html.erb
+ create mode 100644 app/views/orders/_order.json.jbuilder
+ create mode 100644 app/views/orders/edit.html.erb
+ create mode 100644 app/views/orders/index.html.erb
+ create mode 100644 app/views/orders/index.json.jbuilder
+ create mode 100644 app/views/orders/new.html.erb
+ create mode 100644 app/views/orders/show.html.erb
+ create mode 100644 app/views/orders/show.json.jbuilder
+ create mode 100644 db/migrate/20180712083445_create_orders.rb
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 35, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (31/31), done.
+Writing objects: 100% (35/35), 5.40 KiB | 0 bytes/s, done.
+Total 35 (delta 10), reused 0 (delta 0)
+remote: Resolving deltas: 100% (10/10), completed with 10 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   cea8282..737bf59  master -> master
+alex@www:~/rails_projects/osvita$ git log -3
+commit 737bf5960a3a07913664ed284596017ed93852c8
+Author: alex <oo.gaydar@gmail.com>
+Date:   Thu Jul 12 18:42:26 2018 +0300
+
+    order-8srv: Order db:migrate
+
+commit cea8282c371d6235362cc1a3f5851960ec3ff211
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 10 19:04:23 2018 +0300
+
+    locale2-7srv: ru:+en:
+
+commit 5cf99e9743d22d39b11286ff9b24bebf017b7473
+Author: alex <oo.gaydar@gmail.com>
+Date:   Fri Jul 6 16:09:49 2018 +0300
+
+    locale-6srv: ru:
+alex@www:~/rails_projects/osvita$ 
+
+Следующий файл srv-osvita12-180712(lprofile)

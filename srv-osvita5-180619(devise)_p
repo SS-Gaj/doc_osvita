@@ -1,0 +1,197 @@
+**** 2018.06.19 ****
+Пред.файл 
+[1] - srv-osvita4-180614(home-page);
+
+См.также в папке /home/alex/Documents/Rails/Devise
+[2] - 1.habr.doc;
+[3] - 2.1.github_devise.doc;
+[4] - ЮТ №12;
+
+Здесь буду производить инсталляцию Devise = регистрацаия пользователей;
+
+*/- 1.1
+Делаю новую ветку:
+alex@www:~/rails_projects/osvita$ git checkout -b devise
+
+*/- 1.2
+Раскомментирую в Gemfile строку ... 
+(она была сразу после генерации; Раньше ее не было и она появилась только в Rails 5;
+Я ее закоментировал, чтобы, в случае ошибок при запуске, было меньше вариантов;
+К установке Devise это не имеет отношения)
+
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+Проверяю - РАБОТАЕТ!!!!
+
+*/- 2.1
+Добавляю в Gemfile
+gem 'devise'
+
+*/- 2.2
+alex@www:~/rails_projects/osvita$ bundle install
+
+*/- 2.3
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+
+alex@www:~/rails_projects/osvita$ rails generate devise:install
+Running via Spring preloader in process 3528
+      create  config/initializers/devise.rb
+      create  config/locales/devise.en.yml
+===============================================================================
+
+Some setup you must do manually if you haven't yet:
+
+  1. Ensure you have defined default url options in your environments files. Here
+     is an example of default_url_options appropriate for a development environment
+     in config/environments/development.rb:
+
+       config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+     In production, :host should be set to the actual host of your application.
+
+  2. Ensure you have defined root_url to *something* in your config/routes.rb.
+     For example:
+
+       root to: "home#index"
+
+  3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%= notice %></p>
+       <p class="alert"><%= alert %></p>
+
+  4. You can copy Devise views (for customization) to your app by running:
+
+       rails g devise:views
+
+===============================================================================
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.4 (шаг 3.1 по [2])
+В файл 
+config/environments/development.rb
+добавляю
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+*/- 2.5
+Затем, согласно рекомендациям [3],
+в этой точке я смотрю на параметры подключения модулей - файл ../config/initializers/devise.rb
+и копирую его в ../Documents/my_projects/osvita/devise.rb,
+кое-что перевожу,
+но ничего не меняю; + см.п.2.16 ниже;
+
+*/- 2.6 (шаг 3.2 по [2])
+Теперь нужно добавить в /config/routes.rb
+root 'home#index'
+а у меня это
+root 'welcome#index'
+
+Запускаю сервер, проверяю - РАБОТАЕТ!!!!
+
+*/- 2.7
+Перенаправление из этой точки на профиль пользователя
+get 'persons/profile', as: 'user_root'
+  пока не делаю
+
+*/- 2.8 (шаг 3.3 по [2])
+В это точке добавляются классы к flesh;
+Это я пока пропускаю, поскольку у меня и вывода-то flesh нет;
+
+*/- 2.9 (шаг 3.4 по [2])
+Здесь упоминается Heroku,
+но в случае Rails 3.2;
+Поскольку у меня Rails 5,
+то я надеюсь, что для него уже все заточено, и эту директиву указывать не нужно;
+
+*/- 2.10 (шаг 3.5 по [2])
+По [2] теперь извлекаются вьюхи,
+но пока я не планирую их менять, поэтому шаг 3.5 пропускаю;
+
+*/- 2.11 (шаг 4 по [2])
+Генерация модели User:
+
+alex@www:~/rails_projects/osvita$ rails generate devise User
+
+*/- 2.12 (этого нет в [2], но есть в [3] и на ЮТ)
+**//- 1 
+В файл модели...
+../osvita$ cat /home/alex/rails_projects/osvita/app/models/user.rb
+...включаю ВСЕ модули, кроме входа через соц.сети;
+
+*/- 2.13 - 2.14 (этого нет в [2], но есть в [3] и на ЮТ)
+**//- 2
+Соответственно скорр.модели (см.п.2.12) меняю поля в файле миграции:
+../osvita/db/migrate/20180619142722_devise_create_users.rb
+
+
+*/- 2.15 - 2.17 (шаг 5 по [2])
+
+Запускаю ми.грацию,
+но мне выдало ошибку по ключу - исправляю (см.п.2.16 - 2.17)
+
+alex@www:~/rails_projects/osvita$ rake db:migrate
+rake aborted!
+Devise.secret_key was not set. Please add the following to your Devise initializer:
+
+  config.secret_key = '69fdb1238f2cb72478ef964cd69f4273b47318216af87169db16093a46593827df07ecf48c9327f9f07fa9f4efe1de143254f255b4bd9b87381dda9fc5c2eccf'
+
+Please ensure you restarted your application after installing Devise or setting the key.
+
+*/- 2.18
+Соответственно ЮТ 12:45 проверяю маршруты:
+**//- 3 наличие devise_for :users в /config/routes.rb;
+
+*/- 2.19
+... и вывожу их (ВСЕ, не только Devise)
+
+*/- 3.1 - 3.7
+Добавляю кнопки "Вход / Регистрация" в Главное меню,
+приделываю к ним маршруты,
+удаляю ненужные кнопки из Главного меню,
+
+Предварительно сохраню имеющийся ../app/views/layouts/_header.html.erb в 2_header.html.erb;
+Обновляю - ПОЛУЧАЕТСЯ!!!!
+
+*/- 3.8
+Выполняю "Регистрацию" себя:
+oo.gaydar@gmail.com
+iamadmin1
+**//- 4 но на мою  почту не приходит сообщения для подтверждения регистрации;
+    но поскольку в конфигах не установлено ограничение на подтверждение (в днях),
+    то до устранения этой ошибки эта моя регистрация "подвисла";
+
+*/- 3.8
+В этом месте и на ЮТ,
+и в [2], шаг 7,
+проверяется - пользователь уже вошел или нет, и от этого менявется меню.
+
+*/- 4.1
+**//- 5 Выгружаю вьюхи devise:
+
+alex@www:~/rails_projects/osvita$ rails generate devise:views
+
+*/- 4.2
+Меняю заголовки:
+в 
+../osvita/app/views/devise/sessions/new.html.erb
+'Log in' на 'Вход';
+
+в 
+../osvita/app/views/devise/registrations/new.html.erb
+'Sign up' на 'Регистрация';
+
+*/- 5 коммит, пуш
+
+To https://github.com/SS-Gaj/osvita.git
+   f9796ba..d289c92  master -> master
+alex@www:~/rails_projects/osvita$ 
+
+*/- 6
+Похоже,
+что введенный мною в п.3/8
+пользователь не сохранился;
+**//- 6 см.Прим **//- 5 выше;
+
+Буду разбираться - см.srv-osvita6-180620(devise2)

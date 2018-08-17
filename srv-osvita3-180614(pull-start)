@@ -1,0 +1,519 @@
+**** 2018.06.14 ****
+Пред.файл 
+[1] - /home/alex/Documents/pare_files/home/osvita/hm-osvita2-180613(start)_at180613;
+См.также 
+[2] - /home/alex/Documents/my_projects/osvita/srv-osvita1-180612(xron);
+[3] - /home/alex/Documents/my_projects/poisk9/srv-poisk1-180508(start-1);
+[4.1] - https://www.youtube.com/watch?v=KzYkETRjYKY = ЮТ, "Блог на Rails. Урок #1: Базовый функционал";
+
+Здесь изложен листинг терминала соотв.п.2 [2];
+
+*/- 1
+Загружаю из Гитхаба стартовый коммит Проекта /osvita,
+сделанный на НБ:
+
+alex@www:~/rails_projects$ git clone git://github.com/SS-Gaj/osvita
+Cloning into 'osvita'...
+remote: Counting objects: 84, done.
+remote: Compressing objects: 100% (68/68), done.
+remote: Total 84 (delta 2), reused 84 (delta 2), pack-reused 0
+Receiving objects: 100% (84/84), 21.03 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (2/2), done.
+Checking connectivity... done.
+
+*/- 2
+Пытаюсь сразу же запуститься,
+но оказалось, что для этого нужно кое-что предварительно сделать,
+как и было на НБ:
+
+alex@www:~/rails_projects$ ls
+osvita  poisk9
+alex@www:~/rails_projects$ cd osvita
+
+alex@www:~/rails_projects/osvita$ rails server
+-bash: rails: command not found
+
+alex@www:~/rails_projects/osvita$ bundle install
+-bash: bundle: command not found
+
+*/- 2.1
+alex@www:~/rails_projects/osvita$ gem install bundler
+Fetching: bundler-1.16.2.gem (100%)
+Successfully installed bundler-1.16.2
+Parsing documentation for bundler-1.16.2
+Installing ri documentation for bundler-1.16.2
+Done installing documentation for bundler after 13 seconds
+1 gem installed
+
+*/- 2.2
+alex@www:~/rails_projects/osvita$ bundle update
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies.....
+Fetching rake 12.3.1
+Installing rake 12.3.1
+Fetching concurrent-ruby 1.0.5
+Installing concurrent-ruby 1.0.5
+Fetching i18n 1.0.1
+Installing i18n 1.0.1
+Fetching minitest 5.11.3
+Installing minitest 5.11.3
+Fetching thread_safe 0.3.6
+Installing thread_safe 0.3.6
+Fetching tzinfo 1.2.5
+Installing tzinfo 1.2.5
+Fetching activesupport 5.2.0
+Installing activesupport 5.2.0
+Fetching builder 3.2.3
+Installing builder 3.2.3
+Fetching erubi 1.7.1
+Installing erubi 1.7.1
+Fetching mini_portile2 2.3.0
+Installing mini_portile2 2.3.0
+Fetching nokogiri 1.8.2
+Installing nokogiri 1.8.2 with native extensions
+Fetching rails-dom-testing 2.0.3
+Installing rails-dom-testing 2.0.3
+Fetching crass 1.0.4
+Installing crass 1.0.4
+Fetching loofah 2.2.2
+Installing loofah 2.2.2
+Fetching rails-html-sanitizer 1.0.4
+Installing rails-html-sanitizer 1.0.4
+Fetching actionview 5.2.0
+Installing actionview 5.2.0
+Fetching rack 2.0.5
+Installing rack 2.0.5
+Fetching rack-test 1.0.0
+Installing rack-test 1.0.0
+Fetching actionpack 5.2.0
+Installing actionpack 5.2.0
+Fetching nio4r 2.3.1
+Installing nio4r 2.3.1 with native extensions
+Fetching websocket-extensions 0.1.3
+Installing websocket-extensions 0.1.3
+Fetching websocket-driver 0.7.0
+Installing websocket-driver 0.7.0 with native extensions
+Fetching actioncable 5.2.0
+Installing actioncable 5.2.0
+Fetching globalid 0.4.1
+Installing globalid 0.4.1
+Fetching activejob 5.2.0
+Installing activejob 5.2.0
+Fetching mini_mime 1.0.0
+Installing mini_mime 1.0.0
+Fetching mail 2.7.0
+Installing mail 2.7.0
+Fetching actionmailer 5.2.0
+Installing actionmailer 5.2.0
+Fetching activemodel 5.2.0
+Installing activemodel 5.2.0
+Fetching arel 9.0.0
+Installing arel 9.0.0
+Fetching activerecord 5.2.0
+Installing activerecord 5.2.0
+Fetching mimemagic 0.3.2
+Installing mimemagic 0.3.2
+Fetching marcel 0.3.2
+Installing marcel 0.3.2
+Fetching activestorage 5.2.0
+Installing activestorage 5.2.0
+Fetching public_suffix 3.0.2
+Installing public_suffix 3.0.2
+Fetching addressable 2.5.2
+Installing addressable 2.5.2
+Fetching io-like 0.3.0
+Installing io-like 0.3.0
+Fetching archive-zip 0.11.0
+Installing archive-zip 0.11.0
+Fetching bindex 0.5.0
+Installing bindex 0.5.0 with native extensions
+Fetching msgpack 1.2.4
+Installing msgpack 1.2.4 with native extensions
+Fetching bootsnap 1.3.0
+Installing bootsnap 1.3.0 with native extensions
+Using bundler 1.16.2
+Fetching byebug 10.0.2
+Installing byebug 10.0.2 with native extensions
+Fetching xpath 3.1.0
+Installing xpath 3.1.0
+Fetching capybara 3.2.1
+Installing capybara 3.2.1
+Fetching ffi 1.9.25
+Installing ffi 1.9.25 with native extensions
+Fetching childprocess 0.9.0
+Installing childprocess 0.9.0
+Fetching chromedriver-helper 1.2.0
+Installing chromedriver-helper 1.2.0
+Fetching coffee-script-source 1.12.2
+Installing coffee-script-source 1.12.2
+Fetching execjs 2.7.0
+Installing execjs 2.7.0
+Fetching coffee-script 2.4.1
+Installing coffee-script 2.4.1
+Fetching method_source 0.9.0
+Installing method_source 0.9.0
+Fetching thor 0.20.0
+Installing thor 0.20.0
+Fetching railties 5.2.0
+Installing railties 5.2.0
+Fetching coffee-rails 4.2.2
+Installing coffee-rails 4.2.2
+Fetching multi_json 1.13.1
+Installing multi_json 1.13.1
+Fetching jbuilder 2.7.0
+Installing jbuilder 2.7.0
+Fetching rb-fsevent 0.10.3
+Installing rb-fsevent 0.10.3
+Fetching rb-inotify 0.9.10
+Installing rb-inotify 0.9.10
+Fetching ruby_dep 1.5.0
+Installing ruby_dep 1.5.0
+Fetching listen 3.1.5
+Installing listen 3.1.5
+Fetching pg 1.0.0
+Installing pg 1.0.0 with native extensions
+Fetching puma 3.11.4
+Installing puma 3.11.4 with native extensions
+Fetching sprockets 3.7.1
+Installing sprockets 3.7.1
+Fetching sprockets-rails 3.2.1
+Installing sprockets-rails 3.2.1
+Fetching rails 5.2.0
+Installing rails 5.2.0
+Fetching rubyzip 1.2.1
+Installing rubyzip 1.2.1
+Fetching sass-listen 4.0.0
+Installing sass-listen 4.0.0
+Fetching sass 3.5.6
+Installing sass 3.5.6
+Fetching tilt 2.0.8
+Installing tilt 2.0.8
+Fetching sass-rails 5.0.7
+Installing sass-rails 5.0.7
+Fetching selenium-webdriver 3.12.0
+Installing selenium-webdriver 3.12.0
+Fetching spring 2.0.2
+Installing spring 2.0.2
+Fetching spring-watcher-listen 2.0.1
+Installing spring-watcher-listen 2.0.1
+Fetching turbolinks-source 5.1.0
+Installing turbolinks-source 5.1.0
+Fetching turbolinks 5.1.1
+Installing turbolinks 5.1.1
+Fetching uglifier 4.1.11
+Installing uglifier 4.1.11
+Fetching web-console 3.6.2
+Installing web-console 3.6.2
+Bundle updated!
+
+*/- 2.3
+alex@www:~/rails_projects/osvita$ bundle install
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using ffi 1.9.25
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using execjs 2.7.0
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using rb-fsevent 0.10.3
+Using rb-inotify 0.9.10
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 18 Gemfile dependencies, 78 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+*/- 2.4
+СЕРВЕР ЗАПУСТИЛСЯ!!!!
+
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Puma starting in single mode...
+* Version 3.11.4 (ruby 2.4.1-p111), codename: Love Song
+* Min threads: 5, max threads: 5
+* Environment: development
+* Listening on tcp://0.0.0.0:3000
+Use Ctrl-C to stop
+Started GET "/" for 127.0.0.1 at 2018-06-14 10:55:01 +0300
+  
+RuntimeError (Cannot load `Rails.application.database_configuration`:
+Could not load database configuration. No such file - ["config/database.yml"]):
+
+*/- 3
+После загрузки в браузере http://localhost:3000/
+вылезла ошибка (см.выше),
+поэтому нужно повторить те же дейстивия,
+что и на НБ в аналогичной ситуации;
+
+*/- 3.1
+Соотв. п.9.3 [1] ... но это не приводит к толожительному результату, как на НБ;
+Похоже, что здесь нужно скопировать "config/database.yml" из НБ
+и переслать на Сервер (поскольку "config/database.yml" нет на Гитхабе - ведь я его запретил в .gitignore!!!!)
+
+
+alex@www:~/rails_projects/osvita$ rake db:setup
+rake aborted!
+Cannot load `Rails.application.database_configuration`:
+Could not load database configuration. No such file - ["config/database.yml"]
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/application/configuration.rb:185:in `database_configuration'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railtie.rb:39:in `block (3 levels) in <class:Railtie>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/rake-12.3.1/exe/rake:27:in `<top (required)>'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `eval'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `<main>'
+
+Caused by:
+Could not load database configuration. No such file - ["config/database.yml"]
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/application/configuration.rb:185:in `database_configuration'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railtie.rb:39:in `block (3 levels) in <class:Railtie>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/rake-12.3.1/exe/rake:27:in `<top (required)>'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `eval'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `<main>'
+Tasks: TOP => db:setup => db:schema:load_if_ruby => db:create => db:load_config
+(See full trace by running task with --trace)
+
+alex@www:~/rails_projects/osvita$ rake db:setup
+Created database 'osvita_development'
+Created database 'osvita_test'
+/home/alex/rails_projects/osvita/db/schema.rb doesn't exist yet. Run `rails db:migrate` to create it, then try again. If you do not intend to use a database, you should instead alter /home/alex/rails_projects/osvita/config/application.rb to limit the frameworks that will be loaded.
+
+*/- 3.2
+Дальше по идее нужно ... но здесь это не проходит;
+
+alex@www:~/rails_projects/osvita$ rake db:migrate
+rake aborted!
+Errno::ENOENT: No such file or directory @ rb_sysopen - /home/alex/rails_projects/osvita/db/schema.rb
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `initialize'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `open'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `block (3 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:68:in `block (2 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:61:in `block (2 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/rake-12.3.1/exe/rake:27:in `<top (required)>'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `eval'
+/home/alex/.rvm/gems/ruby-2.4.1/bin/ruby_executable_hooks:15:in `<main>'
+Tasks: TOP => db:schema:dump
+(See full trace by running task with --trace)
+
+*/- 3.3 
+Делаю еще один круг
+в надежде что получится,
+но не получается - обнаруживаю, что проблемма в /db/schema.rb;
+Тупо копирую /db/schema.rb из НБ,
+но ошибка остается, 
+перевожу комментарии в этом файле - /home/alex/Documents/my_projects/osvita/schema_fromNB.rb,
+и делаю вывод, что тупое копирование в этом случае не поможет;
+поэтому перемещаю в /home/alex/Documents/my_projects/osvita/schema.rb
+(для временного хранения);
+
+alex@www:~/rails_projects/osvita$ rake db:setup
+Database 'osvita_development' already exists
+Database 'osvita_test' already exists
+/home/alex/rails_projects/osvita/db/schema.rb doesn't exist yet. Run `rails db:migrate` to create it, then try again. If you do not intend to use a database, you should instead alter /home/alex/rails_projects/osvita/config/application.rb to limit the frameworks that will be loaded.
+alex@www:~/rails_projects/osvita$ rails db:migrate
+rails aborted!
+Errno::ENOENT: No such file or directory @ rb_sysopen - /home/alex/rails_projects/osvita/db/schema.rb
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `initialize'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `open'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:250:in `block (3 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:68:in `block (2 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/railties/databases.rake:61:in `block (2 levels) in <main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/rake/rake_command.rb:23:in `block in perform'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/rake/rake_command.rb:20:in `perform'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/command.rb:48:in `invoke'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands.rb:18:in `<main>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `require'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `block in require_with_bootsnap_lfi'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/loaded_features_index.rb:65:in `register'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:20:in `require_with_bootsnap_lfi'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:29:in `require'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `block in require'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:249:in `load_dependency'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `require'
+/home/alex/rails_projects/osvita/bin/rails:9:in `<top (required)>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/rails.rb:28:in `load'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/rails.rb:28:in `call'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/command.rb:7:in `call'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client.rb:30:in `run'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/bin/spring:49:in `<top (required)>'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/binstub.rb:31:in `load'
+/home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/binstub.rb:31:in `<top (required)>'
+/home/alex/rails_projects/osvita/bin/spring:15:in `require'
+/home/alex/rails_projects/osvita/bin/spring:15:in `<top (required)>'
+bin/rails:3:in `load'
+bin/rails:3:in `<main>'
+Tasks: TOP => db:schema:dump
+(See full trace by running task with --trace)
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4
+Вспоминаю,
+что препятствие в этом месте переноса Проекта на  Сервер было и с Приложением /poisk;
+Нахожу в [3], п.9, что я добавил в Gemfile
+gem 'execjs',	'~> 2.7.0'
+gem 'uglifier', '~> 4.1.5'
+
+Хотел уже было заняться этим,
+но еще раз взгланув (!!!!) на дерево /osvita обнаружил,
+что я записал /db/schema.rb 
+(точнее сам файл schema.rb) не в папку /db,
+а в папку ~/rails_projects/osvita/lib,
+а папки /db в корне /osvita вообще не существует!!
+
+К тому же проверил листинг терминала (выше),
+и обнаружил, что у меня уже
+Installing execjs 2.7.0
+Installing uglifier 4.1.11
+
+*/- 4.1
+Копирую из НБ всю папку /db
+- оказалось, что там, кроме скопированного ранее
+еще только 1 файл - seeds.rb;
+Копирую его тоже пока в /home/alex/Documents/my_projects/osvita/seeds.rb;
+
+*/- 4.2
+Прежде, чем создавать папку /db и копировать в нее файлы,
+посмотрю в Проекте /poisk владельцев:
+alex@www:~/rails_projects/poisk9$ ls -l
+total 64
+drwxr-xr-x 8 alex alex 4096 May  8 17:25 app
+drwxr-xr-x 2 alex alex 4096 May  8 17:25 bin
+drwxr-xr-x 5 alex alex 4096 May 11 16:45 config
+-rw-r--r-- 1 alex alex  153 May  8 17:25 config.ru
+drwxr-xr-x 3 alex alex 4096 May 10 16:31 db
+-rw-r--r-- 1 alex alex 2176 May  8 19:37 Gemfile
+-rw-r--r-- 1 alex alex 6749 May  8 19:37 Gemfile.lock
+drwxr-xr-x 4 alex alex 4096 May  8 17:25 lib
+drwxr-xr-x 2 alex alex 4096 May  8 19:24 log
+drwxr-xr-x 2 alex alex 4096 May  8 17:25 public
+-rw-r--r-- 1 alex alex  249 May  8 17:25 Rakefile
+-rw-r--r-- 1 alex alex  478 May  8 17:25 README.rdoc
+drwxr-xr-x 8 alex alex 4096 May  8 17:25 spec
+drwxr-xr-x 6 alex alex 4096 May 10 16:32 tmp
+drwxr-xr-x 3 alex alex 4096 May  8 17:25 vendor
+alex@www:~/rails_projects/poisk9$ cd db
+alex@www:~/rails_projects/poisk9/db$ ls -l
+total 8
+drwxr-xr-x 2 alex alex 4096 May  8 17:25 migrate
+-rw-r--r-- 1 alex alex 1521 May 10 16:31 schema.rb
+alex@www:~/rails_projects/poisk9/db$ 
+
+... а также в /home/alex/Documents/my_projects/osvita/schema.rb:
+
+alex@www:~/rails_projects/poisk9/db$ ls /home/alex/Documents/my_projects/osvita -l
+total 60
+-rw-r--r-- 1 alex alex  3077 Jun 14 11:56 schema_fromNB.rb
+-rw-r--r-- 1 alex alex   881 Jun 14 11:40 schema.rb
+-rw-r--r-- 1 alex alex   370 Jun 14 12:24 seeds.rb
+-rw-r--r-- 1 alex alex 24318 Jun 12 17:11 srv-osvita1-180612(rvm)
+-rw-r--r-- 1 alex alex  2510 Jun 14 11:59 srv-osvita1-180612(xron)
+-rw-r--r-- 1 alex alex 17884 Jun 14 12:20 srv-osvita3-180614(pull-start)
+alex@www:~/rails_projects/poisk9/db$ 
+
+Вижу, что владельцы и права подходящие,
+значит можно создавать папку и копировать файлы!!!!
+
+*/- 4.3
+Создаю папку и копирую файлы:
+alex@www:~/rails_projects/osvita$ mkdir db
+alex@www:~/rails_projects/osvita$ mv /home/alex/Documents/my_projects/osvita/schema.rb /home/alex/rails_projects/osvita/db/schema.rb
+alex@www:~/rails_projects/osvita$ mv /home/alex/Documents/my_projects/osvita/seeds.rb /home/alex/rails_projects/osvita/db/seeds.rb
+
+*/- 4.4
+Выполняю ... УСПЕШНО!!!!
+alex@www:~/rails_projects/osvita$ rails db:migrate
+alex@www:~/rails_projects/osvita$ rake db:migrate
+
+
+*/- 4.5
+Запускаю сервер ...
+
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Puma starting in single mode...
+* Version 3.11.4 (ruby 2.4.1-p111), codename: Love Song
+* Min threads: 5, max threads: 5
+* Environment: development
+* Listening on tcp://0.0.0.0:3000
+Use Ctrl-C to stop
+
+... и ввожу http://localhost:3000/
+- ЗАГРУЗИЛАСЬ СТАРТОВАЯ СТРАНИЦА!!!!
+
+Started GET "/" for 127.0.0.1 at 2018-06-14 12:40:12 +0300
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/templates/rails/welcome/index.html.erb (8.8ms)
+Completed 200 OK in 32ms (Views: 13.5ms | ActiveRecord: 0.0ms)
+
+Следующий файл - srv-osvita4-180614(home-page)

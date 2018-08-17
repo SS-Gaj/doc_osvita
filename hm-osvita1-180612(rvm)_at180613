@@ -1,0 +1,310 @@
+**** 2018.06.12 ****
+Это листинг терминала в процессе инсталляции Ruby 2.4.1 и Rails 5.2.0 на НБ
+в стартовом этапе подготовки среды разработки на НБ
+для создания Проекта /osvita - см.п.1 /home/ss/Документы/my_projects/osvita/hm-osvita1-180612(xron);
+
+*/- 1
+ss@DEBIAN:~$ rvm list
+
+rvm rubies
+
+   ruby-2.0.0-p648 [ x86_64 ]
+   ruby-2.1.8 [ x86_64 ]
+=* ruby-2.3.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+ss@DEBIAN:~$ rvm info
+
+ruby-2.3.1@rb231rl429:
+
+  system:
+    uname:        "Linux DEBIAN 3.16.0-4-amd64 #1 SMP Debian 3.16.51-3 (2017-12-13) x86_64 GNU/Linux"
+    name:         "Debian"
+    version:      "8"
+    architecture: "x86_64"
+    bash:         "/bin/bash => GNU bash, version 4.3.30(1)-release (x86_64-pc-linux-gnu)"
+    zsh:          " => not installed"
+    remote_path:  "debian/8/x86_64"
+
+  rvm:
+    version:      "1.29.3 (latest)"
+    updated:      "3 months 21 days 6 hours 4 minutes 38 seconds ago"
+    path:         "/home/ss/.rvm"
+    autolibs:     "[4] Allow RVM to use package manager if found, install missing dependencies, install package manager (only OS X)."
+
+  ruby:
+    interpreter:  "ruby"
+    version:      "2.3.1p112"
+    date:         "2016-04-26"
+    platform:     "x86_64-linux"
+    patchlevel:   "2016-04-26 revision 54768"
+    full_version: "ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-linux]"
+
+  homes:
+    gem:          "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429"
+    ruby:         "/home/ss/.rvm/rubies/ruby-2.3.1"
+
+  binaries:
+    ruby:         "/home/ss/.rvm/rubies/ruby-2.3.1/bin/ruby"
+    irb:          "/home/ss/.rvm/rubies/ruby-2.3.1/bin/irb"
+    gem:          "/home/ss/.rvm/rubies/ruby-2.3.1/bin/gem"
+    rake:         "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429/bin/rake"
+
+  environment:
+    PATH:         "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429/bin:/home/ss/.rvm/gems/ruby-2.3.1@global/bin:/home/ss/.rvm/rubies/ruby-2.3.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/usr/lib/postgresql/9.4/bin:/home/ss/.rvm/bin:/home/ss/.rvm/bin:/usr/lib/postgresql/9.4/bin"
+    GEM_HOME:     "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429"
+    GEM_PATH:     "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429:/home/ss/.rvm/gems/ruby-2.3.1@global"
+    MY_RUBY_HOME: "/home/ss/.rvm/rubies/ruby-2.3.1"
+    IRBRC:        "/home/ss/.rvm/rubies/ruby-2.3.1/.irbrc"
+    RUBYOPT:      ""
+    gemset:       "rb231rl429"
+
+
+ss@DEBIAN:~$ rvm get stabl
+Ruby enVironment Manager 1.29.3 (latest) (c) 2009-2017 Michal Papis, Piotr Kuczynski, Wayne E. Seguin
+
+# rvm get
+
+Update RVM
+
+## Usage
+
+  rvm get {stable|latest|latest-x.y|x.y.z|head|master|branch|help} [--auto-dotfiles] [--autolibs=X]
+
+## Options
+
+  stable     - install the latest RVM stable release
+
+  latest     - install the latest RVM release
+
+  latest-minor
+             - install the latest minor RVM release for currently installed version
+
+  latest-x.y - install the latest RVM release matching the x.y* pattern
+
+  x.y.z      - install a specific RVM release
+
+  head
+  master     - install the latest RVM development version
+
+  --auto-dotfiles
+             - automatically update shell profile files.
+
+  --autolibs=X
+             - update autolibs mode to `X`, read more: `rvm autolibs`
+
+  help       - Output this message.
+
+## Branches
+
+    branch <branch>
+    branch /<branch>
+    branch <repo>/
+    branch <repo>/<branch>
+
+## Defaults
+
+    branch: master
+    repo:   rvm
+
+## Examples
+
+    rvm get branch shoes   # will fetch branch shoes from rvm/rvm repo
+    rvm get branch mpapis/ # will fetch branch master from mpapis/rvm repo
+
+For additional documentation please visit https://rvm.io
+
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ rvm get stable
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/ss/.rvm/archives/rvm-installer.asc
+gpg: Подпись создана Вск 01 Апр 2018 00:47:44 EEST ключом RSA с ID BF04FF17
+gpg: Действительная подпись от "Michal Papis (RVM signing) <mpapis@gmail.com>" [неизвестной]
+gpg: Замечание: Данный ключ просрочен!
+Отпечаток главного ключа: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+      Отпечаток подключа: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-installer'
+Downloading https://github.com/rvm/rvm/archive/1.29.3.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.3/1.29.3.tar.gz.asc
+gpg: Подпись создана Вск 10 Сен 2017 23:59:21 EEST ключом RSA с ID BF04FF17
+gpg: Действительная подпись от "Michal Papis (RVM signing) <mpapis@gmail.com>" [неизвестной]
+gpg: Замечание: Данный ключ просрочен!
+Отпечаток главного ключа: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+      Отпечаток подключа: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-1.29.3.tgz'
+
+Upgrading the RVM installation in /home/ss/.rvm/
+    RVM PATH line found in /home/ss/.mkshrc /home/ss/.profile /home/ss/.bashrc /home/ss/.zshrc.
+    RVM sourcing line found in /home/ss/.profile /home/ss/.bash_profile /home/ss/.zlogin.
+Upgrade of RVM in /home/ss/.rvm/ is complete.
+
+Upgrade Notes:
+
+  * No new notes to display.
+
+RVM reloaded!
+ss@DEBIAN:~$ rvm get stable
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/ss/.rvm/archives/rvm-installer.asc
+gpg: Подпись создана Вск 01 Апр 2018 00:47:44 EEST ключом RSA с ID BF04FF17
+gpg: Действительная подпись от "Michal Papis (RVM signing) <mpapis@gmail.com>" [неизвестной]
+gpg: Замечание: Данный ключ просрочен!
+Отпечаток главного ключа: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+      Отпечаток подключа: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-installer'
+Downloading https://github.com/rvm/rvm/archive/1.29.3.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.3/1.29.3.tar.gz.asc
+gpg: Подпись создана Вск 10 Сен 2017 23:59:21 EEST ключом RSA с ID BF04FF17
+gpg: Действительная подпись от "Michal Papis (RVM signing) <mpapis@gmail.com>" [неизвестной]
+gpg: Замечание: Данный ключ просрочен!
+Отпечаток главного ключа: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+      Отпечаток подключа: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-1.29.3.tgz'
+
+Upgrading the RVM installation in /home/ss/.rvm/
+    RVM PATH line found in /home/ss/.mkshrc /home/ss/.profile /home/ss/.bashrc /home/ss/.zshrc.
+    RVM sourcing line found in /home/ss/.profile /home/ss/.bash_profile /home/ss/.zlogin.
+Upgrade of RVM in /home/ss/.rvm/ is complete.
+
+Upgrade Notes:
+
+  * No new notes to display.
+
+RVM reloaded!
+ss@DEBIAN:~$ rvm install 2.4.1
+Searching for binary rubies, this might take some time.
+No binary rubies available for: debian/8/x86_64/ruby-2.4.1.
+Continuing with compilation. Please read 'rvm help mount' to get more information on binary rubies.
+Checking requirements for debian.
+Requirements installation successful.
+Installing Ruby from source to: /home/ss/.rvm/rubies/ruby-2.4.1, this may take a while depending on your cpu(s)...
+ruby-2.4.1 - #downloading ruby-2.4.1, this may take a while depending on your connection...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 11.9M  100 11.9M    0     0   124k      0  0:01:38  0:01:38 --:--:--  156k
+ruby-2.4.1 - #extracting ruby-2.4.1 to /home/ss/.rvm/src/ruby-2.4.1....
+ruby-2.4.1 - #applying patch /home/ss/.rvm/patches/ruby/2.4.1/random_c_using_NR_prefix.patch.
+ruby-2.4.1 - #configuring..................................................................
+ruby-2.4.1 - #post-configuration..
+ruby-2.4.1 - #compiling................................................................................
+ruby-2.4.1 - #installing...........
+ruby-2.4.1 - #making binaries executable..
+ruby-2.4.1 - #downloading rubygems-2.6.14
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  751k  100  751k    0     0  64283      0  0:00:11  0:00:11 --:--:-- 64919
+No checksum for downloaded archive, recording checksum in user configuration.
+ruby-2.4.1 - #extracting rubygems-2.6.14....
+ruby-2.4.1 - #removing old rubygems.........
+ruby-2.4.1 - #installing rubygems-2.6.14...........................
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1@global
+ruby-2.4.1 - #importing gemset /home/ss/.rvm/gemsets/global.gems...............................................
+ruby-2.4.1 - #generating global wrappers........
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1
+ruby-2.4.1 - #importing gemsetfile /home/ss/.rvm/gemsets/default.gems evaluated to empty gem list
+ruby-2.4.1 - #generating default wrappers........
+ruby-2.4.1 - #adjusting #shebangs for (gem irb erb ri rdoc testrb rake).
+Install of ruby-2.4.1 - #complete 
+Ruby was built without documentation, to build it run: rvm docs generate-ri
+ss@DEBIAN:~$ ruby -v
+ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-linux]
+ss@DEBIAN:~$ rvm requirements
+Checking requirements for debian.
+Requirements installation successful.
+ss@DEBIAN:~$ which gem
+/home/ss/.rvm/rubies/ruby-2.4.1/bin/gem
+ss@DEBIAN:~$ rvm use 2.4.1@rb241rl520 --create --default
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1@rb241rl520
+ruby-2.4.1 - #generating rb241rl520 wrappers..........
+Using /home/ss/.rvm/gems/ruby-2.4.1 with gemset rb241rl520
+ss@DEBIAN:~$ gem install rails --version 5.2.0
+Fetching: concurrent-ruby-1.0.5.gem (100%)
+Successfully installed concurrent-ruby-1.0.5
+Fetching: i18n-1.0.1.gem (100%)
+Successfully installed i18n-1.0.1
+Fetching: thread_safe-0.3.6.gem (100%)
+Successfully installed thread_safe-0.3.6
+Fetching: tzinfo-1.2.5.gem (100%)
+Successfully installed tzinfo-1.2.5
+Fetching: activesupport-5.2.0.gem (100%)
+Successfully installed activesupport-5.2.0
+Fetching: rack-2.0.5.gem (100%)
+Successfully installed rack-2.0.5
+Fetching: rack-test-1.0.0.gem (100%)
+Successfully installed rack-test-1.0.0
+Fetching: mini_portile2-2.3.0.gem (100%)
+Successfully installed mini_portile2-2.3.0
+Fetching: nokogiri-1.8.2.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed nokogiri-1.8.2
+Fetching: crass-1.0.4.gem (100%)
+Successfully installed crass-1.0.4
+Fetching: loofah-2.2.2.gem (100%)
+Successfully installed loofah-2.2.2
+Fetching: rails-html-sanitizer-1.0.4.gem (100%)
+Successfully installed rails-html-sanitizer-1.0.4
+Fetching: rails-dom-testing-2.0.3.gem (100%)
+Successfully installed rails-dom-testing-2.0.3
+Fetching: builder-3.2.3.gem (100%)
+Successfully installed builder-3.2.3
+Fetching: erubi-1.7.1.gem (100%)
+Successfully installed erubi-1.7.1
+Fetching: actionview-5.2.0.gem (100%)
+Successfully installed actionview-5.2.0
+Fetching: actionpack-5.2.0.gem (100%)
+Successfully installed actionpack-5.2.0
+Fetching: activemodel-5.2.0.gem (100%)
+Successfully installed activemodel-5.2.0
+Fetching: arel-9.0.0.gem (100%)
+Successfully installed arel-9.0.0
+Fetching: activerecord-5.2.0.gem (100%)
+Successfully installed activerecord-5.2.0
+Fetching: globalid-0.4.1.gem (100%)
+Successfully installed globalid-0.4.1
+Fetching: activejob-5.2.0.gem (100%)
+Successfully installed activejob-5.2.0
+Fetching: mini_mime-1.0.0.gem (100%)
+Successfully installed mini_mime-1.0.0
+Fetching: mail-2.7.0.gem (100%)
+Successfully installed mail-2.7.0
+Fetching: actionmailer-5.2.0.gem (100%)
+Successfully installed actionmailer-5.2.0
+Fetching: nio4r-2.3.1.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed nio4r-2.3.1
+Fetching: websocket-extensions-0.1.3.gem (100%)
+Successfully installed websocket-extensions-0.1.3
+Fetching: websocket-driver-0.7.0.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed websocket-driver-0.7.0
+Fetching: actioncable-5.2.0.gem (100%)
+Successfully installed actioncable-5.2.0
+Fetching: mimemagic-0.3.2.gem (100%)
+Successfully installed mimemagic-0.3.2
+Fetching: marcel-0.3.2.gem (100%)
+Successfully installed marcel-0.3.2
+Fetching: activestorage-5.2.0.gem (100%)
+Successfully installed activestorage-5.2.0
+Fetching: thor-0.20.0.gem (100%)
+Successfully installed thor-0.20.0
+Fetching: method_source-0.9.0.gem (100%)
+Successfully installed method_source-0.9.0
+Fetching: railties-5.2.0.gem (100%)
+Successfully installed railties-5.2.0
+Fetching: bundler-1.16.2.gem (100%)
+Successfully installed bundler-1.16.2
+Fetching: sprockets-3.7.1.gem (100%)
+Successfully installed sprockets-3.7.1
+Fetching: sprockets-rails-3.2.1.gem (100%)
+Successfully installed sprockets-rails-3.2.1
+Fetching: rails-5.2.0.gem (100%)
+Successfully installed rails-5.2.0
+39 gems installed
+ss@DEBIAN:~$ 
+

@@ -1,0 +1,42 @@
+**** 2018.07.02 ****
+
+*/- 1
+ss@DEBIAN:~$ cat /home/ss/rails_projects/osvita/.git/config 
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://github.com/SS-Gaj/osvita.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[remote "heroku"]
+	url = https://git.heroku.com/salty-harbor-78667.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ cat /home/ss/.gitconfig 
+[user]
+	name = Alex
+	email = sashagajdarenko@gmail.com
+[alias]
+	co = checkout
+[push]
+	default = simple
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ 
+ss@DEBIAN:~$ git config --list
+user.name=Alex
+user.email=sashagajdarenko@gmail.com
+alias.co=checkout
+push.default=simple
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+ss@DEBIAN:~$ 
+

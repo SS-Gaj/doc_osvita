@@ -1,0 +1,124 @@
+**** 2018.06.26 ****
+
+ss@DEBIAN:~/rails_projects/osvita$ heroku logs
+2018-06-26T13:13:41.486553+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/static.rb:127:in `call'
+2018-06-26T13:13:41.486554+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/sendfile.rb:111:in `call'
+2018-06-26T13:13:41.486555+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/engine.rb:524:in `call'
+2018-06-26T13:13:41.486556+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/configuration.rb:225:in `call'
+2018-06-26T13:13:41.486557+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:632:in `handle_request'
+2018-06-26T13:13:41.486558+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:446:in `process_client'
+2018-06-26T13:13:41.486559+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:306:in `block in run'
+2018-06-26T13:13:41.486561+00:00 app[web.1]: [bebecd31-7de7-496c-b723-82775ef8e327] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+
+2018-06-26T13:13:41.487359+00:00 heroku[router]: at=info method=POST path="/users" host=salty-harbor-78667.herokuapp.com request_id=bebecd31-7de7-496c-b723-82775ef8e327 fwd="85.90.218.17" dyno=web.1 connect=1ms service=202ms status=500 bytes=1827 protocol=https
+
+2018-06-26T13:13:41.744692+00:00 heroku[router]: at=info method=GET path="/favicon.ico" host=salty-harbor-78667.herokuapp.com request_id=5e6b4dca-84c7-4fc7-88a3-0931d41bd5b7 fwd="85.90.218.17" dyno=web.1 connect=1ms service=8ms status=304 bytes=48 protocol=https
+
+2018-06-26T13:14:09.295332+00:00 heroku[router]: at=info method=GET path="/" host=salty-harbor-78667.herokuapp.com request_id=c5d4de2a-1886-42db-b016-85f7bee79476 fwd="85.90.218.17" dyno=web.1 connect=1ms service=6ms status=200 bytes=4583 protocol=https
+
+2018-06-26T13:14:09.290732+00:00 app[web.1]: I, [2018-06-26T13:14:09.290631 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476] Started GET "/" for 85.90.218.17 at 2018-06-26 13:14:09 +0000
+2018-06-26T13:14:09.291449+00:00 app[web.1]: I, [2018-06-26T13:14:09.291380 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476] Processing by WelcomeController#index as HTML
+2018-06-26T13:14:09.292393+00:00 app[web.1]: I, [2018-06-26T13:14:09.292324 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476]   Rendering welcome/index.html.erb within layouts/application
+2018-06-26T13:14:09.292539+00:00 app[web.1]: I, [2018-06-26T13:14:09.292483 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476]   Rendered welcome/index.html.erb within layouts/application (0.0ms)
+2018-06-26T13:14:09.293321+00:00 app[web.1]: I, [2018-06-26T13:14:09.293247 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476]   Rendered layouts/_shim.html.erb (0.0ms)
+2018-06-26T13:14:09.293862+00:00 app[web.1]: I, [2018-06-26T13:14:09.293792 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476]   Rendered layouts/_header.html.erb (0.4ms)
+2018-06-26T13:14:09.294183+00:00 app[web.1]: I, [2018-06-26T13:14:09.294123 #4]  INFO -- : [c5d4de2a-1886-42db-b016-85f7bee79476] Completed 200 OK in 3ms (Views: 2.0ms | ActiveRecord: 0.0ms)
+2018-06-26T13:14:09.489763+00:00 app[web.1]: I, [2018-06-26T13:14:09.489654 #4]  INFO -- : [32240d03-0e8d-4994-b5f9-5c1840cb3727] Started GET "/assets/stylesheets/custom.css.scss" for 85.90.218.17 at 2018-06-26 13:14:09 +0000
+2018-06-26T13:14:09.490641+00:00 app[web.1]: F, [2018-06-26T13:14:09.490559 #4] FATAL -- : [32240d03-0e8d-4994-b5f9-5c1840cb3727]
+2018-06-26T13:14:09.490752+00:00 app[web.1]: F, [2018-06-26T13:14:09.490678 #4] FATAL -- : [32240d03-0e8d-4994-b5f9-5c1840cb3727] 
+
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+
+2018-06-26T13:14:09.490854+00:00 app[web.1]: F, [2018-06-26T13:14:09.490782 #4] FATAL -- : [32240d03-0e8d-4994-b5f9-5c1840cb3727]
+2018-06-26T13:14:09.490994+00:00 app[web.1]: F, [2018-06-26T13:14:09.490908 #4] FATAL -- : [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+2018-06-26T13:14:09.490997+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+2018-06-26T13:14:09.490999+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:38:in `call_app'
+2018-06-26T13:14:09.491001+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `block in call'
+2018-06-26T13:14:09.491003+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:71:in `block in tagged'
+2018-06-26T13:14:09.491005+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:28:in `tagged'
+2018-06-26T13:14:09.491006+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:71:in `tagged'
+2018-06-26T13:14:09.491008+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `call'
+2018-06-26T13:14:09.491010+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+2018-06-26T13:14:09.491011+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/request_id.rb:27:in `call'
+2018-06-26T13:14:09.491013+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/method_override.rb:22:in `call'
+2018-06-26T13:14:09.491014+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/runtime.rb:22:in `call'
+2018-06-26T13:14:09.491017+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+2018-06-26T13:14:09.491019+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/executor.rb:14:in `call'
+2018-06-26T13:14:09.491021+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/static.rb:127:in `call'
+2018-06-26T13:14:09.491022+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/sendfile.rb:111:in `call'
+2018-06-26T13:14:09.491024+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/engine.rb:524:in `call'
+2018-06-26T13:14:09.491025+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/configuration.rb:225:in `call'
+2018-06-26T13:14:09.491027+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:632:in `handle_request'
+2018-06-26T13:14:09.491028+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:446:in `process_client'
+2018-06-26T13:14:09.491030+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:306:in `block in run'
+2018-06-26T13:14:09.491031+00:00 app[web.1]: [32240d03-0e8d-4994-b5f9-5c1840cb3727] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+
+2018-06-26T13:14:09.491248+00:00 heroku[router]: at=info method=GET path="/assets/stylesheets/custom.css.scss" host=salty-harbor-78667.herokuapp.com request_id=32240d03-0e8d-4994-b5f9-5c1840cb3727 fwd="85.90.218.17" dyno=web.1 connect=1ms service=3ms status=404 bytes=1902 protocol=https
+
+2018-06-26T13:14:09.792740+00:00 heroku[router]: at=info method=GET path="/favicon.ico" host=salty-harbor-78667.herokuapp.com request_id=fee667ab-8a9d-457a-8b85-7e4a6bdd3c72 fwd="85.90.218.17" dyno=web.1 connect=1ms service=2ms status=304 bytes=48 protocol=https
+2018-06-26T13:14:59.295585+00:00 heroku[router]: at=info method=GET path="/users/sign_in" host=salty-harbor-78667.herokuapp.com request_id=13c1e9d9-72bf-41f0-91b8-004c8bfe7344 fwd="85.90.218.17" dyno=web.1 connect=0ms service=16ms status=200 bytes=5639 protocol=https
+
+2018-06-26T13:14:59.281361+00:00 app[web.1]: I, [2018-06-26T13:14:59.281257 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344] Started GET "/users/sign_in" for 85.90.218.17 at 2018-06-26 13:14:59 +0000
+2018-06-26T13:14:59.282280+00:00 app[web.1]: I, [2018-06-26T13:14:59.282218 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344] Processing by Devise::SessionsController#new as HTML
+2018-06-26T13:14:59.285023+00:00 app[web.1]: I, [2018-06-26T13:14:59.284938 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344]   Rendering devise/sessions/new.html.erb within layouts/application
+2018-06-26T13:14:59.288922+00:00 app[web.1]: I, [2018-06-26T13:14:59.288834 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344]   Rendered devise/shared/_links.html.erb (1.1ms)
+2018-06-26T13:14:59.289120+00:00 app[web.1]: I, [2018-06-26T13:14:59.289025 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344]   Rendered devise/sessions/new.html.erb within layouts/application (3.9ms)
+2018-06-26T13:14:59.289964+00:00 app[web.1]: I, [2018-06-26T13:14:59.289892 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344]   Rendered layouts/_shim.html.erb (0.0ms)
+2018-06-26T13:14:59.290419+00:00 app[web.1]: I, [2018-06-26T13:14:59.290349 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344]   Rendered layouts/_header.html.erb (0.3ms)
+
+2018-06-26T13:14:59.290746+00:00 app[web.1]: I, [2018-06-26T13:14:59.290685 #4]  INFO -- : [13c1e9d9-72bf-41f0-91b8-004c8bfe7344] Completed 200 OK in 8ms (Views: 7.2ms | ActiveRecord: 0.0ms)
+2018-06-26T13:14:59.480820+00:00 heroku[router]: at=info method=GET path="/favicon.ico" host=salty-harbor-78667.herokuapp.com request_id=2792170b-63f6-4935-938a-16577f18a77a fwd="85.90.218.17" dyno=web.1 connect=1ms service=2ms status=304 bytes=48 protocol=https
+2018-06-26T13:15:19.645384+00:00 app[web.1]: I, [2018-06-26T13:15:19.645186 #4]  INFO -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb] Started POST "/users/sign_in" for 85.90.218.17 at 2018-06-26 13:15:19 +0000
+2018-06-26T13:15:19.654133+00:00 app[web.1]: I, [2018-06-26T13:15:19.653982 #4]  INFO -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb] Processing by Devise::SessionsController#create as HTML
+2018-06-26T13:15:19.654636+00:00 app[web.1]: I, [2018-06-26T13:15:19.654344 #4]  INFO -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb]   Parameters: {"utf8"=>"✓", "authenticity_token"=>"LvILZThxxJ9RJgtt38PZRAvutHodBCM5LJUb4lsVGr6pDd0RgbBYBFP0Bw7fLnedezvwyWWinCDzegj3i4ZnvA==", "user"=>{"email"=>"user01@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+2018-06-26T13:15:19.669132+00:00 app[web.1]: D, [2018-06-26T13:15:19.668265 #4] DEBUG -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb]   User Load (1.6ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "user01@gmail.com"], ["LIMIT", 1]]
+2018-06-26T13:15:19.920514+00:00 app[web.1]: D, [2018-06-26T13:15:19.920389 #4] DEBUG -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb]    (0.8ms)  BEGIN
+2018-06-26T13:15:19.924626+00:00 app[web.1]: D, [2018-06-26T13:15:19.924314 #4] DEBUG -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb]    (0.8ms)  COMMIT
+2018-06-26T13:15:19.926002+00:00 app[web.1]: I, [2018-06-26T13:15:19.925708 #4]  INFO -- : [a0f72c64-342a-4ec1-bcf0-a47805f557fb] Completed 401 Unauthorized in 271ms (ActiveRecord: 3.2ms)
+2018-06-26T13:15:20.096690+00:00 app[web.1]: I, [2018-06-26T13:15:20.096575 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4] Started GET "/users/sign_in" for 85.90.218.17 at 2018-06-26 13:15:20 +0000
+2018-06-26T13:15:20.097776+00:00 app[web.1]: I, [2018-06-26T13:15:20.097700 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4] Processing by Devise::SessionsController#new as HTML
+2018-06-26T13:15:20.108559+00:00 app[web.1]: I, [2018-06-26T13:15:20.108422 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4]   Rendering devise/sessions/new.html.erb within layouts/application
+2018-06-26T13:15:20.121885+00:00 app[web.1]: I, [2018-06-26T13:15:20.121759 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4]   Rendered devise/shared/_links.html.erb (0.9ms)
+2018-06-26T13:15:20.122033+00:00 app[web.1]: I, [2018-06-26T13:15:20.121961 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4]   Rendered devise/sessions/new.html.erb within layouts/application (12.1ms)
+2018-06-26T13:15:20.122660+00:00 app[web.1]: I, [2018-06-26T13:15:20.122571 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4]   Rendered layouts/_shim.html.erb (0.0ms)
+2018-06-26T13:15:20.123361+00:00 app[web.1]: I, [2018-06-26T13:15:20.123270 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4]   Rendered layouts/_header.html.erb (0.5ms)
+2018-06-26T13:15:20.124706+00:00 app[web.1]: I, [2018-06-26T13:15:20.124635 #4]  INFO -- : [4b5f83f7-73a1-46b0-b0a3-1517497e9fe4] Completed 200 OK in 19ms (Views: 16.6ms | ActiveRecord: 0.0ms)
+2018-06-26T13:15:19.931986+00:00 heroku[router]: at=info method=POST path="/users/sign_in" host=salty-harbor-78667.herokuapp.com request_id=a0f72c64-342a-4ec1-bcf0-a47805f557fb fwd="85.90.218.17" dyno=web.1 connect=1ms service=290ms status=302 bytes=810 protocol=https
+2018-06-26T13:15:20.125820+00:00 heroku[router]: at=info method=GET path="/users/sign_in" host=salty-harbor-78667.herokuapp.com request_id=4b5f83f7-73a1-46b0-b0a3-1517497e9fe4 fwd="85.90.218.17" dyno=web.1 connect=1ms service=33ms status=200 bytes=5783 protocol=https
+2018-06-26T13:15:20.352540+00:00 heroku[router]: at=info method=GET path="/assets/stylesheets/custom.css.scss" host=salty-harbor-78667.herokuapp.com request_id=95e6a779-d521-49eb-9366-e2beebe0c595 fwd="85.90.218.17" dyno=web.1 connect=1ms service=5ms status=404 bytes=1902 protocol=https
+2018-06-26T13:15:20.350932+00:00 app[web.1]: I, [2018-06-26T13:15:20.350779 #4]  INFO -- : [95e6a779-d521-49eb-9366-e2beebe0c595] Started GET "/assets/stylesheets/custom.css.scss" for 85.90.218.17 at 2018-06-26 13:15:20 +0000
+2018-06-26T13:15:20.351813+00:00 app[web.1]: F, [2018-06-26T13:15:20.351723 #4] FATAL -- : [95e6a779-d521-49eb-9366-e2beebe0c595]
+2018-06-26T13:15:20.351902+00:00 app[web.1]: F, [2018-06-26T13:15:20.351821 #4] FATAL -- : [95e6a779-d521-49eb-9366-e2beebe0c595] ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+2018-06-26T13:15:20.351979+00:00 app[web.1]: F, [2018-06-26T13:15:20.351902 #4] FATAL -- : [95e6a779-d521-49eb-9366-e2beebe0c595]
+2018-06-26T13:15:20.352228+00:00 app[web.1]: F, [2018-06-26T13:15:20.352006 #4] FATAL -- : [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+
+2018-06-26T13:15:20.352235+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+2018-06-26T13:15:20.352238+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:38:in `call_app'
+2018-06-26T13:15:20.352243+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `block in call'
+2018-06-26T13:15:20.352245+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:71:in `block in tagged'
+2018-06-26T13:15:20.352246+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:28:in `tagged'
+2018-06-26T13:15:20.352247+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/tagged_logging.rb:71:in `tagged'
+2018-06-26T13:15:20.352249+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `call'
+2018-06-26T13:15:20.352250+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+2018-06-26T13:15:20.352252+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/request_id.rb:27:in `call'
+2018-06-26T13:15:20.352253+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/method_override.rb:22:in `call'
+2018-06-26T13:15:20.352255+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/runtime.rb:22:in `call'
+2018-06-26T13:15:20.352258+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/activesupport-5.2.0/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+2018-06-26T13:15:20.352259+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/executor.rb:14:in `call'
+2018-06-26T13:15:20.352261+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/static.rb:127:in `call'
+2018-06-26T13:15:20.352262+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/rack-2.0.5/lib/rack/sendfile.rb:111:in `call'
+2018-06-26T13:15:20.352264+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/railties-5.2.0/lib/rails/engine.rb:524:in `call'
+
+2018-06-26T13:15:20.352266+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/configuration.rb:225:in `call'
+
+2018-06-26T13:15:20.352267+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:632:in `handle_request'
+
+2018-06-26T13:15:20.352269+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:446:in `process_client'
+
+2018-06-26T13:15:20.352270+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/server.rb:306:in `block in run'
+
+2018-06-26T13:15:20.352272+00:00 app[web.1]: [95e6a779-d521-49eb-9366-e2beebe0c595] vendor/bundle/ruby/2.4.0/gems/puma-3.11.4/lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+ss@DEBIAN:~/rails_projects/osvita$ 
+
+
+

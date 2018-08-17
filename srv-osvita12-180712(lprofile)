@@ -1,0 +1,1155 @@
+**** 2018.07.11 ****
+Пред.файл [1] - srv-osvita11-180711(lorder)
+[2] - /home/alex/Documents/Rails/Devise/2.1.github_devise.doc;
+
+Здесь буду делать профиль пользователя;
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+* master
+  order
+alex@www:~/rails_projects/osvita$ git co -b profile
+Switched to a new branch 'profile'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2
+Для создания ПРОФИЛЯ
+думаю, что мне нужен 
+экшен + вьюэр,
+при помощи которого я буду просматривать current_user,
+а также связанные с ним order's;
+
+Для создания такого экшена 
+Буду руководствоваться [2],
+раздел "Configuring controllers"
+
+Полагаю, что моя разработка касается части 'sessions', 
+как раз и описанной в [2];
+
+*/- 2.1 шаг 1 по [2]
+Create your custom controllers using the generator which requires a scope:
+
+$ rails generate devise:controllers [scope]
+
+If you specify users as the scope, controllers will be created in app/controllers/users/. And the sessions controller will look like this...
+
+Конструирую ... и выполняю:
+rails generate devise:controllers users
+
+**//- 1/2
+Немного дальше в [2] написано, что для того, чтобы создать КОНКРЕТНЫЙ контроллер,
+нужно указать ключ '-c':
+
+rails generate devise:controllers users -c=sessions
+
+Но я запустил без ключа, поэтому создались все))
+
+Ну пусть побудут))
+
+Зато в роутере я буду указывать только нужный маршрут!!
+//**
+
+alex@www:~/rails_projects/osvita$ rails generate devise:controllers users
+Running via Spring preloader in process 6202
+      create  app/controllers/users/confirmations_controller.rb
+      create  app/controllers/users/passwords_controller.rb
+      create  app/controllers/users/registrations_controller.rb
+      create  app/controllers/users/sessions_controller.rb
+      create  app/controllers/users/unlocks_controller.rb
+      create  app/controllers/users/omniauth_callbacks_controller.rb
+===============================================================================
+
+Some setup you must do manually if you haven't yet:
+
+  Ensure you have overridden routes for generated controllers in your routes.rb.
+  For example:
+
+    Rails.application.routes.draw do
+      devise_for :users, controllers: {
+        sessions: 'users/sessions'
+      }
+    end
+
+===============================================================================
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.2
+Проверяю, 
+что создалась папке /app/controllers/users
+и в ней все указанные файлы;
+
+*/- 2.3
+Открываю /app/controllers/users/sessions_controller.rb
+и срввниваю с привведенной в [2] структурой - похоже;
+
+*/- 2.4
+Далее в [2] написано, 
+что нужно СКОПИРОВАТЬ вьюэры 
+  из devise/sessions
+  в users/sessions
+поскольку теперь (после "изменения" контроллеров) Приложение НЕ БУДЕТ искать вьюэры в devise/sessions ;
+
+"Copy the views 
+	from devise/sessions 
+	to users/sessions. 
+Since the controller was changed, it won't use the default views located in devise/sessions.
+
+Интересно - ЭТО касаетс ВСЕХ вьюэров,
+или только реально "измененных" ?
+Под "реально" я понимаю такие вьюэры, где я раскомментировал хоть один def внутри файла
+(после генерации там все закомент).
+
+*/- 2.5
+Попробую загрузить Приложение:
+Загрузил - "Вход" работает как и раньше;
+
+*/- 2.6
+Проверю "Регистрацию"
+
+alex@www:~/rails_projects/osvita$ rails console
+Running via Spring preloader in process 6677
+Loading development environment (Rails 5.2.0)
+
+2.4.1 :001 > User.all
+  User Load (1.1ms)  SELECT  "users".* FROM "users" LIMIT $1  [["LIMIT", 11]]
+
+ => #<ActiveRecord::Relation 
+ [#<User id: 3, email: "user02@gmail.com", created_at: "2018-06-20 14:54:30", updated_at: "2018-07-12 15:20:04">, 
+ #<User id: 2, email: "user01@gmail.com", created_at: "2018-06-20 14:52:20", updated_at: "2018-07-12 15:25:17">, 
+ #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-07-12 16:37:13">, 
+ #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-06-21 10:03:00">, 
+ #<User id: 5, email: "user04@gmail.com", created_at: "2018-06-21 14:36:41", updated_at: "2018-06-21 14:36:54">, 
+ #<User id: 6, email: "sashagajdarenko@gmail.com", created_at: "2018-06-21 14:50:49", updated_at: "2018-06-21 14:50:49">, 
+ #<User id: 7, email: "oo.kabas@gmail.com", created_at: "2018-06-21 15:06:11", updated_at: "2018-06-21 15:06:11">, 
+ #<User id: 8, email: "gaydarenko@daplus.net.ua", created_at: "2018-06-26 15:47:44", updated_at: "2018-06-26 15:47:44">]> 
+2.4.1 :002 > 
+
+*/- 2.7
+Ввожу
+user05@gmail.com
+tgb567
+
+- и с удивлением обнаруживаю, 
+что после Регистрации
+происходит и "Вход"!!!!
+Признак этого - открывается пункт "Только после Рег"
+
+Проверяю в консоле:
+2.4.1 :002 > User.find(9)
+  User Load (1.0ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 9], ["LIMIT", 1]]
+ => #<User id: 9, email: "user05@gmail.com", created_at: "2018-07-12 16:46:39", updated_at: "2018-07-12 16:46:41"> 
+2.4.1 :003 > 
+
+Т.е., "по старому" работает и "Вход", и "Рег-я";
+("по старому" - значит, я не переносил вьюэры
+  из devise/sessions
+  в users/sessions
+как это указано в [2]
+
+*/- 2.8
+ЯтД, что оно работает "по старому" (см.п.2.7 выше),
+поскольку я не выполнил шаг 2 по [2] - см.п.2.9 ниже;
+
+*/- 2.9 шаг 2 по [2]
+Tell the router to use this controller:
+
+devise_for :users, controllers: { sessions: 'users/sessions' }
+
+ЯтД,
+что нужно заменить имеющуюся сейчас строку в роутере
+    devise_for :users
+
+на указанную
+devise_for :users, controllers: { sessions: 'users/sessions' }
+
+и тогда поменяются маршруты только для 'sessions'
+
+*/- 2.10
+Проверяю ... (см.srv-osvita12-180712(lprofile-1))
+
+Это ДО:
+new_user_session GET    (/:locale)/users/sign_in(.:format)                                                       devise/sessions#new {:locale=>/en|ru/}
+user_session POST   (/:locale)/users/sign_in(.:format)                                                       devise/sessions#create {:locale=>/en|ru/}
+destroy_user_session DELETE (/:locale)/users/sign_out(.:format)                                                      devise/sessions#destroy {:locale=>/en|ru/}
+new_user_password GET    (/:locale)/users/password/new(.:format)                                                  devise/passwords#new {:locale=>/en|ru/}
+
+а это ПОСЛЕ:
+         new_user_session GET    (/:locale)/users/sign_in(.:format)                                                       users/sessions#new {:locale=>/en|ru/}
+             user_session POST   (/:locale)/users/sign_in(.:format)                                                       users/sessions#create {:locale=>/en|ru/}
+     destroy_user_session DELETE (/:locale)/users/sign_out(.:format)                                                      users/sessions#destroy {:locale=>/en|ru/}
+        new_user_password GET    (/:locale)/users/password/new(.:format)                                                  devise/passwords#new {:locale=>/en|ru/}
+        
+
+*/- 2.11
+Перегружаю сервер,
+Захожу в п."Вход" - работает!!??
+Т.е., выводится форма входа в Приложение,
+которая у меня осталась в /app/views/devise/sessions/new.html.erb !!??
+
+Хотя в отладочной инф-и указано:
+  controller: users/sessions
+  action: new
+  locale: en
+
+Непонятно ...
+
+
+*/- 2.12
+Дальше в [2] написано:
+Finally, change or extend the desired controller actions.
+You can completely override a controller action:
+
+"Наконец, измените или увеличьте требуемые действия контроллера.
+Вы можете полностью переопределить действие контроллера:"
+
+Or you can simply add new behaviour to it:
+Или вы можете просто добавить к нему новое поведение:
+
+This is useful for triggering background jobs or logging events during certain actions.
+Это полезно для запуска фоновых заданий или регистрации событий во время определенных действий.
+
+
+*/- 3
+Теперь нужно по МХ вспомнить,
+как формируются данные для "Профиля" - см.п.д3.3;
+
+*/- 3.1
+Полезная вещь (из МХ):
+ $ rails console
+  >> 1.year.from_now
+  => Sun, 13 Mar 2011 03:38:55 UTC +00:00
+  >> 10.weeks.ago
+  => Sat, 02 Jan 2010 03:39:14 UTC +00:00
+  
+*/- 3.2
+Другая полезная вещь из МХ:
+
+Листинг 10.17:
+<div class="span8">
+    <% if @user.microposts.any? %>
+      <h3>Microposts (<%= @user.microposts.count %>)</h3>
+      <ol class="microposts">
+        <%= render @microposts %>
+      </ol>
+      <%= will_paginate @microposts %>
+    <% end %>
+  </div>
+
+**** 2018.07.13 ****
+
+*/- 3.3
+Из-за множества материвла по тескированию в МХ,
+я так и не нашел, как же делать ПРОФИЛЬ;
+
+*/- 3.4
+Мои рассуждения таковы:
+1) Поскольку 'user_signed_in?' 
+используется в /app/views/layouts/_header.html.erb,
+а формируется, ЯтП, в контроллерах Devise,
+значит, ВСЕ хелперы Devise будут видны и в моем контроллере формирования данных для профиля.
+В частности - current_user (см.раздел "Controller filters and helpers" в [2])
+
+Также буду использовать МЕТОДЫ (по образцу МХ, см.п.4.2 [1]) ,
+надеясь, что они сгенерируются и у моей Ассоциации, как сказано в МХ - см.Таблицу 10.1 по МХ;
+
+*/- 3.5
+Запустил поиск 
+"profile пользователя на rails в devise"
+
+**** 2018.07.24 ****
+Нарыл достаточно много - см.папку /home/alex/Documents/Debian/Profile;
+Сначала я нашел несколько обсуждений,
+см. их список в site_Profile.doc;
+затем пришел к выводу, что это обсуждение "выходит" на wiki Devise,
+это статьи типа "How-To", см. список в site_wiki.doc;
+Но в итоге пришлось изучить несколько разделов API Rails,
+см. их список в site_API_Rails.doc;
+
+Здесь я буду сылаться на указанную в них нумерацию источников;
+
+*/- 4
+В my_totals.doc я изложил примерный план действий, см.раздел "Мои намерения";
+
+*/- 4.1
+Согласно этому плану буду делать модель Profile
+
+*/- 4.2
+Для начала сделаю одно поле - "категория"
+Имеется в виду категория пользователя. 
+Со слов Ганюшкина "абитуриент", ... (больше не помню)
+
+Также хочу иметь поле для связи с моделью 'User'.
+Причем, связь будет 'belongs_to' со стороны Profile,
+а со стороны 'User' связь будет 'has_one'  - см. 3rus_API_Associations.doc, раздел "2.2. Связь has_one";
+
+Для создания такого поля с индексом воспользуюсь 4rus_API_Migrations.doc, раздел "2.1. Создание автономной миграции", абз.14 - user:references;
+По идее, это должно создать в модели Profile поле 'user_id' и назначить его внешним ключом к 'id' из модели 'User';
+
+Итого поля для генерации модели Profile:
+
+category: string
+user:references
+
+*/- 4.3
+Буду использовать scaffold, 
+как и при генерации модели 'Order', см.п.3.3 из [1],
+а затем лишнее удалю;
+
+По образцу
+rails generate scaffold Order id_user:integer order_num:integer date_at:date date_end:date content:string --no-test-framework
+
+пишу
+rails generate scaffold Profile category:string user:references --no-test-framework
+
+alex@www:~/rails_projects/osvita$ git status
+On branch profile
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/controllers/users/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+  master
+  order
+* profile
+
+alex@www:~/rails_projects/osvita$ git diff
+diff --git a/config/routes.rb b/config/routes.rb
+index db3824a..e00c369 100644
+--- a/config/routes.rb
++++ b/config/routes.rb
+@@ -2,7 +2,8 @@ Rails.application.routes.draw do
+   # scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+   scope "(:locale)", locale: /en|ru/ do
+     resources :orders
+-    devise_for :users
++    # devise_for :users
++    devise_for :users, controllers: { sessions: 'users/sessions' }
+     # get '/:locale' => 'welcome#index'
+     root 'welcome#index'
+     get 'welcome/index'
+     
+alex@www:~/rails_projects/osvita$ rails generate scaffold Profile category:string user:references --no-test-framework
+Running via Spring preloader in process 4470
+      invoke  active_record
+      create    db/migrate/20180724151336_create_profiles.rb
+      create    app/models/profile.rb
+      invoke  resource_route
+       route    resources :profiles
+      invoke  scaffold_controller
+      create    app/controllers/profiles_controller.rb
+      invoke    erb
+      create      app/views/profiles
+      create      app/views/profiles/index.html.erb
+      create      app/views/profiles/edit.html.erb
+      create      app/views/profiles/show.html.erb
+      create      app/views/profiles/new.html.erb
+      create      app/views/profiles/_form.html.erb
+      invoke    helper
+      create      app/helpers/profiles_helper.rb
+      invoke    jbuilder
+      create      app/views/profiles/index.json.jbuilder
+      create      app/views/profiles/show.json.jbuilder
+      create      app/views/profiles/_profile.json.jbuilder
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/profiles.coffee
+      invoke    scss
+      create      app/assets/stylesheets/profiles.scss
+      invoke  scss
+   identical    app/assets/stylesheets/scaffolds.scss
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4.4
+Открываю 
+/home/alex/rails_projects/osvita/app/models/profile.rb
+class Profile < ApplicationRecord
+  belongs_to :user
+end
+
+... там таки belongs_to :user!!!!
+
+*/- 4.5
+Открываю 
+/home/alex/rails_projects/osvita/db/migrate/20180724151336_create_profiles.rb
+class CreateProfiles < ActiveRecord::Migration[5.2]
+  def change
+    create_table :profiles do |t|
+      t.string :category
+      t.references :user, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+
+... там есть такое поле!!!!
+
+*/- 4.6
+Открываю 
+/home/alex/rails_projects/osvita/app/models/user.rb
+- закоментирую пока (пока буду работать с Profile, а потом добавлю и Order)
+  # has_many :orders
+- и добавлю
+  has_one :profile
+
+*/- 4.6
+alex@www:~/rails_projects/osvita$ bundle exec rake db:migrate
+== 20180724151336 CreateProfiles: migrating ===================================
+-- create_table(:profiles)
+   -> 0.3586s
+== 20180724151336 CreateProfiles: migrated (0.3590s) ==========================
+
+alex@www:~/rails_projects/osvita$ 
+
+*/- 4.7
+Запускаю сервер - ошибок нет!!!!
+Значит, по крайней мере, ничего не нарушено!!!!
+
+*/- 5
+Запускаю консоль
+alex@www:~/rails_projects/osvita$ rails console
+Running via Spring preloader in process 4933
+Loading development environment (Rails 5.2.0)
+2.4.1 :001 > Profile.all
+  Profile Load (0.9ms)  SELECT  "profiles".* FROM "profiles" LIMIT $1  [["LIMIT", 11]]
+ => #<ActiveRecord::Relation []> 
+2.4.1 :002 > Profile.count
+   (1.4ms)  SELECT COUNT(*) FROM "profiles"
+ => 0 
+2.4.1 :003 > 
+
+Насколько я предполагаю,
+чтоюы была корректная связь между 'User' и 'Profile',
+"категории" нужно вводить через МЕТОДЫ, которые создаются для работы с ассоциациями.
+Интересно, они работают в консоли?
+
+*/- 5.1
+По образцу из раздела "5.1.4. create_association(attributes = {})"
+@account = @supplier.create_account(terms: "Net 30")
+
+Здесь
+@supplier -> user
+@account  -> profile
+create_account  -> create_profile
+terms:  ->  category:
+"Net 30"  -> "abytura" для всех новых пользователей;
+              и "admin" для админов;
+
+Тогда у меня 
+@profile = @user.create_profile(category: "admin")
+@profile = @user.create_profile(category: "abytura")
+
+              
+*/- 5.2
+Сделаю категорию для 2-х:
+
+2.4.1 :005 > @user = User.find(1)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ => #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-07-24 15:31:42"> 
+ 
+2.4.1 :006 > @profile = @user.create_profile(category: "admin")
+   (0.2ms)  BEGIN
+  Profile Create (26.9ms)  INSERT INTO "profiles" ("category", "user_id", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id"  [["category", "admin"], ["user_id", 1], ["created_at", "2018-07-24 15:58:36.800758"], ["updated_at", "2018-07-24 15:58:36.800758"]]
+   (27.7ms)  COMMIT
+  Profile Load (0.5ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 1], ["LIMIT", 1]]
+ => #<Profile id: 1, category: "admin", user_id: 1, created_at: "2018-07-24 15:58:36", updated_at: "2018-07-24 15:58:36"> 
+ 
+2.4.1 :007 > Profile.count
+   (0.8ms)  SELECT COUNT(*) FROM "profiles"
+ => 1 
+ 
+2.4.1 :009 > Profile.find(1)
+  Profile Load (0.7ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."id" = $1 LIMIT $2  [["id", 1], ["LIMIT", 1]]
+ => #<Profile id: 1, category: "admin", user_id: 1, created_at: "2018-07-24 15:58:36", updated_at: "2018-07-24 15:58:36"> 
+
+2.4.1 :010 > @profile.save
+   (0.3ms)  BEGIN
+   (0.5ms)  COMMIT
+ => true 
+
+2.4.1 :011 > @user = User.find(2)
+  User Load (0.9ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<User id: 2, email: "user01@gmail.com", created_at: "2018-06-20 14:52:20", updated_at: "2018-07-12 17:13:06"> 
+
+2.4.1 :012 > @profile = @user.create_profile(category: "abytura")
+   (0.4ms)  BEGIN
+  Profile Create (1.1ms)  INSERT INTO "profiles" ("category", "user_id", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id"  [["category", "abytura"], ["user_id", 2], ["created_at", "2018-07-24 16:00:38.258397"], ["updated_at", "2018-07-24 16:00:38.258397"]]
+   (18.1ms)  COMMIT
+  Profile Load (2.9ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 2], ["LIMIT", 1]]
+ => #<Profile id: 2, category: "abytura", user_id: 2, created_at: "2018-07-24 16:00:38", updated_at: "2018-07-24 16:00:38"> 
+
+2.4.1 :013 > @profile.save
+   (0.3ms)  BEGIN
+   (0.4ms)  COMMIT
+ => true 
+
+2.4.1 :014 > Profile.count
+   (1.0ms)  SELECT COUNT(*) FROM "profiles"
+ => 2 
+2.4.1 :015 > 
+
+*/- 5.3
+Чтобы убедиться,
+что мои добавления сохранились в базе (а не только в консоли),
+Закрываю консоль,
+закрываю сервер,
+вхожу в консоль по новой:
+alex@www:~/rails_projects/osvita$ rails console
+Running via Spring preloader in process 5337
+Loading development environment (Rails 5.2.0)
+2.4.1 :001 > Profile.count
+   (1.2ms)  SELECT COUNT(*) FROM "profiles"
+ => 2 
+2.4.1 :002 > 
+
+СОХРАНИЛОСЬ!!!!
+
+**** 2018.07.25 ****
+*/- 6
+Теперь сделаю вьюэр Профиля.
+Буду делать вход в Профиль через контроллер User'a, 
+как я и говрорил в ...
+
+*/- 6.1
+Внесу в Главное меню пункт "Профиль" - см./app/views/layouts/_header.html.erb
+Расположу его в блоке выпадающего меню "Только после Рег-и"
+              ... вместо "Всем заРег";
+Т.е., заменю 
+- название "Только после Рег-и"
+  на "Сделайте выбор..."
+  
+- а пункт "Всем заРег"
+  на "Профиль";
+
+Также добавлю новый пункт "Получить счет на оплату"
+ниже пункиа "Профиль";
+
+*/- 6.2
+ЯтД, что после "Входа" 
+мы попадаем в "сессию";
+Значит, мне нужен контроллер сессий и вьюэры сессии,
+чтобы их кастомизировать;
+
+Нахожу папку /app/controllers/users/,
+куда были выгружены контроллеры для кастомизации;
+
+там выбираю sessions_controller.rb;
+
+Также нахожу вьюэр сессии - /app/views/devise/sessions/new.html.erb;
+Этот вьюэр = форма "Вход";
+
+Из этого делаю вывод,
+что для того, чтоюы "Профиль" звпускался из контроллера User, 
+мне нужно сделать здесь же другой вьюэр пипа 'show';
+Хотя я сейчас подумал - а почему "друго"?
+М.б. и "первый" 'dhow' (т.е. из того набора экшенов, которые всегда имеются при генерации контроллера) "незанят" ?
+... и можно использовать его ?
+
+В любом случае, мне нужно: 
+- найти МАРШРУТ к такому 'show' в списке имеющихся маршрутов Devise;
+- ... а если его нет, то дописать в роутер новый маршрут по типу 'member', чтобы передавать параметром 'id';
+- дописать в экшен (какой из devise'вских ?) запись категории после успешной регистрации;
+
+Тут попутно возникает вопрос подтверждения по почте:
+- так как описано, категория будет записываться сразу, не дожидаясь подтверждения со стороны user'a;
+- а если он не пришлет подтверждение ? **//- удалим и из User'a и из Profile;
+
+*/- 7
+Затем, в поисках образца вьюэра для Профиля,
+я открыл /app/views/profiles/show.html.erb,
+и мне пришла в голову АЛЬТЕРНАТИВНАЯ мысль:
+сделать вьюэр Профиля для user'a в САМОМ Profile (!!!!)
+- ведь доступ к этому меню откроется только после "Вход",
+- благодаря хелперу "текущий пользователь" я буду знать его 'id',
+- а через это 'id' подтяну нужный @profile!!!!
+
+И тогда из кастомизации Devise останется только запись категории при регистрации!!!!
+Делаю!!
+
+*/- 7.1
+Поставлю в пункт "Профиль" 
+         маршрут к 'show' Profile:
+
+Исходя из того, что
+  <%= link_to 'Edit', edit_profile_path(@profile) %> |
+надеюсь, что к 'show' нужный маршрут такой:
+  show_profile_path(@profile)
+
+- ставлю в 
+              <a class="dropdown-item" href="#">Профиль</a>
+
+и заменяю на такой синтаксис:
+            <%= link_to 'Выйти', destroy_user_session_path, :method => :delete, class: "nav-link" %>
+
+            <%= link_to 'Профиль', show_profile_path(@profile), class: "dropdown-item" %>
+
+Запускаю - получаю ошибку в этой же строке:
+
+NoMethodError in Welcome#index
+
+Showing /home/alex/rails_projects/osvita/app/views/layouts/_header.html.erb where line #19 raised:
+
+undefined method `show_profile_path' for #<#<Class:0x000000034d5d70>:0x00000004ac6328>
+Did you mean?  new_profile_path
+
+Значит, моя "конструкция" пути show_profile_path(@profile) неправильная
+
+Еще раз проверяю rails routes,
+для 'show' нахожу 
+profile GET    /profiles/:id(.:format) profiles#show,
+
+значит, маршрут profile_path(@profile)
+
+*/- 7.2
+Затем пришла мысль,
+что в роутере нужно занести маршруты 
+    resources :profiles
+
+внутрь
+  scope "(:locale)", locale: /en|ru/ do
+
+Перенес - не помогло,
+вынес обратно.
+
+*/- 7.3
+Хотя возникла другая мысль - может сделать профили всем моим юзерам?
+- сделал для всех остальных = "abytura";
+
+*/- 7.4
+Сбивает с тольку то, что некоторые маршруты проходят!
+Перепробую подставлять все (кроме удаления)
+
+profiles        /profiles(.:format)           profiles#index    profiles_path
+new_profile     /profiles/new(.:format)       profiles#new      new_profile_path
+edit_profile    /profiles/:id/edit(.:format)  profiles#edit     edit_profile_path(@profile)
+profile         /profiles/:id(.:format)       profiles#show     profile_path(@profile)
+
+
+*/- 7.5
+Вставляю
+profiles_path - РАБОТАЕТ!!!!
+
+Показывает весь список - 9 записей;
+Причем,
+Работает и по указанным ссылкам, в частностиЮ 'Dhow' и 'Edit'!!!!
+
+*/- 7.6
+Вставляю
+profile_path(@profile) - дает ошибку ... и тут я досмотрел )М), что 'id = nil'!!
+... поэтому роутер не может построить маршрут с /:id!!!!
+
+ActionController::UrlGenerationError in Welcome#index
+
+Showing /home/alex/rails_projects/osvita/app/views/layouts/_header.html.erb where line #19 raised:
+
+No route matches {:action=>"show", :controller=>"profiles", :id=>nil, :locale=>:en}, possible unmatched constraints: [:id]
+
+*/- 7.7
+Причем, если вручную ввести в браузере
+http://localhost:3000/profiles/1,
+то SHOW показывает!!!!
+
+*/- 7.8
+Нашел  current_user
+
+Думаю, что 
+  @user = User.find(current_user.id)
+найдет текущего юзера;
+
+Затем, согласно р."5.1.1. association" из [3рус]
+  @account = @supplier.account
+
+нахожу связанный профиль!!
+  @profile = @user.account
+
+- добавляю в экшен 'show' в profiles_controller.rb:
+  def show
+    @user = User.find(current_user.id)
+    @profile = @user.account	
+  end
+  
+Кроме того,
+уберу :show из строки:
+было
+  before_action :set_profile, only: [:show, :edit, :update, :destroy]
+
+стало
+  before_action :set_profile, only: [:edit, :update, :destroy]
+
+*/- 7.9
+Многократно менял "_path" 
+в
+  <%= link_to 'Профиль', ...
+  
+а также "внутренности"   
+  def show
+  
+так что теперь и не вспомню весь "путь".
+
+В итоге НЕ РАБОТАЕТ при таком "составе":
+
+  before_action :set_profile, only: [:edit, :update, :destroy]
+и
+  def show
+  if user_signed_in?
+    @user = User.find(current_user.id)
+    #@user = User.find(1)
+    @profile = @user.account
+  else
+    @profile = Profile.find(params[:id])
+  end
+  end
+
+Причем, 
+даже не лтобтажает 1-ю страницу (Приветствия - ... Error in Welcome#index),
+поскольку :id=>nil
+
+*/- 7.10
+Возвращаю все назад:
+
+  before_action :set_profile, only: [:show, :edit, :update, :destroy]
+  #before_action :set_profile, only: [:edit, :update, :destroy]
+
+  def show
+  end
+
+            <%= link_to 'Профиль', profiles_path, class: "dropdown-item" %>
+
+РАБОТАЕТ!!!!
+- как и в п.7.5 выше;
+
+*/- 7.11
+Теперь ставлю
+            <%= link_to 'Профиль', edit_profile_path(@profile), class: "dropdown-item" %>
+
+а остальное - без изменений.
+И опять та же ошибка:
+Completed 500 Internal Server Error in 71ms (ActiveRecord: 0.8ms)
+
+ActionView::Template::Error (No route matches {:action=>"edit", :controller=>"profiles", :id=>nil, :locale=>:en}, possible unmatched constraints: [:id]):
+
+*/- 7.12
+Теперь ставлю
+            <%= link_to 'Профиль', new_profile_path, class: "dropdown-item" %>
+
+- тоже работает, как и в п.7.10, где был путь 'profiles_path';
+
+Значит,
+работают те пути, где нет ':id' -   это 'index' 'new';
+И не работает 'edit' и 'show', поскольку там есть ':id';
+
+Причем, это не дает даже посроить Главное меню,
+не говоря уже об обращении по самомУ такому пути!!
+
+**** 2018.07.26 ****
+
+*/- 8.1
+Попробую "перехитрить" - укажу путь на 'index',
+но в самом экшене сделаю переадресацию на 'show'!!
+
+Попробовал - не помогло;
+
+При таких экшенах
+  def index
+    #@profiles = Profile.all
+    #@profile = Profile.find(1)
+    params[:id] = 1
+    redirect_to action: :show
+  end
+
+  # GET /profiles/1
+  # GET /profiles/1.json
+  def show
+  end
+
+Выдало ошибку
+ActionController::UrlGenerationError in ProfilesController#index
+No route matches {:action=>"show", :controller=>"profiles", :locale=>:en}
+
+и при этом URL = http://localhost:3000/en/profiles
+
+*/- 9
+Затем почитал API "Роутинг в Rails", раздел "2.5. Одиночные ресурсы",
+где нашел такой прием:
+
+Иногда имеется ресурс, который клиенты всегда просматривают без ссылки на ID. Обычный пример, /profile всегда показывает профиль текущего зарегистрированного пользователя. Для этого можно использовать одиночный ресурс, чтобы связать /profile (а не /profile/:id) с экшном show:
+
+get 'profile', to: 'users#show'
+
+Только у меня, ЯтД, 
+не 'users#show'
+а 'profile#show'
+
+*/- 9.1
+Но попробую сначала именно
+  get 'profile', to: 'users#show'
+и путь для show:
+  <%= link_to 'Профиль', profile_path, class: "dropdown-item" %>
+  
+Дало ошибку ... в общем то мне понятнцю
+
+Routing Error
+uninitialized constant UsersController
+
+Rails.root: /home/alex/rails_projects/osvita
+
+*/- 9.2
+Ставлю
+get 'profile', to: 'profiles#show'
+
+Выдало ошибку,
+но мне кажется, что есть какое-то движение вперед, поскольку:
+- Главное меню построилось;
+- начал выполняться before_action;
+Ошибка заключается в том, что ...
+"Не удалось найти профиль без идентификатора"
+
+ActiveRecord::RecordNotFound in ProfilesController#show
+Couldn't find Profile without an ID
+Extracted source (around line #70):
+    # Use callbacks to share common setup or constraints between actions.
+    def set_profile
+      @profile = Profile.find(params[:id])
+    end
+
+
+*/- 8.3
+Верну назад код,
+который я удалил из контроллера - см.п.7.9 выше:
+
+#before_action :set_profile, only: [:show, :edit, :update, :destroy]
+  before_action :set_profile, only: [:edit, :update, :destroy]
+
+def show
+    @profile = Profile.find(1)
+  end
+  
+ПОЛУЧИЛОСЬ!!!!
+отобразилась 1-я запись!!!!
+
+*/- 8.3
+Теперь 
+  def show
+    if user_signed_in?
+      @user = User.find(current_user.id)
+      @profile = @user.account
+    else
+      @profile = Profile.find(1)
+    end
+  end
+
+Выдало ошибку
+
+NoMethodError in ProfilesController#show
+undefined method `account' for #<User:0x007f12097be748>
+Extracted source (around line #16):
+
+  if user_signed_in?
+    @user = User.find(current_user.id)
+    @profile = @user.account
+  else
+    @profile = Profile.find(1)
+  end
+
+- т.е., метод `account' в контроллере другой модели не работает!!
+Наверное потому, что это метод другого класса - User!!
+
+**** 2018.07.27 ****
+*/- 9
+Пришла(!!!!) такая мысль:
+Если известен current_user.id,
+То можно найти @profile по полю 'user_id'!!!!
+
+*/- 9.1
+Добавляю отладчик
+по образцу
+#byebug
+group :development, :test do
+  gem 'sqlite3', '1.3.8'
+  gem 'rspec-rails', '2.13.1'
+  gem 'childprocess', '~> 0.6.1'
+  gem 'byebug'
+end
+
+оказалось, что он у меня установлен... только с непонятными мне опциями:
+group :development, :test do
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+end
+
+*/- 9.2
+Вставляю
+def show
+    if user_signed_in?
+      @user = User.find(current_user.id)
+byebug
+      @profile = @user.account
+    else
+      @profile = Profile.find(1)
+    end
+  end
+
+получаю:
+
+(byebug) var instance
+@_action_has_layout = true
+@_action_name = "show"
+@_config = {}
+@_lookup_context = #<ActionView::LookupContext:0x007f4bdc131918 @details_key=nil, @cache=true, @prefixes=["profiles", "application"], @rendered_format=nil, @...
+@_params = <ActionController::Parameters {"controller"=>"profiles", "action"=>"show", "locale"=>"en"} permitted: false>
+@_request = #<ActionDispatch::Request:0x007f4bdc00a210 @env={"rack.version"=>[1, 3], "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>true, "rack.multiproc...
+@_response = #<ActionDispatch::Response:0x007f4bdc131d50 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Thread::Mutex:0x007f4bdc131d00>, @header={"X-Frame-Option...
+@_response_body = nil
+@_routes = nil
+@current_user = #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-07-27 12:20:59">
+@marked_for_same_origin_verification = true
+@user = #<User id: 1, email: "oo.gaydar@gmail.com", created_at: "2018-06-19 15:53:40", updated_at: "2018-07-27 12:20:59">
+(byebug) 
+
+ОсВ, что:
+- 'current_user' идет как '@current_user' - поменяю у себя;
+- @user имеется - попробую не 1-го;
+- permitted: false - м.б.нужно добавить "строгие параметры"? (или это не из той оперы?)
+
+*/- 9.3
+Ввел
+user03@gmail.com
+
+получил !!!!
+@current_user = #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-07-27 12:30:43">
+@marked_for_same_origin_verification = true
+@user = #<User id: 4, email: "user03@gmail.com", created_at: "2018-06-21 08:48:03", updated_at: "2018-07-27 12:30:43">
+(byebug) 
+
+*/- 9.5
+Ищу find_by
+
+Client.find_by first_name: 'Jon'
+
+у меня будет
+@profile = Profile.find_by user_id: @current_user.id
+
+запускаю ...
+вывело
+ Category: abytura
+
+User: #<User:0x007f4bce1d7330>
+Edit | Back
+
+Похоже, что ТАКИ ДА!!!!
+
+*/- 9.4
+Попробую добавить данных в вывод Профиля:
+
+Теперь я понял,
+что во вьюэре
+<p>
+  <strong>Category:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @profile.user %>
+</p>
+
+@profile.category - это поле Pprofile,
+а 
+@profile.user - это МЕТОД ассоциации belongs_to - см.раздел 4 3rus_API_Associations.doc
+
+Заменю 
+  <%= @profile.user %>
+на 
+    <%= @profile.user.email %>
+
+ПОЛУЧИЛОСЬ!!!!
+
+*/- 9.5
+Поменяю вьюэр полностью:
+Был
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Category:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @profile.user.email %>
+</p>
+
+<%= link_to 'Edit', edit_profile_path(@profile) %> |
+<%= link_to 'Back', profiles_path %>
+
+Стало
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Пользователь:</strong>
+  <%= @profile.user.email %>
+</p>
+
+<p>
+  <strong>Категория:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>Дата регистрации:</strong>
+  <%= @profile.user.created_at %>
+</p>
+
+<% unless @profile.category == "admin" %>
+<p>
+  <strong>Оплаченный счет:</strong>
+</p>
+<% end %>
+
+РАБОТАЕТ!!!!
+
+*/- 10
+коммит, пуш
+
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+  master
+  order
+* profile
+alex@www:~/rails_projects/osvita$ igt status
+-bash: igt: command not found
+alex@www:~/rails_projects/osvita$ git status
+On branch profile
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/models/user.rb
+	modified:   app/views/layouts/_header.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/javascripts/profiles.coffee
+	app/assets/stylesheets/profiles.scss
+	app/controllers/profiles_controller.rb
+	app/controllers/users/
+	app/helpers/profiles_helper.rb
+	app/models/profile.rb
+	app/views/profiles/
+	db/migrate/20180724151336_create_profiles.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git log --pretty=format:'%h %s' -5
+737bf59 order-8srv: Order db:migrate
+cea8282 locale2-7srv: ru:+en:
+5cf99e9 locale-6srv: ru:
+c378454 Merge branch 'devise'
+10fb64b devise-5srv: merge with master
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "profile-9srv: Profile"[profile f7b3cb6] profile-9srv: Profile
+ 23 files changed, 420 insertions(+), 5 deletions(-)
+ create mode 100644 app/assets/javascripts/profiles.coffee
+ create mode 100644 app/assets/stylesheets/profiles.scss
+ create mode 100644 app/controllers/profiles_controller.rb
+ create mode 100644 app/controllers/users/confirmations_controller.rb
+ create mode 100644 app/controllers/users/omniauth_callbacks_controller.rb
+ create mode 100644 app/controllers/users/passwords_controller.rb
+ create mode 100644 app/controllers/users/registrations_controller.rb
+ create mode 100644 app/controllers/users/sessions_controller.rb
+ create mode 100644 app/controllers/users/unlocks_controller.rb
+ create mode 100644 app/helpers/profiles_helper.rb
+ create mode 100644 app/models/profile.rb
+ create mode 100644 app/views/profiles/_form.html.erb
+ create mode 100644 app/views/profiles/_profile.json.jbuilder
+ create mode 100644 app/views/profiles/edit.html.erb
+ create mode 100644 app/views/profiles/index.html.erb
+ create mode 100644 app/views/profiles/index.json.jbuilder
+ create mode 100644 app/views/profiles/new.html.erb
+ create mode 100644 app/views/profiles/show.html.erb
+ create mode 100644 app/views/profiles/show.json.jbuilder
+ create mode 100644 db/migrate/20180724151336_create_profiles.rb
+alex@www:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 8 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge profile
+Updating 737bf59..f7b3cb6
+Fast-forward
+ app/assets/javascripts/profiles.coffee             |  3 +
+ app/assets/stylesheets/profiles.scss               |  3 +
+ app/controllers/profiles_controller.rb             | 82 ++++++++++++++++++++++
+ app/controllers/users/confirmations_controller.rb  | 30 ++++++++
+ .../users/omniauth_callbacks_controller.rb         | 30 ++++++++
+ app/controllers/users/passwords_controller.rb      | 34 +++++++++
+ app/controllers/users/registrations_controller.rb  | 62 ++++++++++++++++
+ app/controllers/users/sessions_controller.rb       | 27 +++++++
+ app/controllers/users/unlocks_controller.rb        | 30 ++++++++
+ app/helpers/profiles_helper.rb                     |  2 +
+ app/models/profile.rb                              |  3 +
+ app/models/user.rb                                 |  3 +-
+ app/views/layouts/_header.html.erb                 |  7 +-
+ app/views/profiles/_form.html.erb                  | 27 +++++++
+ app/views/profiles/_profile.json.jbuilder          |  2 +
+ app/views/profiles/edit.html.erb                   |  6 ++
+ app/views/profiles/index.html.erb                  | 29 ++++++++
+ app/views/profiles/index.json.jbuilder             |  1 +
+ app/views/profiles/new.html.erb                    |  5 ++
+ app/views/profiles/show.html.erb                   | 23 ++++++
+ app/views/profiles/show.json.jbuilder              |  1 +
+ config/routes.rb                                   |  5 +-
+ db/migrate/20180724151336_create_profiles.rb       | 10 +++
+ 23 files changed, 420 insertions(+), 5 deletions(-)
+ create mode 100644 app/assets/javascripts/profiles.coffee
+ create mode 100644 app/assets/stylesheets/profiles.scss
+ create mode 100644 app/controllers/profiles_controller.rb
+ create mode 100644 app/controllers/users/confirmations_controller.rb
+ create mode 100644 app/controllers/users/omniauth_callbacks_controller.rb
+ create mode 100644 app/controllers/users/passwords_controller.rb
+ create mode 100644 app/controllers/users/registrations_controller.rb
+ create mode 100644 app/controllers/users/sessions_controller.rb
+ create mode 100644 app/controllers/users/unlocks_controller.rb
+ create mode 100644 app/helpers/profiles_helper.rb
+ create mode 100644 app/models/profile.rb
+ create mode 100644 app/views/profiles/_form.html.erb
+ create mode 100644 app/views/profiles/_profile.json.jbuilder
+ create mode 100644 app/views/profiles/edit.html.erb
+ create mode 100644 app/views/profiles/index.html.erb
+ create mode 100644 app/views/profiles/index.json.jbuilder
+ create mode 100644 app/views/profiles/new.html.erb
+ create mode 100644 app/views/profiles/show.html.erb
+ create mode 100644 app/views/profiles/show.json.jbuilder
+ create mode 100644 db/migrate/20180724151336_create_profiles.rb
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 38, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (36/36), done.
+Writing objects: 100% (38/38), 6.28 KiB | 0 bytes/s, done.
+Total 38 (delta 14), reused 0 (delta 0)
+remote: Resolving deltas: 100% (14/14), completed with 12 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   737bf59..f7b3cb6  master -> master
+alex@www:~/rails_projects/osvita$ 
+
+След.файл - формально hm-osvita12-180712(profile-pull) (здесь - только pull на НБ + heroku)
+фактически (т.е.есть разработка Проекта) - srv-osvita13-1800802(lprofile2).

@@ -1,0 +1,576 @@
+**** 2018.06.12 ****
+Этот файл создан в процессе работы над проектом /osvita - см.п.1 srv-osvita1-180612(xron);
+Здесь зафиксирован листинг терминала в процессе инсталляции Ruby 2.4.1 и Rails 5.2.0;
+
+
+*/- 1
+смотрю, что установлено
+
+alex@www:~$ rvm list
+Warning! PATH is not properly set up, /home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin is not at first place.
+         Usually this is caused by shell initialization files. Search for PATH=... entries.
+         You can also re-add RVM to your profile by running: rvm get stable --auto-dotfiles
+         To fix it temporarily in this shell session run: rvm use ruby-2.3.1@rb231rl429
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+=* ruby-2.3.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+
+*/- 2.1
+хотел посмотреть на список гемсетов, 
+но мне выдало, что такая команда устарела (?)
+
+alex@www:~$ rvm gem list
+Warning! PATH is not properly set up, /home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin is not at first place.
+         Usually this is caused by shell initialization files. Search for PATH=... entries.
+         You can also re-add RVM to your profile by running: rvm get stable --auto-dotfiles
+         To fix it temporarily in this shell session run: rvm use ruby-2.3.1@rb231rl429
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+Please note that `rvm gem ...` was removed, try `gem list ` or `rvm all do gem list ` instead.
+Run `rvm help` to see usage information
+
+PATH настроен неправильно, /home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin не на первом месте.
+          Обычно это вызвано файлами инициализации оболочки. Найдите записи PATH = ....
+          Вы также можете повторно добавить RVM в свой профиль, выполнив: rvm get stable --auto-dotfiles
+          Чтобы исправить это временно в этом сеансе сеанса оболочки: rvm использовать ruby-2.3.1@rb231rl429
+          Чтобы игнорировать эту ошибку, добавьте rvm_silence_path_mismatch_check_flag = 1 в ваш файл ~ / .rvmrc.
+Обратите внимание, что `rvm gem ...` был удален, попробуйте `gem list` или` rvm all do gem list` вместо этого.
+
+*/- 2.2
+alex@www:~$ rvm gemset list
+
+gemsets for ruby-2.3.1 (found in /home/alex/.rvm/gems/ruby-2.3.1)
+   (default)
+   global
+=> rb231rl429
+
+alex@www:~$ 
+
+*/- 3
+надумал обновить rvm,
+но перед этим зафиксирую инфо о том, что есть:
+
+alex@www:~$ rvm info
+Warning! PATH is not properly set up, /home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin is not at first place.
+         Usually this is caused by shell initialization files. Search for PATH=... entries.
+         You can also re-add RVM to your profile by running: rvm get stable --auto-dotfiles
+         To fix it temporarily in this shell session run: rvm use ruby-2.3.1@rb231rl429
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+
+ruby-2.3.1@rb231rl429:
+
+  system:
+    uname:        "Linux www 3.16.0-6-amd64 #1 SMP Debian 3.16.56-1+deb8u1 (2018-05-08) x86_64 GNU/Linux"
+    name:         "Debian"
+    version:      "8"
+    architecture: "x86_64"
+    bash:         "/bin/bash => GNU bash, version 4.3.30(1)-release (x86_64-pc-linux-gnu)"
+    zsh:          " => not installed"
+    remote_path:  "debian/8/x86_64"
+
+  rvm:
+    version:      "1.29.3 (master)"
+    updated:      "1 month 3 days 23 hours 38 seconds ago"
+    path:         "/home/alex/.rvm"
+    autolibs:     "[4] Allow RVM to use package manager if found, install missing dependencies, install package manager (only OS X)."
+
+  ruby:
+    interpreter:  "ruby"
+    version:      "2.3.1p112"
+    date:         "2016-04-26"
+    platform:     "x86_64-linux"
+    patchlevel:   "2016-04-26 revision 54768"
+    full_version: "ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-linux]"
+
+  homes:
+    gem:          "/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429"
+    ruby:         "/home/alex/.rvm/rubies/ruby-2.3.1"
+
+  binaries:
+    ruby:         "/home/alex/.rvm/rubies/ruby-2.3.1/bin/ruby"
+    irb:          "/home/alex/.rvm/rubies/ruby-2.3.1/bin/irb"
+    gem:          "/home/alex/.rvm/rubies/ruby-2.3.1/bin/gem"
+    rake:         "/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin/rake"
+
+  environment:
+    PATH:         "/usr/lib/nodejs/node-v8.11.1/bin:/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin:/home/alex/.rvm/gems/ruby-2.3.1@global/bin:/home/alex/.rvm/rubies/ruby-2.3.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/home/alex/.rvm/bin:/home/alex/.rvm/bin"
+    GEM_HOME:     "/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429"
+    GEM_PATH:     "/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429:/home/alex/.rvm/gems/ruby-2.3.1@global"
+    MY_RUBY_HOME: "/home/alex/.rvm/rubies/ruby-2.3.1"
+    IRBRC:        "/home/alex/.rvm/rubies/ruby-2.3.1/.irbrc"
+    RUBYOPT:      ""
+    gemset:       "rb231rl429"
+
+*/- 4
+обновляюсь
+
+alex@www:~$ rvm get stable
+Warning! PATH is not properly set up, /home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin is not at first place.
+         Usually this is caused by shell initialization files. Search for PATH=... entries.
+         You can also re-add RVM to your profile by running: rvm get stable --auto-dotfiles
+         To fix it temporarily in this shell session run: rvm use ruby-2.3.1@rb231rl429
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/alex/.rvm/archives/rvm-installer.asc
+gpg: Signature made Sun 01 Apr 2018 12:47:44 AM EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/alex/.rvm/archives/rvm-installer'
+Downloading https://github.com/rvm/rvm/archive/1.29.3.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.3/1.29.3.tar.gz.asc
+gpg: Signature made Sun 10 Sep 2017 11:59:21 PM EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/alex/.rvm/archives/rvm-1.29.3.tgz'
+
+Upgrading the RVM installation in /home/alex/.rvm/
+    RVM PATH line found in /home/alex/.mkshrc /home/alex/.profile /home/alex/.bashrc /home/alex/.zshrc.
+    RVM sourcing line found in /home/alex/.profile /home/alex/.bash_profile /home/alex/.zlogin.
+Upgrade of RVM in /home/alex/.rvm/ is complete.
+
+Upgrade Notes:
+
+  * It looks like some old stuff is laying around RVM, you can cleanup with: rvm cleanup all
+
+
+RVM reloaded!
+
+
+*/- 5
+По рекомендации системы (см.выше)  удаляю лишнее:
+
+alex@www:~$ rvm cleanup all
+Warning! PATH is not properly set up, '/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin' is not at first place.
+         Usually this is caused by shell initialization files. Search for 'PATH=...' entries.
+         You can also re-add RVM to your profile by running: 'rvm get stable --auto-dotfiles'.
+         To fix it temporarily in this shell session run: 'rvm use ruby-2.3.1@rb231rl429'.
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+Cleaning up rvm archives
+Cleaning up rvm repos
+Cleaning up rvm src
+Cleaning up rvm log
+Cleaning up rvm tmp
+Cleaning up rvm gemsets
+Cleaning up rvm links
+Cleanup done.
+
+*/- 6
+по рекомендации системы
+запускаю команду, которая, если я правильно понял, добавляет ПРАВИЛЬНЫЙ ПУТЬ для rvm:
+
+alex@www:~$ rvm get stable --auto-dotfiles
+Warning! PATH is not properly set up, '/home/alex/.rvm/gems/ruby-2.3.1@rb231rl429/bin' is not at first place.
+         Usually this is caused by shell initialization files. Search for 'PATH=...' entries.
+         You can also re-add RVM to your profile by running: 'rvm get stable --auto-dotfiles'.
+         To fix it temporarily in this shell session run: 'rvm use ruby-2.3.1@rb231rl429'.
+         To ignore this error add rvm_silence_path_mismatch_check_flag=1 to your ~/.rvmrc file.
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/alex/.rvm/archives/rvm-installer.asc
+gpg: Signature made Sun 01 Apr 2018 12:47:44 AM EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/alex/.rvm/archives/rvm-installer'
+Turning on auto dotfiles mode.
+Downloading https://github.com/rvm/rvm/archive/1.29.3.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.3/1.29.3.tar.gz.asc
+gpg: Signature made Sun 10 Sep 2017 11:59:21 PM EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/alex/.rvm/archives/rvm-1.29.3.tgz'
+
+Upgrading the RVM installation in /home/alex/.rvm/
+    Removing rvm PATH line from /home/alex/.mkshrc /home/alex/.profile /home/alex/.bashrc /home/alex/.zshrc.
+    Adding rvm PATH line to /home/alex/.profile /home/alex/.mkshrc /home/alex/.bashrc /home/alex/.zshrc.
+    Removing rvm loading line from /home/alex/.profile /home/alex/.bash_profile /home/alex/.zlogin.
+    Adding rvm loading line to /home/alex/.profile /home/alex/.bash_profile /home/alex/.zlogin.
+Upgrade of RVM in /home/alex/.rvm/ is complete.
+
+Upgrade Notes:
+
+  * No new notes to display.
+
+RVM reloaded!
+
+*/- 7
+
+alex@www:~$ rvm list known
+# MRI Rubies
+[ruby-]1.8.6[-p420]
+[ruby-]1.8.7[-head] # security released on head
+[ruby-]1.9.1[-p431]
+[ruby-]1.9.2[-p330]
+[ruby-]1.9.3[-p551]
+[ruby-]2.0.0[-p648]
+[ruby-]2.1[.10]
+[ruby-]2.2[.7]
+[ruby-]2.3[.4]
+[ruby-]2.4[.1]
+ruby-head
+
+# for forks use: rvm install ruby-head-<name> --url https://github.com/github/ruby.git --branch 2.2
+
+# JRuby
+jruby-1.6[.8]
+jruby-1.7[.27]
+jruby[-9.1.13.0]
+jruby-head
+
+# Rubinius
+rbx-1[.4.3]
+rbx-2.3[.0]
+rbx-2.4[.1]
+rbx-2[.5.8]
+rbx-3[.84]
+rbx-head
+
+# Opal
+opal
+
+# Minimalistic ruby implementation - ISO 30170:2012
+mruby-1.0.0
+mruby-1.1.0
+mruby-1.2.0
+mruby-1[.3.0]
+mruby[-head]
+
+# Ruby Enterprise Edition
+ree-1.8.6
+ree[-1.8.7][-2012.02]
+
+# Topaz
+topaz
+
+# MagLev
+maglev[-head]
+maglev-1.0.0
+
+# Mac OS X Snow Leopard Or Newer
+macruby-0.10
+macruby-0.11
+macruby[-0.12]
+macruby-nightly
+macruby-head
+
+# IronRuby
+ironruby[-1.1.3]
+ironruby-head
+alex@www:~$ 
+
+*/- 8.1
+
+alex@www:~$ rvm install 2.4.1
+Searching for binary rubies, this might take some time.
+No binary rubies available for: debian/8/x86_64/ruby-2.4.1.
+Continuing with compilation. Please read 'rvm help mount' to get more information on binary rubies.
+Checking requirements for debian.
+Requirements installation successful.
+Installing Ruby from source to: /home/alex/.rvm/rubies/ruby-2.4.1, this may take a while depending on your cpu(s)...
+ruby-2.4.1 - #downloading ruby-2.4.1, this may take a while depending on your connection...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 11.9M  100 11.9M    0     0  2052k      0  0:00:05  0:00:05 --:--:-- 2482k
+ruby-2.4.1 - #extracting ruby-2.4.1 to /home/alex/.rvm/src/ruby-2.4.1....
+ruby-2.4.1 - #applying patch /home/alex/.rvm/patches/ruby/2.4.1/random_c_using_NR_prefix.patch.
+ruby-2.4.1 - #configuring......................................................-
+ruby-2.4.1 - #post-configuration..
+ruby-2.4.1 - #compiling........................................................-
+ruby-2.4.1 - #installing...........
+ruby-2.4.1 - #making binaries executable..
+ruby-2.4.1 - #downloading rubygems-2.6.14
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  751k  100  751k    0     0   796k      0 --:--:-- --:--:-- --:--:--  796k
+No checksum for downloaded archive, recording checksum in user configuration.
+Нет контрольной суммы для загруженного архива, записи контрольной суммы в пользовательской конфигурации.
+
+ruby-2.4.1 - #extracting rubygems-2.6.14....
+ruby-2.4.1 - #removing old rubygems.........
+ruby-2.4.1 - #installing rubygems-2.6.14...........................
+ruby-2.4.1 - #gemset created /home/alex/.rvm/gems/ruby-2.4.1@global
+ruby-2.4.1 - #importing gemset /home/alex/.rvm/gemsets/global.gems.............|
+ruby-2.4.1 - #generating global wrappers........
+ruby-2.4.1 - #gemset created /home/alex/.rvm/gems/ruby-2.4.1
+ruby-2.4.1 - #importing gemsetfile /home/alex/.rvm/gemsets/default.gems evaluated to empty gem list
+ruby-2.4.1 - #generating default wrappers........
+ruby-2.4.1 - #adjusting #shebangs for (gem irb erb ri rdoc testrb rake).
+Install of ruby-2.4.1 - #complete 
+Ruby was built without documentation, to build it run: rvm docs generate-ri
+alex@www:~$ 
+
+*/- 8.2
+alex@www:~$ ruby -v
+ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-linux]
+
+*/- 8.3
+alex@www:~$ rvm list
+
+rvm rubies
+
+ * ruby-2.3.1 [ x86_64 ]
+=> ruby-2.4.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+alex@www:~$ 
+
+*/- 9
+Согласно р."1.2.2 Ruby, RubyGems, Rails, и Git"
+после установки rvm 
+"... вы можете получить перечень необходимого ПО для установки Ruby на вашей системе:"
+
+Запускаю - ничего не нужно!!!!
+
+alex@www:~$ rvm requirements
+Checking requirements for debian.
+Requirements installation successful.
+alex@www:~$ 
+
+*/- 10.1
+Проверяю, установлени ли RubyGems - установлен!!!! (см.р.1.2.2 МХ):
+
+alex@www:~$ which gem
+/home/alex/.rvm/rubies/ruby-2.4.1/bin/gem
+
+*/- 10.2
+Нахожу свежайшую версию Rails:
+
+alex@www:~$ gem search ^rails
+
+*** REMOTE GEMS ***
+
+rails (5.2.0)
+rails-3-settings (0.1.1)
+rails-action-args (0.1.1)
+rails-action_throttling (0.1.2)
+rails-acu (3.0.3)
+...
+
+*/- 10.3
+Далее по МХ
+rvm use 2.0.0@railstutorial_rails_4_0 --create --default
+пишу себе
+
+alex@www:~$ rvm use 2.4.1@rb241rl520 --create --default
+ruby-2.4.1 - #gemset created /home/alex/.rvm/gems/ruby-2.4.1@rb241rl520
+ruby-2.4.1 - #generating rb241rl520 wrappers..........
+Using /home/alex/.rvm/gems/ruby-2.4.1 with gemset rb241rl520
+
+*/- 10.4
+Далее согласно МХ пишу для моего случая:
+
+alex@www:~$ gem install rails --version 5.2.0
+Fetching: concurrent-ruby-1.0.5.gem (100%)
+Successfully installed concurrent-ruby-1.0.5
+Fetching: i18n-1.0.1.gem (100%)
+Successfully installed i18n-1.0.1
+Fetching: thread_safe-0.3.6.gem (100%)
+Successfully installed thread_safe-0.3.6
+Fetching: tzinfo-1.2.5.gem (100%)
+Successfully installed tzinfo-1.2.5
+Fetching: activesupport-5.2.0.gem (100%)
+Successfully installed activesupport-5.2.0
+Fetching: rack-2.0.5.gem (100%)
+Successfully installed rack-2.0.5
+Fetching: rack-test-1.0.0.gem (100%)
+Successfully installed rack-test-1.0.0
+Fetching: mini_portile2-2.3.0.gem (100%)
+Successfully installed mini_portile2-2.3.0
+Fetching: nokogiri-1.8.2.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed nokogiri-1.8.2
+Fetching: crass-1.0.4.gem (100%)
+Successfully installed crass-1.0.4
+Fetching: loofah-2.2.2.gem (100%)
+Successfully installed loofah-2.2.2
+Fetching: rails-html-sanitizer-1.0.4.gem (100%)
+Successfully installed rails-html-sanitizer-1.0.4
+Fetching: rails-dom-testing-2.0.3.gem (100%)
+Successfully installed rails-dom-testing-2.0.3
+Fetching: builder-3.2.3.gem (100%)
+Successfully installed builder-3.2.3
+Fetching: erubi-1.7.1.gem (100%)
+Successfully installed erubi-1.7.1
+Fetching: actionview-5.2.0.gem (100%)
+Successfully installed actionview-5.2.0
+Fetching: actionpack-5.2.0.gem (100%)
+Successfully installed actionpack-5.2.0
+Fetching: activemodel-5.2.0.gem (100%)
+Successfully installed activemodel-5.2.0
+Fetching: arel-9.0.0.gem (100%)
+Successfully installed arel-9.0.0
+Fetching: activerecord-5.2.0.gem (100%)
+Successfully installed activerecord-5.2.0
+Fetching: globalid-0.4.1.gem (100%)
+Successfully installed globalid-0.4.1
+Fetching: activejob-5.2.0.gem (100%)
+Successfully installed activejob-5.2.0
+Fetching: mini_mime-1.0.0.gem (100%)
+Successfully installed mini_mime-1.0.0
+Fetching: mail-2.7.0.gem (100%)
+Successfully installed mail-2.7.0
+Fetching: actionmailer-5.2.0.gem (100%)
+Successfully installed actionmailer-5.2.0
+Fetching: nio4r-2.3.1.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed nio4r-2.3.1
+Fetching: websocket-extensions-0.1.3.gem (100%)
+Successfully installed websocket-extensions-0.1.3
+Fetching: websocket-driver-0.7.0.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed websocket-driver-0.7.0
+Fetching: actioncable-5.2.0.gem (100%)
+Successfully installed actioncable-5.2.0
+Fetching: mimemagic-0.3.2.gem (100%)
+Successfully installed mimemagic-0.3.2
+Fetching: marcel-0.3.2.gem (100%)
+Successfully installed marcel-0.3.2
+Fetching: activestorage-5.2.0.gem (100%)
+Successfully installed activestorage-5.2.0
+Fetching: thor-0.20.0.gem (100%)
+Successfully installed thor-0.20.0
+Fetching: method_source-0.9.0.gem (100%)
+Successfully installed method_source-0.9.0
+Fetching: railties-5.2.0.gem (100%)
+Successfully installed railties-5.2.0
+Fetching: bundler-1.16.2.gem (100%)
+Successfully installed bundler-1.16.2
+Fetching: sprockets-3.7.1.gem (100%)
+Successfully installed sprockets-3.7.1
+Fetching: sprockets-rails-3.2.1.gem (100%)
+Successfully installed sprockets-rails-3.2.1
+Fetching: rails-5.2.0.gem (100%)
+Successfully installed rails-5.2.0
+Parsing documentation for concurrent-ruby-1.0.5
+Installing ri documentation for concurrent-ruby-1.0.5
+Parsing documentation for i18n-1.0.1
+Installing ri documentation for i18n-1.0.1
+Parsing documentation for thread_safe-0.3.6
+Installing ri documentation for thread_safe-0.3.6
+Parsing documentation for tzinfo-1.2.5
+Installing ri documentation for tzinfo-1.2.5
+Parsing documentation for activesupport-5.2.0
+Installing ri documentation for activesupport-5.2.0
+Parsing documentation for rack-2.0.5
+Installing ri documentation for rack-2.0.5
+Parsing documentation for rack-test-1.0.0
+Installing ri documentation for rack-test-1.0.0
+Parsing documentation for mini_portile2-2.3.0
+Installing ri documentation for mini_portile2-2.3.0
+Parsing documentation for nokogiri-1.8.2
+Installing ri documentation for nokogiri-1.8.2
+Parsing documentation for crass-1.0.4
+Installing ri documentation for crass-1.0.4
+Parsing documentation for loofah-2.2.2
+Installing ri documentation for loofah-2.2.2
+Parsing documentation for rails-html-sanitizer-1.0.4
+Installing ri documentation for rails-html-sanitizer-1.0.4
+Parsing documentation for rails-dom-testing-2.0.3
+Installing ri documentation for rails-dom-testing-2.0.3
+Parsing documentation for builder-3.2.3
+Installing ri documentation for builder-3.2.3
+Parsing documentation for erubi-1.7.1
+Installing ri documentation for erubi-1.7.1
+Parsing documentation for actionview-5.2.0
+Installing ri documentation for actionview-5.2.0
+Parsing documentation for actionpack-5.2.0
+Installing ri documentation for actionpack-5.2.0
+Parsing documentation for activemodel-5.2.0
+Installing ri documentation for activemodel-5.2.0
+Parsing documentation for arel-9.0.0
+Installing ri documentation for arel-9.0.0
+Parsing documentation for activerecord-5.2.0
+Installing ri documentation for activerecord-5.2.0
+Parsing documentation for globalid-0.4.1
+Installing ri documentation for globalid-0.4.1
+Parsing documentation for activejob-5.2.0
+Installing ri documentation for activejob-5.2.0
+Parsing documentation for mini_mime-1.0.0
+Installing ri documentation for mini_mime-1.0.0
+Parsing documentation for mail-2.7.0
+Installing ri documentation for mail-2.7.0
+Parsing documentation for actionmailer-5.2.0
+Installing ri documentation for actionmailer-5.2.0
+Parsing documentation for nio4r-2.3.1
+Installing ri documentation for nio4r-2.3.1
+Parsing documentation for websocket-extensions-0.1.3
+Installing ri documentation for websocket-extensions-0.1.3
+Parsing documentation for websocket-driver-0.7.0
+Installing ri documentation for websocket-driver-0.7.0
+Parsing documentation for actioncable-5.2.0
+Installing ri documentation for actioncable-5.2.0
+Parsing documentation for mimemagic-0.3.2
+Installing ri documentation for mimemagic-0.3.2
+Parsing documentation for marcel-0.3.2
+Installing ri documentation for marcel-0.3.2
+Parsing documentation for activestorage-5.2.0
+Installing ri documentation for activestorage-5.2.0
+Parsing documentation for thor-0.20.0
+Installing ri documentation for thor-0.20.0
+Parsing documentation for method_source-0.9.0
+Installing ri documentation for method_source-0.9.0
+Parsing documentation for railties-5.2.0
+Installing ri documentation for railties-5.2.0
+Parsing documentation for bundler-1.16.2
+Installing ri documentation for bundler-1.16.2
+Parsing documentation for sprockets-3.7.1
+Installing ri documentation for sprockets-3.7.1
+Parsing documentation for sprockets-rails-3.2.1
+Installing ri documentation for sprockets-rails-3.2.1
+Parsing documentation for rails-5.2.0
+Installing ri documentation for rails-5.2.0
+Done installing documentation for concurrent-ruby, i18n, thread_safe, tzinfo, activesupport, rack, rack-test, mini_portile2, nokogiri, crass, loofah, rails-html-sanitizer, rails-dom-testing, builder, erubi, actionview, actionpack, activemodel, arel, activerecord, globalid, activejob, mini_mime, mail, actionmailer, nio4r, websocket-extensions, websocket-driver, actioncable, mimemagic, marcel, activestorage, thor, method_source, railties, bundler, sprockets, sprockets-rails, rails after 231 seconds
+39 gems installed
+alex@www:~$ 
+
+*/- 10.5
+Проверяю версии:
+
+lex@www:~$ rails -v
+Rails 5.2.0
+alex@www:~$ rvm list
+
+rvm rubies
+
+   ruby-2.3.1 [ x86_64 ]
+=* ruby-2.4.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+alex@www:~$ rvm gemset list
+
+gemsets for ruby-2.4.1 (found in /home/alex/.rvm/gems/ruby-2.4.1)
+   (default)
+   global
+=> rb241rl520
+
+alex@www:~$ 
+

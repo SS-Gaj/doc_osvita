@@ -1,0 +1,1072 @@
+**** 2018.08.09 ****
+Клонирую Проект /osvita на оф-ПК
+[1] - srv-osvita3-180614(pull-start);
+[2] - srv-osvita1-180612(xron);
+[3] - hm-osvita2-180613(start)_at180613;
+
+
+*/- 1
+По образцу [1]
+
+ss@office:~/rails_projects$ git clone git://github.com/SS-Gaj/osvita
+Cloning into 'osvita'...
+remote: Counting objects: 394, done.
+remote: Compressing objects: 100% (247/247), done.
+remote: Total 394 (delta 165), reused 340 (delta 112), pack-reused 0
+Receiving objects: 100% (394/394), 67.18 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (165/165), done.
+Checking connectivity... done.
+ss@office:~/rails_projects$ 
+
+*/- 2
+Перехожу в ... - нет ruby-2.4.1
+Required ruby-2.4.1 is not installed.
+To install do: 'rvm install "ruby-2.4.1"'
+ss@office:~/rails_projects/osvita$ 
+
+*/- 2.1
+По образцу [2] - там у меня все очень подробно,
+здесь же я запускаю только команды, а комментарии не делаю;
+
+Required ruby-2.4.1 is not installed.
+To install do: 'rvm install "ruby-2.4.1"'
+ss@office:~/rails_projects/osvita$ rvm list
+
+rvm rubies
+
+   ruby-2.1.8 [ x86_64 ]
+=* ruby-2.3.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+ss@office:~/rails_projects/osvita$ rvm gemset list
+
+gemsets for ruby-2.3.1 (found in /home/ss/.rvm/gems/ruby-2.3.1)
+   (default)
+   global
+=> rb231rl429
+
+ss@office:~/rails_projects/osvita$ rvm info
+
+ruby-2.3.1@rb231rl429:
+
+  system:
+    uname:        "Linux office 3.16.0-4-amd64 #1 SMP Debian 3.16.43-2+deb8u1 (2017-06-18) x86_64 GNU/Linux"
+    name:         "Debian"
+    version:      "8"
+    architecture: "x86_64"
+    bash:         "/bin/bash => GNU bash, version 4.3.30(1)-release (x86_64-pc-linux-gnu)"
+    zsh:          " => not installed"
+    remote_path:  "debian/8/x86_64"
+
+  rvm:
+    version:      "1.29.3 (latest)"
+    updated:      "3 months 17 days 20 hours 3 minutes 10 seconds ago"
+    path:         "/home/ss/.rvm"
+    autolibs:     "[4] Allow RVM to use package manager if found, install missing dependencies, install package manager (only OS X)."
+
+  ruby:
+    interpreter:  "ruby"
+    version:      "2.3.1p112"
+    date:         "2016-04-26"
+    platform:     "x86_64-linux"
+    patchlevel:   "2016-04-26 revision 54768"
+    full_version: "ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-linux]"
+
+  homes:
+    gem:          "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429"
+    ruby:         "/home/ss/.rvm/rubies/ruby-2.3.1"
+
+  binaries:
+    ruby:         "/home/ss/.rvm/rubies/ruby-2.3.1/bin/ruby"
+    irb:          "/home/ss/.rvm/rubies/ruby-2.3.1/bin/irb"
+    gem:          "/home/ss/.rvm/rubies/ruby-2.3.1/bin/gem"
+    rake:         "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429/bin/rake"
+
+  environment:
+    PATH:         "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429/bin:/home/ss/.rvm/gems/ruby-2.3.1@global/bin:/home/ss/.rvm/rubies/ruby-2.3.1/bin:/usr/lib/nodejs/node-v6.10.3/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/home/ss/.rvm/bin:/home/ss/.rvm/bin:/home/ss/.rvm/bin:/usr/lib/postgresql/9.4/bin:/home/ss/.rvm/bin"
+    GEM_HOME:     "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429"
+    GEM_PATH:     "/home/ss/.rvm/gems/ruby-2.3.1@rb231rl429:/home/ss/.rvm/gems/ruby-2.3.1@global"
+    MY_RUBY_HOME: "/home/ss/.rvm/rubies/ruby-2.3.1"
+    IRBRC:        "/home/ss/.rvm/rubies/ruby-2.3.1/.irbrc"
+    RUBYOPT:      ""
+    gemset:       "rb231rl429"
+
+
+ss@office:~/rails_projects/osvita$ rvm get stable
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/ss/.rvm/archives/rvm-installer.asc
+gpg: Signature made Sun 01 Apr 2018 00:47:44 EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-installer'
+Downloading https://github.com/rvm/rvm/archive/1.29.4.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.4/1.29.4.tar.gz.asc
+gpg: Signature made Sun 01 Jul 2018 22:41:26 EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-1.29.4.tgz'
+Upgrading the RVM installation in /home/ss/.rvm/
+    RVM PATH line found in /home/ss/.mkshrc /home/ss/.profile /home/ss/.bashrc /home/ss/.zshrc.
+    RVM sourcing line found in /home/ss/.profile /home/ss/.bash_profile /home/ss/.zlogin.
+Upgrade of RVM in /home/ss/.rvm/ is complete.
+  * It looks like some old stuff is laying around RVM, you can cleanup with: rvm cleanup all
+
+  * RVM 1.30 simplifies behavior of 'rvm wrapper' subcommand
+
+
+RVM reloaded!
+ss@office:~/rails_projects/osvita$ rvm cleanup all
+Cleaning up rvm archives
+Cleaning up rvm repos
+Cleaning up rvm src
+Cleaning up rvm log
+Cleaning up rvm tmp
+Cleaning up rvm gemsets
+Cleaning up rvm links
+Cleanup done.
+ss@office:~/rails_projects/osvita$ rvm get stable --auto-dotfiles
+Downloading https://get.rvm.io
+Downloading https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc
+Verifying /home/ss/.rvm/archives/rvm-installer.asc
+gpg: Signature made Sun 01 Apr 2018 00:47:44 EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-installer'
+Turning on auto dotfiles mode.
+Downloading https://github.com/rvm/rvm/archive/1.29.4.tar.gz
+Downloading https://github.com/rvm/rvm/releases/download/1.29.4/1.29.4.tar.gz.asc
+gpg: Signature made Sun 01 Jul 2018 22:41:26 EEST using RSA key ID BF04FF17
+gpg: Good signature from "Michal Papis (RVM signing) <mpapis@gmail.com>" [unknown]
+gpg:                 aka "Michal Papis <michal.papis@toptal.com>" [unknown]
+gpg:                 aka "[jpeg image of size 5015]" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 409B 6B17 96C2 7546 2A17  0311 3804 BB82 D39D C0E3
+     Subkey fingerprint: 62C9 E5F4 DA30 0D94 AC36  166B E206 C29F BF04 FF17
+GPG verified '/home/ss/.rvm/archives/rvm-1.29.4.tgz'
+Upgrading the RVM installation in /home/ss/.rvm/
+    Removing rvm PATH line from /home/ss/.mkshrc /home/ss/.profile /home/ss/.bashrc /home/ss/.zshrc.
+    Adding rvm PATH line to /home/ss/.profile /home/ss/.mkshrc /home/ss/.bashrc /home/ss/.zshrc.
+    Removing rvm loading line from /home/ss/.profile /home/ss/.bash_profile /home/ss/.zlogin.
+    Adding rvm loading line to /home/ss/.profile /home/ss/.bash_profile /home/ss/.zlogin.
+Upgrade of RVM in /home/ss/.rvm/ is complete.
+  * It looks like some old stuff is laying around RVM, you can cleanup with: rvm cleanup all
+
+  * No new notes to display.
+
+RVM reloaded!
+ss@office:~/rails_projects/osvita$ rvm list known
+# MRI Rubies
+[ruby-]1.8.6[-p420]
+[ruby-]1.8.7[-head] # security released on head
+[ruby-]1.9.1[-p431]
+[ruby-]1.9.2[-p330]
+[ruby-]1.9.3[-p551]
+[ruby-]2.0.0[-p648]
+[ruby-]2.1[.10]
+[ruby-]2.2[.10]
+[ruby-]2.3[.7]
+[ruby-]2.4[.4]
+[ruby-]2.5[.1]
+[ruby-]2.6[.0-preview2]
+ruby-head
+
+# for forks use: rvm install ruby-head-<name> --url https://github.com/github/ruby.git --branch 2.2
+
+# JRuby
+jruby-1.6[.8]
+jruby-1.7[.27]
+jruby-9.1[.17.0]
+jruby[-9.2.0.0]
+jruby-head
+
+# Rubinius
+rbx-1[.4.3]
+rbx-2.3[.0]
+rbx-2.4[.1]
+rbx-2[.5.8]
+rbx-3[.100]
+rbx-head
+
+# TruffleRuby
+truffleruby[-1.0.0-rc2]
+
+# Opal
+opal
+
+# Minimalistic ruby implementation - ISO 30170:2012
+mruby-1.0.0
+mruby-1.1.0
+mruby-1.2.0
+mruby-1.3.0
+mruby-1[.4.0]
+mruby[-head]
+
+# Ruby Enterprise Edition
+ree-1.8.6
+ree[-1.8.7][-2012.02]
+
+# Topaz
+topaz
+
+# MagLev
+maglev-1.0.0
+maglev-1.1[RC1]
+maglev[-1.2Alpha4]
+maglev-head
+
+# Mac OS X Snow Leopard Or Newer
+macruby-0.10
+macruby-0.11
+macruby[-0.12]
+macruby-nightly
+macruby-head
+
+# IronRuby
+ironruby[-1.1.3]
+ironruby-head
+ss@office:~/rails_projects/osvita$ rvm install 2.4.1
+Searching for binary rubies, this might take some time.
+No binary rubies available for: debian/8/x86_64/ruby-2.4.1.
+Continuing with compilation. Please read 'rvm help mount' to get more information on binary rubies.
+Checking requirements for debian.
+Requirements installation successful.
+Installing Ruby from source to: /home/ss/.rvm/rubies/ruby-2.4.1, this may take a while depending on your cpu(s)...
+ruby-2.4.1 - #downloading ruby-2.4.1, this may take a while depending on your connection...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 11.9M  100 11.9M    0     0   430k      0  0:00:28  0:00:28 --:--:--  481k
+ruby-2.4.1 - #extracting ruby-2.4.1 to /home/ss/.rvm/src/ruby-2.4.1.....
+ruby-2.4.1 - #applying patch /home/ss/.rvm/patches/ruby/2.4.1/random_c_using_NR_prefix.patch.
+ruby-2.4.1 - #configuring..................................................................
+ruby-2.4.1 - #post-configuration..
+ruby-2.4.1 - #compiling................................................................................
+ruby-2.4.1 - #installing...........
+ruby-2.4.1 - #making binaries executable..
+ruby-2.4.1 - #downloading rubygems-2.7.7
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  894k  100  894k    0     0   478k      0  0:00:01  0:00:01 --:--:--  478k
+No checksum for downloaded archive, recording checksum in user configuration.
+ruby-2.4.1 - #extracting rubygems-2.7.7.....................................................................................................................................-
+ruby-2.4.1 - #removing old rubygems........
+ruby-2.4.1 - #installing rubygems-2.7.7................................
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1@global
+ruby-2.4.1 - #importing gemset /home/ss/.rvm/gemsets/global.gems...................................................
+ruby-2.4.1 - #generating global wrappers.......
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1
+ruby-2.4.1 - #importing gemsetfile /home/ss/.rvm/gemsets/default.gems evaluated to empty gem list
+ruby-2.4.1 - #generating default wrappers.......
+ruby-2.4.1 - #adjusting #shebangs for (gem irb erb ri rdoc testrb rake).
+Install of ruby-2.4.1 - #complete 
+Please be aware that you just installed a ruby that requires 1 patches just to be compiled on an up to date linux system.
+This may have known and unaccounted for security vulnerabilities.
+Please consider upgrading to ruby-2.5.1 which will have all of the latest security patches.
+Ruby was built without documentation, to build it run: rvm docs generate-ri
+ss@office:~/rails_projects/osvita$ ruby -v
+ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-linux]
+ss@office:~/rails_projects/osvita$ rvm list
+   ruby-2.1.8 [ x86_64 ]
+ * ruby-2.3.1 [ x86_64 ]
+=> ruby-2.4.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+ss@office:~/rails_projects/osvita$ rvm requirements
+Checking requirements for debian.
+Requirements installation successful.
+ss@office:~/rails_projects/osvita$ which gem
+/home/ss/.rvm/rubies/ruby-2.4.1/bin/gem
+ss@office:~/rails_projects/osvita$ rvm use 2.4.1@rb241rl520 --create --default
+ruby-2.4.1 - #gemset created /home/ss/.rvm/gems/ruby-2.4.1@rb241rl520
+ruby-2.4.1 - #generating rb241rl520 wrappers.........
+Using /home/ss/.rvm/gems/ruby-2.4.1 with gemset rb241rl520
+ss@office:~/rails_projects/osvita$ gem install rails --version 5.2.0
+Fetching: concurrent-ruby-1.0.5.gem (100%)
+Successfully installed concurrent-ruby-1.0.5
+Fetching: i18n-1.1.0.gem (100%)
+Successfully installed i18n-1.1.0
+Fetching: thread_safe-0.3.6.gem (100%)
+Successfully installed thread_safe-0.3.6
+Fetching: tzinfo-1.2.5.gem (100%)
+Successfully installed tzinfo-1.2.5
+Fetching: activesupport-5.2.0.gem (100%)
+Successfully installed activesupport-5.2.0
+Fetching: rack-2.0.5.gem (100%)
+Successfully installed rack-2.0.5
+Fetching: rack-test-1.1.0.gem (100%)
+Successfully installed rack-test-1.1.0
+Fetching: mini_portile2-2.3.0.gem (100%)
+Successfully installed mini_portile2-2.3.0
+Fetching: nokogiri-1.8.4.gem (100%)
+Building native extensions. This could take a while...
+Successfully installed nokogiri-1.8.4
+Fetching: crass-1.0.4.gem (100%)
+Successfully installed crass-1.0.4
+Fetching: loofah-2.2.2.gem (100%)
+Successfully installed loofah-2.2.2
+Fetching: rails-html-sanitizer-1.0.4.gem (100%)
+Successfully installed rails-html-sanitizer-1.0.4
+Fetching: rails-dom-testing-2.0.3.gem (100%)
+Successfully installed rails-dom-testing-2.0.3
+Fetching: builder-3.2.3.gem (100%)
+Successfully installed builder-3.2.3
+Fetching: erubi-1.7.1.gem (100%)
+Successfully installed erubi-1.7.1
+Fetching: actionview-5.2.0.gem (100%)
+Successfully installed actionview-5.2.0
+Fetching: actionpack-5.2.0.gem (100%)
+Successfully installed actionpack-5.2.0
+Fetching: activemodel-5.2.0.gem (100%)
+Successfully installed activemodel-5.2.0
+Fetching: arel-9.0.0.gem (100%)
+Successfully installed arel-9.0.0
+Fetching: activerecord-5.2.0.gem (100%)
+Successfully installed activerecord-5.2.0
+Fetching: globalid-0.4.1.gem (100%)
+Successfully installed globalid-0.4.1
+Fetching: activejob-5.2.0.gem (100%)
+Successfully installed activejob-5.2.0
+Fetching: mini_mime-1.0.0.gem (100%)
+Successfully installed mini_mime-1.0.0
+Fetching: mail-2.7.0.gem (100%)
+Successfully installed mail-2.7.0
+Fetching: actionmailer-5.2.0.gem (100%)
+Successfully installed actionmailer-5.2.0
+Fetching: nio4r-2.3.1.gem (100%)
+Building native extensions. This could take a while...
+Successfully installed nio4r-2.3.1
+Fetching: websocket-extensions-0.1.3.gem (100%)
+Successfully installed websocket-extensions-0.1.3
+Fetching: websocket-driver-0.7.0.gem (100%)
+Building native extensions. This could take a while...
+Successfully installed websocket-driver-0.7.0
+Fetching: actioncable-5.2.0.gem (100%)
+Successfully installed actioncable-5.2.0
+Fetching: mimemagic-0.3.2.gem (100%)
+Successfully installed mimemagic-0.3.2
+Fetching: marcel-0.3.2.gem (100%)
+Successfully installed marcel-0.3.2
+Fetching: activestorage-5.2.0.gem (100%)
+Successfully installed activestorage-5.2.0
+Fetching: thor-0.20.0.gem (100%)
+Successfully installed thor-0.20.0
+Fetching: method_source-0.9.0.gem (100%)
+Successfully installed method_source-0.9.0
+Fetching: railties-5.2.0.gem (100%)
+Successfully installed railties-5.2.0
+Fetching: sprockets-3.7.2.gem (100%)
+Successfully installed sprockets-3.7.2
+Fetching: sprockets-rails-3.2.1.gem (100%)
+Successfully installed sprockets-rails-3.2.1
+Fetching: rails-5.2.0.gem (100%)
+Successfully installed rails-5.2.0
+38 gems installed
+ss@office:~/rails_projects/osvita$ rails -v
+Could not find rake-12.3.1 in any of the sources
+Run `bundle install` to install missing gems.
+ss@office:~/rails_projects/osvita$ 
+ss@office:~/rails_projects/osvita$ 
+ss@office:~/rails_projects/osvita$ bundle install
+^Css@office:~/rails_projects/osvita$ bundle install rake-12.3.1
+ERROR: "bundle install" was called with arguments ["rake-12.3.1"]
+Usage: "bundle install [OPTIONS]"
+ss@office:~/rails_projects/osvita$ bundle update rake
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies...
+Fetching rake 12.3.1
+Installing rake 12.3.1
+Using concurrent-ruby 1.0.5
+Fetching i18n 1.0.1
+Installing i18n 1.0.1
+Fetching minitest 5.11.3
+Installing minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Fetching nokogiri 1.8.2
+Installing nokogiri 1.8.2 with native extensions
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Fetching rack-test 1.0.0
+Installing rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Fetching public_suffix 3.0.2
+Installing public_suffix 3.0.2
+Fetching addressable 2.5.2
+Installing addressable 2.5.2
+Fetching io-like 0.3.0
+Installing io-like 0.3.0
+Fetching archive-zip 0.11.0
+Installing archive-zip 0.11.0
+Fetching execjs 2.7.0
+Installing execjs 2.7.0
+Fetching autoprefixer-rails 8.6.2
+Installing autoprefixer-rails 8.6.2
+Fetching bcrypt 3.1.12
+Installing bcrypt 3.1.12 with native extensions
+Fetching bindex 0.5.0
+Installing bindex 0.5.0 with native extensions
+Fetching msgpack 1.2.4
+Installing msgpack 1.2.4 with native extensions
+Fetching bootsnap 1.3.0
+Installing bootsnap 1.3.0 with native extensions
+Fetching popper_js 1.12.9
+Installing popper_js 1.12.9
+Fetching rb-fsevent 0.10.3
+Installing rb-fsevent 0.10.3
+Fetching ffi 1.9.25
+Installing ffi 1.9.25 with native extensions
+Fetching rb-inotify 0.9.10
+Installing rb-inotify 0.9.10
+Fetching sass-listen 4.0.0
+Installing sass-listen 4.0.0
+Fetching sass 3.5.6
+Installing sass 3.5.6
+Fetching bootstrap 4.1.1
+Installing bootstrap 4.1.1
+Using bundler 1.16.2
+Fetching byebug 10.0.2
+Installing byebug 10.0.2 with native extensions
+Fetching xpath 3.1.0
+Installing xpath 3.1.0
+Fetching capybara 3.2.1
+Installing capybara 3.2.1
+Fetching childprocess 0.9.0
+Installing childprocess 0.9.0
+Fetching chromedriver-helper 1.2.0
+Installing chromedriver-helper 1.2.0
+Fetching coffee-script-source 1.12.2
+Installing coffee-script-source 1.12.2
+Fetching coffee-script 2.4.1
+Installing coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Fetching coffee-rails 4.2.2
+Installing coffee-rails 4.2.2
+Fetching orm_adapter 0.5.0
+Installing orm_adapter 0.5.0
+Fetching responders 2.4.0
+Installing responders 2.4.0
+Fetching warden 1.2.7
+Installing warden 1.2.7
+Fetching devise 4.4.3
+Installing devise 4.4.3
+Fetching multi_json 1.13.1
+Installing multi_json 1.13.1
+Fetching jbuilder 2.7.0
+Installing jbuilder 2.7.0
+Fetching jquery-rails 4.3.3
+Installing jquery-rails 4.3.3
+Fetching launchy 2.4.3
+Installing launchy 2.4.3
+Fetching letter_opener 1.6.0
+Installing letter_opener 1.6.0
+Fetching ruby_dep 1.5.0
+Installing ruby_dep 1.5.0
+Fetching listen 3.1.5
+Installing listen 3.1.5
+Fetching pg 1.0.0
+Installing pg 1.0.0 with native extensions
+Fetching puma 3.11.4
+Installing puma 3.11.4 with native extensions
+Fetching sprockets 3.7.1
+Installing sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Fetching rubyzip 1.2.1
+Installing rubyzip 1.2.1
+Fetching tilt 2.0.8
+Installing tilt 2.0.8
+Fetching sass-rails 5.0.7
+Installing sass-rails 5.0.7
+Fetching selenium-webdriver 3.12.0
+Installing selenium-webdriver 3.12.0
+Fetching spring 2.0.2
+Installing spring 2.0.2
+Fetching spring-watcher-listen 2.0.1
+Installing spring-watcher-listen 2.0.1
+Fetching turbolinks-source 5.1.0
+Installing turbolinks-source 5.1.0
+Fetching turbolinks 5.1.1
+Installing turbolinks 5.1.1
+Fetching uglifier 4.1.11
+Installing uglifier 4.1.11
+Fetching web-console 3.6.2
+Installing web-console 3.6.2
+Bundler attempted to update rake but its version stayed the same
+Bundle updated!
+ss@office:~/rails_projects/osvita$ rails -v
+Rails 5.2.0
+ss@office:~/rails_projects/osvita$ 
+
+*/- 
+
+ss@office:~/rails_projects/osvita$ bundle install
+Fetching gem metadata from https://rubygems.org/.........
+Fetching rake 12.3.1
+Installing rake 12.3.1
+Fetching concurrent-ruby 1.0.5
+Installing concurrent-ruby 1.0.5
+Fetching i18n 1.0.1
+Installing i18n 1.0.1
+Fetching minitest 5.11.3
+Installing minitest 5.11.3
+Fetching thread_safe 0.3.6
+Installing thread_safe 0.3.6
+Fetching tzinfo 1.2.5
+Installing tzinfo 1.2.5
+Fetching activesupport 5.2.0
+Installing activesupport 5.2.0
+Fetching builder 3.2.3
+Installing builder 3.2.3
+Fetching erubi 1.7.1
+Installing erubi 1.7.1
+Fetching mini_portile2 2.3.0
+Installing mini_portile2 2.3.0
+Fetching nokogiri 1.8.2
+Installing nokogiri 1.8.2 with native extensions
+Fetching rails-dom-testing 2.0.3
+Installing rails-dom-testing 2.0.3
+Fetching crass 1.0.4
+Installing crass 1.0.4
+Fetching loofah 2.2.2
+Installing loofah 2.2.2
+Fetching rails-html-sanitizer 1.0.4
+Installing rails-html-sanitizer 1.0.4
+Fetching actionview 5.2.0
+Installing actionview 5.2.0
+Fetching rack 2.0.5
+Installing rack 2.0.5
+Fetching rack-test 1.0.0
+Installing rack-test 1.0.0
+Fetching actionpack 5.2.0
+Installing actionpack 5.2.0
+Fetching nio4r 2.3.1
+Installing nio4r 2.3.1 with native extensions
+Fetching websocket-extensions 0.1.3
+Installing websocket-extensions 0.1.3
+Fetching websocket-driver 0.7.0
+Installing websocket-driver 0.7.0 with native extensions
+Fetching actioncable 5.2.0
+Installing actioncable 5.2.0
+Fetching globalid 0.4.1
+Installing globalid 0.4.1
+Fetching activejob 5.2.0
+Installing activejob 5.2.0
+Fetching mini_mime 1.0.0
+Installing mini_mime 1.0.0
+Fetching mail 2.7.0
+Installing mail 2.7.0
+Fetching actionmailer 5.2.0
+Installing actionmailer 5.2.0
+Fetching activemodel 5.2.0
+Installing activemodel 5.2.0
+Fetching arel 9.0.0
+Installing arel 9.0.0
+Fetching activerecord 5.2.0
+Installing activerecord 5.2.0
+Fetching mimemagic 0.3.2
+Installing mimemagic 0.3.2
+Fetching marcel 0.3.2
+Installing marcel 0.3.2
+Fetching activestorage 5.2.0
+Installing activestorage 5.2.0
+Fetching public_suffix 3.0.2
+Installing public_suffix 3.0.2
+Fetching addressable 2.5.2
+Installing addressable 2.5.2
+Fetching io-like 0.3.0
+Installing io-like 0.3.0
+Fetching archive-zip 0.11.0
+Installing archive-zip 0.11.0
+Fetching execjs 2.7.0
+Installing execjs 2.7.0
+Fetching autoprefixer-rails 8.6.2
+Installing autoprefixer-rails 8.6.2
+Fetching bcrypt 3.1.12
+Installing bcrypt 3.1.12 with native extensions
+Fetching bindex 0.5.0
+Installing bindex 0.5.0 with native extensions
+Fetching msgpack 1.2.4
+Installing msgpack 1.2.4 with native extensions
+Fetching bootsnap 1.3.0
+Installing bootsnap 1.3.0 with native extensions
+Fetching popper_js 1.12.9
+Installing popper_js 1.12.9
+Fetching rb-fsevent 0.10.3
+Installing rb-fsevent 0.10.3
+Fetching ffi 1.9.25
+Installing ffi 1.9.25 with native extensions
+Fetching rb-inotify 0.9.10
+Installing rb-inotify 0.9.10
+Fetching sass-listen 4.0.0
+Installing sass-listen 4.0.0
+Fetching sass 3.5.6
+Installing sass 3.5.6
+Fetching bootstrap 4.1.1
+Installing bootstrap 4.1.1
+Using bundler 1.16.2
+Fetching byebug 10.0.2
+Installing byebug 10.0.2 with native extensions
+Fetching xpath 3.1.0
+Installing xpath 3.1.0
+Fetching capybara 3.2.1
+Installing capybara 3.2.1
+Fetching childprocess 0.9.0
+Installing childprocess 0.9.0
+Fetching chromedriver-helper 1.2.0
+Installing chromedriver-helper 1.2.0
+Fetching coffee-script-source 1.12.2
+Installing coffee-script-source 1.12.2
+Fetching coffee-script 2.4.1
+Installing coffee-script 2.4.1
+Fetching method_source 0.9.0
+Installing method_source 0.9.0
+Fetching thor 0.20.0
+Installing thor 0.20.0
+Fetching railties 5.2.0
+Installing railties 5.2.0
+Fetching coffee-rails 4.2.2
+Installing coffee-rails 4.2.2
+Fetching orm_adapter 0.5.0
+Installing orm_adapter 0.5.0
+Fetching responders 2.4.0
+Installing responders 2.4.0
+Fetching warden 1.2.7
+Installing warden 1.2.7
+Fetching devise 4.4.3
+Installing devise 4.4.3
+Fetching multi_json 1.13.1
+Installing multi_json 1.13.1
+Fetching jbuilder 2.7.0
+Installing jbuilder 2.7.0
+Fetching jquery-rails 4.3.3
+Installing jquery-rails 4.3.3
+Fetching launchy 2.4.3
+Installing launchy 2.4.3
+Fetching letter_opener 1.6.0
+Installing letter_opener 1.6.0
+Fetching ruby_dep 1.5.0
+Installing ruby_dep 1.5.0
+Fetching listen 3.1.5
+Installing listen 3.1.5
+Fetching pg 1.0.0
+Installing pg 1.0.0 with native extensions
+Fetching puma 3.11.4
+Installing puma 3.11.4 with native extensions
+Fetching sprockets 3.7.1
+Installing sprockets 3.7.1
+Fetching sprockets-rails 3.2.1
+Installing sprockets-rails 3.2.1
+Fetching rails 5.2.0
+Installing rails 5.2.0
+Fetching rubyzip 1.2.1
+Installing rubyzip 1.2.1
+Fetching tilt 2.0.8
+Installing tilt 2.0.8
+Fetching sass-rails 5.0.7
+Installing sass-rails 5.0.7
+Fetching selenium-webdriver 3.12.0
+Installing selenium-webdriver 3.12.0
+Fetching spring 2.0.2
+Installing spring 2.0.2
+Fetching spring-watcher-listen 2.0.1
+Installing spring-watcher-listen 2.0.1
+Fetching turbolinks-source 5.1.0
+Installing turbolinks-source 5.1.0
+Fetching turbolinks 5.1.1
+Installing turbolinks 5.1.1
+Fetching uglifier 4.1.11
+Installing uglifier 4.1.11
+Fetching web-console 3.6.2
+Installing web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+ss@office:~/rails_projects/osvita$ bundle info rake
+  * rake (12.3.1)
+	Summary: Rake is a Make-like program implemented in Ruby
+	Homepage: https://github.com/ruby/rake
+	Path: /home/ss/.rvm/gems/ruby-2.4.1/gems/rake-12.3.1
+ss@office:~/rails_projects/osvita$ 
+
+*/- 
+Теперь БД;
+Раньше я делал миграции - rake db:migrate;
+Но недавно ОсВ в /db/schema.rb 
+If you need to create the application database on another
+system, you should be using db:schema:load, not running all the migrations
+from scratch. The latter is a flawed and unsustainable approach (the more migrations
+you'll amass, the slower it'll run and the greater likelihood for issues).
+
+Если вам нужно создать базу данных приложения на другом
+системы, вы должны использовать db: schema: load, не выполняйте все миграции
+с нуля. Последнее является ошибочным и неустойчивым подходом (чем больше миграций
+вы будете накапливать, тем медленнее он будет работать и большая вероятность возникновения проблем).
+**//- значит, это нужно делать на оф-ПК. Только где брать db/schema.rb ? После клонирования ее нет в папке /db !!
+
+... а затем нашел в 
+"4. Запуск миграций"
+"Заметьте, что запуск задачи db:migrate также вызывает задачу db:schema:dump, которая обновляет ваш файл db/schema.rb в соответствии со структурой вашей базы данных."
+**//- из этого следует, что db:schema:dump делает запись в db/schema.rb
+
+
+... и еще нашел на http://annaershova.github.io/blog/2015/10/15/rake-database-tasks/
+
+rake db:schema:load 
+– loads she schema into your database. Good practice is using it when you first put your app in production; then run migrations from there on.
+загружает ее схему в вашу базу данных. Хорошая практика заключается в том, чтобы использовать его, когда вы впервые добавляете свое приложение в производство; затем выполните миграцию оттуда.
+
+rake db:schema:dump
+– dumps she schema.
+
+*/- 
+Учитывая вышеизложенное,
+скопирую файл db/schema.rb "вручную" из Сервера,
+а затем на оф-ПК запущу db: schema: load; 
+Только как ее запустить ?
+Попробую
+rake db: schema: load
+
+*/-
+
+ss@office:~/rails_projects/osvita$ bundle install
+Fetching gem metadata from https://rubygems.org/.........
+Fetching rake 12.3.1
+Installing rake 12.3.1
+Fetching concurrent-ruby 1.0.5
+Installing concurrent-ruby 1.0.5
+Fetching i18n 1.0.1
+Installing i18n 1.0.1
+Fetching minitest 5.11.3
+Installing minitest 5.11.3
+Fetching thread_safe 0.3.6
+Installing thread_safe 0.3.6
+Fetching tzinfo 1.2.5
+Installing tzinfo 1.2.5
+Fetching activesupport 5.2.0
+Installing activesupport 5.2.0
+Fetching builder 3.2.3
+Installing builder 3.2.3
+Fetching erubi 1.7.1
+Installing erubi 1.7.1
+Fetching mini_portile2 2.3.0
+Installing mini_portile2 2.3.0
+Fetching nokogiri 1.8.2
+Installing nokogiri 1.8.2 with native extensions
+Fetching rails-dom-testing 2.0.3
+Installing rails-dom-testing 2.0.3
+Fetching crass 1.0.4
+Installing crass 1.0.4
+Fetching loofah 2.2.2
+Installing loofah 2.2.2
+Fetching rails-html-sanitizer 1.0.4
+Installing rails-html-sanitizer 1.0.4
+Fetching actionview 5.2.0
+Installing actionview 5.2.0
+Fetching rack 2.0.5
+Installing rack 2.0.5
+Fetching rack-test 1.0.0
+Installing rack-test 1.0.0
+Fetching actionpack 5.2.0
+Installing actionpack 5.2.0
+Fetching nio4r 2.3.1
+Installing nio4r 2.3.1 with native extensions
+Fetching websocket-extensions 0.1.3
+Installing websocket-extensions 0.1.3
+Fetching websocket-driver 0.7.0
+Installing websocket-driver 0.7.0 with native extensions
+Fetching actioncable 5.2.0
+Installing actioncable 5.2.0
+Fetching globalid 0.4.1
+Installing globalid 0.4.1
+Fetching activejob 5.2.0
+Installing activejob 5.2.0
+Fetching mini_mime 1.0.0
+Installing mini_mime 1.0.0
+Fetching mail 2.7.0
+Installing mail 2.7.0
+Fetching actionmailer 5.2.0
+Installing actionmailer 5.2.0
+Fetching activemodel 5.2.0
+Installing activemodel 5.2.0
+Fetching arel 9.0.0
+Installing arel 9.0.0
+Fetching activerecord 5.2.0
+Installing activerecord 5.2.0
+Fetching mimemagic 0.3.2
+Installing mimemagic 0.3.2
+Fetching marcel 0.3.2
+Installing marcel 0.3.2
+Fetching activestorage 5.2.0
+Installing activestorage 5.2.0
+Fetching public_suffix 3.0.2
+Installing public_suffix 3.0.2
+Fetching addressable 2.5.2
+Installing addressable 2.5.2
+Fetching io-like 0.3.0
+Installing io-like 0.3.0
+Fetching archive-zip 0.11.0
+Installing archive-zip 0.11.0
+Fetching execjs 2.7.0
+Installing execjs 2.7.0
+Fetching autoprefixer-rails 8.6.2
+Installing autoprefixer-rails 8.6.2
+Fetching bcrypt 3.1.12
+Installing bcrypt 3.1.12 with native extensions
+Fetching bindex 0.5.0
+Installing bindex 0.5.0 with native extensions
+Fetching msgpack 1.2.4
+Installing msgpack 1.2.4 with native extensions
+Fetching bootsnap 1.3.0
+Installing bootsnap 1.3.0 with native extensions
+Fetching popper_js 1.12.9
+Installing popper_js 1.12.9
+Fetching rb-fsevent 0.10.3
+Installing rb-fsevent 0.10.3
+Fetching ffi 1.9.25
+Installing ffi 1.9.25 with native extensions
+Fetching rb-inotify 0.9.10
+Installing rb-inotify 0.9.10
+Fetching sass-listen 4.0.0
+Installing sass-listen 4.0.0
+Fetching sass 3.5.6
+Installing sass 3.5.6
+Fetching bootstrap 4.1.1
+Installing bootstrap 4.1.1
+Using bundler 1.16.2
+Fetching byebug 10.0.2
+Installing byebug 10.0.2 with native extensions
+Fetching xpath 3.1.0
+Installing xpath 3.1.0
+Fetching capybara 3.2.1
+Installing capybara 3.2.1
+Fetching childprocess 0.9.0
+Installing childprocess 0.9.0
+Fetching chromedriver-helper 1.2.0
+Installing chromedriver-helper 1.2.0
+Fetching coffee-script-source 1.12.2
+Installing coffee-script-source 1.12.2
+Fetching coffee-script 2.4.1
+Installing coffee-script 2.4.1
+Fetching method_source 0.9.0
+Installing method_source 0.9.0
+Fetching thor 0.20.0
+Installing thor 0.20.0
+Fetching railties 5.2.0
+Installing railties 5.2.0
+Fetching coffee-rails 4.2.2
+Installing coffee-rails 4.2.2
+Fetching orm_adapter 0.5.0
+Installing orm_adapter 0.5.0
+Fetching responders 2.4.0
+Installing responders 2.4.0
+Fetching warden 1.2.7
+Installing warden 1.2.7
+Fetching devise 4.4.3
+Installing devise 4.4.3
+Fetching multi_json 1.13.1
+Installing multi_json 1.13.1
+Fetching jbuilder 2.7.0
+Installing jbuilder 2.7.0
+Fetching jquery-rails 4.3.3
+Installing jquery-rails 4.3.3
+Fetching launchy 2.4.3
+Installing launchy 2.4.3
+Fetching letter_opener 1.6.0
+Installing letter_opener 1.6.0
+Fetching ruby_dep 1.5.0
+Installing ruby_dep 1.5.0
+Fetching listen 3.1.5
+Installing listen 3.1.5
+Fetching pg 1.0.0
+Installing pg 1.0.0 with native extensions
+Fetching puma 3.11.4
+Installing puma 3.11.4 with native extensions
+Fetching sprockets 3.7.1
+Installing sprockets 3.7.1
+Fetching sprockets-rails 3.2.1
+Installing sprockets-rails 3.2.1
+Fetching rails 5.2.0
+Installing rails 5.2.0
+Fetching rubyzip 1.2.1
+Installing rubyzip 1.2.1
+Fetching tilt 2.0.8
+Installing tilt 2.0.8
+Fetching sass-rails 5.0.7
+Installing sass-rails 5.0.7
+Fetching selenium-webdriver 3.12.0
+Installing selenium-webdriver 3.12.0
+Fetching spring 2.0.2
+Installing spring 2.0.2
+Fetching spring-watcher-listen 2.0.1
+Installing spring-watcher-listen 2.0.1
+Fetching turbolinks-source 5.1.0
+Installing turbolinks-source 5.1.0
+Fetching turbolinks 5.1.1
+Installing turbolinks 5.1.1
+Fetching uglifier 4.1.11
+Installing uglifier 4.1.11
+Fetching web-console 3.6.2
+Installing web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+ss@office:~/rails_projects/osvita$ bundle info rake
+  * rake (12.3.1)
+	Summary: Rake is a Make-like program implemented in Ruby
+	Homepage: https://github.com/ruby/rake
+	Path: /home/ss/.rvm/gems/ruby-2.4.1/gems/rake-12.3.1
+
+*/-
+Это остаток одного из выводов об ошибке:
+Tasks: TOP => db:migrate => db:load_config => environment
+(See full trace by running task with --trace)
+
+
+*/-
+Из Сервера копирую db/schema.rb
+Запускаю...
+
+ss@office:~/rails_projects/osvita$ rake db:schema:load
+-- enable_extension("plpgsql")
+rake aborted!
+
+
+Caused by:
+PG::ConnectionBad: FATAL:  database "osvita_development" does not exist
+
+
+Tasks: TOP => db:schema:load
+(See full trace by running task with --trace)
+ss@office:~/rails_projects/osvita$ 
+
+
+config/database.yml
+
+*/- 
+Перечитал [3]
+и нашел в п.9.3
+
+ss@office:~/rails_projects/osvita$ rake db:setup
+Created database 'osvita_development'
+Created database 'osvita_test'
+-- enable_extension("plpgsql")
+   -> 0.0417s
+-- create_table("orders", {:force=>:cascade})
+   -> 0.3601s
+-- create_table("payments", {:force=>:cascade})
+   -> 0.1107s
+-- create_table("profiles", {:force=>:cascade})
+   -> 0.2294s
+-- create_table("users", {:force=>:cascade})
+   -> 0.2207s
+-- add_foreign_key("orders", "profiles")
+   -> 0.0083s
+-- add_foreign_key("payments", "orders")
+   -> 0.0083s
+-- add_foreign_key("profiles", "users")
+   -> 0.0084s
+-- enable_extension("plpgsql")
+   -> 0.0194s
+-- create_table("orders", {:force=>:cascade})
+   -> 0.1526s
+-- create_table("payments", {:force=>:cascade})
+   -> 0.2761s
+-- create_table("profiles", {:force=>:cascade})
+   -> 0.0701s
+-- create_table("users", {:force=>:cascade})
+   -> 0.4126s
+-- add_foreign_key("orders", "profiles")
+   -> 0.0084s
+-- add_foreign_key("payments", "orders")
+   -> 0.0085s
+-- add_foreign_key("profiles", "users")
+   -> 0.0081s
+ss@office:~/rails_projects/osvita$ 
+
+*/-
+Загружаю http://localhost:3000/ - РАБОТАЕТ!!!!
+
+*/-
+Регистрация
+id =  1
+admin@gmail.com
+asd123
+
+id = 2
+
+1qaz2wsx
+
+*/- 
+В консоли меняю 
+2.4.1 :001 > @user = User.find(2)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<User id: 2, email: "oo.gaydar@gmail.com", created_at: "2018-08-09 15:55:22", updated_at: "2018-08-09 15:55:23"> 
+
+2.4.1 :002 > @profile = @user.profile
+  Profile Load (0.4ms)  SELECT  "profiles".* FROM "profiles" WHERE "profiles"."user_id" = $1 LIMIT $2  [["user_id", 2], ["LIMIT", 1]]
+ => #<Profile id: 2, category: "abytura", user_id: 2, created_at: "2018-08-09 15:55:23", updated_at: "2018-08-09 15:55:23"> 
+
+2.4.1 :003 > @profile.category
+ => "abytura" 
+
+2.4.1 :004 > @profile.category = "admin"
+ => "admin" 
+
+2.4.1 :005 > @profile.save
+   (0.2ms)  BEGIN
+  Profile Update (0.6ms)  UPDATE "profiles" SET "category" = $1, "updated_at" = $2 WHERE "profiles"."id" = $3  [["category", "admin"], ["updated_at", "2018-08-09 15:58:14.735223"], ["id", 2]]
+   (43.3ms)  COMMIT
+ => true 
+2.4.1 :006 > 
+
+
+
+

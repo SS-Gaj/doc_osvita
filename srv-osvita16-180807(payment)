@@ -1,0 +1,161 @@
+**** 2018.08.07 ****
+Пред.файл 
+[1] - srv-osvita15-180803(order2)
+
+Здесь буду делать Журнал Оплат (по счетам);
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+* master
+  order
+  order2
+  profile
+  profile2
+
+alex@www:~/rails_projects/osvita$ git co -b payment
+Switched to a new branch 'payment'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 1.2
+Имя ресурса: Payment;
+
+Поля:
+kvit_num:  № квитанции. Тип - строка, поскольку некоторые банки встваляют, например, "/";
+date_at:    Тип - 'datetime', поскольку м.б. для идентификации плательщика важно будет и время;
+suma:       Хотя оплата (квитанция) будет привязана к конкретному Счету,
+            и будет требоваться оплата НА ПОЛНУЮ СУММУ ЗА ОДИН РАЗ,
+            поле суммы таки предусмотрим. Тип - money;
+content:    "Назначение платежа"
+и еще ассоциация с 'order' типа 'belongs_to', а со стороны 'Order' будет 'has_one';
+
+Типы полей:
+kvit_num: string
+date_at: datetime
+suma: money
+content: string
+order:references
+
+*/- 1.3
+По образцу
+rails generate scaffold Profile category:string user:references --no-test-framework
+
+rails generate scaffold Payment kvit_num:string date_at:datetime suma:money content:string order:references --no-test-framework
+
+alex@www:~/rails_projects/osvita$ rails generate scaffold Payment kvit_num:string date_at:datetime suma:money content:string order:references --no-test-framework
+Running via Spring preloader in process 6951
+      invoke  active_record
+      create    db/migrate/20180807172604_create_payments.rb
+      create    app/models/payment.rb
+      invoke  resource_route
+       route    resources :payments
+      invoke  scaffold_controller
+      create    app/controllers/payments_controller.rb
+      invoke    erb
+      create      app/views/payments
+      create      app/views/payments/index.html.erb
+      create      app/views/payments/edit.html.erb
+      create      app/views/payments/show.html.erb
+      create      app/views/payments/new.html.erb
+      create      app/views/payments/_form.html.erb
+      invoke    helper
+      create      app/helpers/payments_helper.rb
+      invoke    jbuilder
+      create      app/views/payments/index.json.jbuilder
+      create      app/views/payments/show.json.jbuilder
+      create      app/views/payments/_payment.json.jbuilder
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/payments.coffee
+      invoke    scss
+      create      app/assets/stylesheets/payments.scss
+      invoke  scss
+   identical    app/assets/stylesheets/scaffolds.scss
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.1
+Проверяю
+/app/models/payment.rb
+class Payment < ApplicationRecord
+  belongs_to :order
+end
+
+*/- 2.2
+В /app/models/order.rb
+class Order < ApplicationRecord
+  belongs_to :profile
+end
+
+добавляю 
+  has_one :payment
+
+*/- 2.3
+В /db/migrate/20180807172604_create_payments.rb
+class CreatePayments < ActiveRecord::Migration[5.2]
+  def change
+    create_table :payments do |t|
+      t.string :kvit_num
+      t.datetime :date_at
+      t.money :suma
+      t.string :content
+      t.references :order, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+
+*/- 2.4
+alex@www:~/rails_projects/osvita$ bundle exec rake db:migrate== 20180807172604 CreatePayments: migrating ===================================
+-- create_table(:payments)
+   -> 0.4983s
+== 20180807172604 CreatePayments: migrated (0.4985s) ==========================
+
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.5
+В /db/schema.rb
+  create_table "payments", force: :cascade do |t|
+    t.string "kvit_num"
+    t.datetime "date_at"
+    t.money "suma", scale: 2
+    t.string "content"
+    t.bigint "order_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_payments_on_order_id"
+  end
+
+*/- 3.1
+В Главном меню удаляю
+            <%= link_to 'Профиль', profile_path, class: "dropdown-item" %>
+а
+            <%= link_to 'Профиль 2', profileshow_path, class: "dropdown-item" %>
+переименовываю в
+            <%= link_to 'Профиль ', profileshow_path, class: "dropdown-item" %>
+
+
+*/- 3.2
+Добавлю в Главное меню
+пункт "Журналы" для админа;
+
+и по образцу
+
+@profile = current_user.profile
+<% unless @profile.category == "admin" %>
+
+оберну его (пункт "Журналы") в
+<% if current_user.profile.category == "admin" %>
+
+*/- 3.3
+Обновляю - РАБОТАЕТ!!!!
+
+*/- 3.4
+Добавляю путь
+              <%= link_to ' Профили ', profiles_path, class: "dropdown-item" %>
+
+- РАБОТАЕТ!!!!
+
+

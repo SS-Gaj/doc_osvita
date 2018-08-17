@@ -1,0 +1,1824 @@
+**** 2018.08.14 ****
+Пред.файлы
+[1] - of1-osvita16-1800809(clon),
+      где я склонировал Проект на офПК;
+[2] - srv-osvita16-180807(payment) - крайний файл фактической разработки;
+[3] - srv-osvita15-180803(order2);
+
+Здесь я создам модель ПРЕДМЕТОВ;
+
+*/- 1.1
+Структура такова:
+ПРЕДМЕТЫ                - Book
+  ТЕМЫ                    - Part
+    УРОКИ                   - Lesson
+      ТЕСТЫ + ЛЕКЦИИ          - Book
+    
+Т.е.,
+имеются учебные ПРЕДМЕТЫ: Математика, физика, химия ...
+
+Каждый предмет имеет ТЕМЫ: 
+  Простые числа,
+  Проценты,
+  Дробы,
+  Функции ...
+
+Каждая тема состоит из УРОКов;
+
+Каждый урок состоит из:
+  - вводного теста,
+  - материала для изучения,
+  - и выходного теста.
+  
+Вводной и выходной тесты разные.
+ВОПРОСЫ и ОТВЕТЫ хранятся в ОДНОМ (для всех предметов) БД;
+
+МАТЕРИАЛ - это обычный текст. Возможно, со ссылками на другие МАТЕРИАЛЫ.
+Как вариант - это м.б.html-файлы,
+или же это БД с текствым полем,
+в котором (текстовом поле) находится ГОТОВЫЙ html-текст.
+
+*/- 1.2
+Подбираю названия:
+книга     - book
+раздел    - section
+часть     - part
+урок      - lesson
+лекция    - lecture
+материал  - material
+вопрос    - question 
+ответ     - answer
+
+*/- 1.3
+Модели, поля и ассоциации:
+ПРЕДМЕТЫ - Book
+  has_many :part
+book:string - название предмета;
+
+ТЕМЫ - Part
+  has_many :lesson
+part:string     - название темы;
+book:references - belongs_to :book
+
+УРОКИ - Lesson
+**//- 1/1 Первоначально мне виделся такой состав полей,
+          но после рассуждений само собой вылелось в п.1.4;
+num:integer - номер урока;
+in_test:    -  
+lecture:    -
+out_test:   - 
+
+Согласовали с АМ,
+что Вх.тест и Вых.тест НЕ ХРАНЯТСЯ ни ЗАРАНЕЕ, ни ПОСЛЕ ТОГО;
+Они образуются ДИНАМИЧЕСКИ в СЕСИИ,
+но результаты должны храниться ДО КОНЦА сесии.
+Когда пользователь просмотрел результат, то его можно удалять и раньше, чем закончилась сессия.
+Значит, тогда в xx_test можно хранить только ССЫЛКИ на вопросы (и ответы) из другой БД;
+Точнее, здесь будет ВЛОЖЕННЫЙ ХЭШ;
+Структура хэша такова:
+точнее, это будет МАССИВ из ХЭШей:
+- каждый ЭЛЕМЕНТ массива = это  1) ссылка на "ВОПРОС-ОТВЕТ" из БД "ВОПРОСЫ";
+                                2) и ответ пользователя (правильный ответ хранится в той же БД "ВОПРОСЫ");
+
+Но если так, то зачем тогда вообще in_test и out_test ?
+Это массивы, которые нужны ТОЛЬКО в сессии!!!!
+
+*/- 1.4
+... с учетом этого поля такие:
+
+УРОКИ - Lesson
+num:integer - номер урока;
+lecture:    - ссылка на html-файл с материалом;
+part:references - belongs_to :part; Я как то озадачился тем, что м.б.д.б.связь и с ПРЕДМЕТОМ непосредсвенно (?). Но пока оставлю связь только с ТЕМОЙ;
+
+*/- 1.5
+ВОПРОСЫ - Question
+question:string - вопрос;
+answer_1:string - ответ №1;
+answer_2:string - ответ №2;
+answer_3:string - ответ №3;
+answer_4:string - ответ №4;
+answer_true:string - правильный ответ. Это м.б.НОМЕР ответа из перечисленных черырех, или собственно текст ответа;
+lesson:references - belongs_to :lesson
+
+**//- 2/1 в 1-м приближении вроде бы все - потом буду менять;
+Также ОсВ, что УРОКИ (и ВОПРОСЫ) хранятся в ОДНОМ файле (каждый из указанных).
+Т.е., "Урок №1" по математике хранится в том же файле, что и "Урок №10" по истории.
+Аналочично и тестовые вопросы по математике хранятся в одном файле (Question) с тестовыми вопросами по истории.
+Причем, у меня НЕТ отдельных полей с №№ тем и предметов для них!!
+ЯтД, что references будет достаточно(!!!!)
+
+*/- 2
+Сделаю сначала "польный фарш" для ПРЕДМЕТОВ,
+а затем все остальное буду "подтягивать" к этому Ресурсу;
+
+*/- 2.1
+ss@office:~/rails_projects/osvita$ git branch
+* master
+ss@office:~/rails_projects/osvita$ 
+
+ss@office:~/rails_projects/osvita$ git log --pretty=format:"%h %s" -5
+955caaf payment-12srv: model Payment
+2e5deab order2-11srv: associations User-Profile-Order
+1cabf0f profile2-10srv: add category to Profile
+f7b3cb6 profile-9srv: Profile
+737bf59 order-8srv: Order db:migrate
+
+Сверяю с Сервером - там такое же;
+
+*/- 2.2
+ss@office:~/rails_projects/osvita$ git co -b book
+Switched to a new branch 'book'
+
+*/- 2.3
+По образцу из [2] п.1.3
+alex@www:~/rails_projects/osvita$ rails generate scaffold Payment kvit_num:string date_at:datetime suma:money content:string order:references --no-test-framework
+
+rails generate scaffold Book book:string --no-test-framework
+
+ss@office:~/rails_projects/osvita$ rails generate scaffold Book book:string --no-test-framework
+Running via Spring preloader in process 2942
+      invoke  active_record
+      create    db/migrate/20180814100037_create_books.rb
+      create    app/models/book.rb
+      invoke  resource_route
+       route    resources :books
+      invoke  scaffold_controller
+      create    app/controllers/books_controller.rb
+      invoke    erb
+      create      app/views/books
+      create      app/views/books/index.html.erb
+      create      app/views/books/edit.html.erb
+      create      app/views/books/show.html.erb
+      create      app/views/books/new.html.erb
+      create      app/views/books/_form.html.erb
+      invoke    helper
+      create      app/helpers/books_helper.rb
+      invoke    jbuilder
+      create      app/views/books/index.json.jbuilder
+      create      app/views/books/show.json.jbuilder
+      create      app/views/books/_book.json.jbuilder
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/books.coffee
+      invoke    scss
+      create      app/assets/stylesheets/books.scss
+      invoke  scss
+   identical    app/assets/stylesheets/scaffolds.scss
+ss@office:~/rails_projects/osvita$ 
+
+
+*/- 2.4
+ss@office:~/rails_projects/osvita$ bundle exec rake db:migrate
+== 20180814100037 CreateBooks: migrating ======================================
+-- create_table(:books)
+   -> 0.5339s
+== 20180814100037 CreateBooks: migrated (0.5340s) =============================
+
+ss@office:~/rails_projects/osvita$ 
+
+*/- 2.5
+Просмотрю маршруты
+http://localhost:3000/rails/info/routes
+
+books_path 	    GET 	/books(.:format) 	          books#index
+          	    POST 	/books(.:format) 	          books#create
+new_book_path 	GET 	/books/new(.:format) 	      books#new
+edit_book_path 	GET 	/books/:id/edit(.:format) 	books#edit
+book_path 	    GET 	/books/:id(.:format) 	      books#show
+              	PATCH 	/books/:id(.:format) 	    books#update
+              	PUT 	/books/:id(.:format) 	      books#update
+	DELETE 	/books/:id(.:format)books#destroy
+
+
+*/- 2.6
+Добавлю пункт в Главное меню:
+
+              <%= link_to ' Предметы ', books_path, class: "dropdown-item" %>
+              
+*/- 2.7
+Ввожу для начала
+Books
+Book 	
+Математика 	Show 	Edit 	Destroy
+Физика 	    Show 	Edit 	Destroy
+Химия 	    Show 	Edit 	Destroy
+История 	  Show 	Edit 	Destroy
+
+New Book
+
+*/- 3 
+коммит
+
+ss@office:~/rails_projects/osvita$ git status
+On branch book
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/views/layouts/_header.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/javascripts/books.coffee
+	app/assets/stylesheets/books.scss
+	app/controllers/books_controller.rb
+	app/helpers/books_helper.rb
+	app/models/book.rb
+	app/views/books/
+	db/migrate/20180814100037_create_books.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ss@office:~/rails_projects/osvita$ git add .
+ss@office:~/rails_projects/osvita$ git commit -m "book-13of: Model Book"
+[book 4c25704] book-13of: Model Book
+ 16 files changed, 168 insertions(+)
+ create mode 100644 app/assets/javascripts/books.coffee
+ create mode 100644 app/assets/stylesheets/books.scss
+ create mode 100644 app/controllers/books_controller.rb
+ create mode 100644 app/helpers/books_helper.rb
+ create mode 100644 app/models/book.rb
+ create mode 100644 app/views/books/_book.json.jbuilder
+ create mode 100644 app/views/books/_form.html.erb
+ create mode 100644 app/views/books/edit.html.erb
+ create mode 100644 app/views/books/index.html.erb
+ create mode 100644 app/views/books/index.json.jbuilder
+ create mode 100644 app/views/books/new.html.erb
+ create mode 100644 app/views/books/show.html.erb
+ create mode 100644 app/views/books/show.json.jbuilder
+ create mode 100644 db/migrate/20180814100037_create_books.rb
+ss@office:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+ss@office:~/rails_projects/osvita$ git merge book
+Updating 955caaf..4c25704
+Fast-forward
+ app/assets/javascripts/books.coffee       |  3 +++
+ app/assets/stylesheets/books.scss         |  3 +++
+ app/controllers/books_controller.rb       | 74 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ app/helpers/books_helper.rb               |  2 ++
+ app/models/book.rb                        |  2 ++
+ app/views/books/_book.json.jbuilder       |  2 ++
+ app/views/books/_form.html.erb            | 22 ++++++++++++++++++++++
+ app/views/books/edit.html.erb             |  6 ++++++
+ app/views/books/index.html.erb            | 27 +++++++++++++++++++++++++++
+ app/views/books/index.json.jbuilder       |  1 +
+ app/views/books/new.html.erb              |  5 +++++
+ app/views/books/show.html.erb             |  9 +++++++++
+ app/views/books/show.json.jbuilder        |  1 +
+ app/views/layouts/_header.html.erb        |  1 +
+ config/routes.rb                          |  1 +
+ db/migrate/20180814100037_create_books.rb |  9 +++++++++
+ 16 files changed, 168 insertions(+)
+ create mode 100644 app/assets/javascripts/books.coffee
+ create mode 100644 app/assets/stylesheets/books.scss
+ create mode 100644 app/controllers/books_controller.rb
+ create mode 100644 app/helpers/books_helper.rb
+ create mode 100644 app/models/book.rb
+ create mode 100644 app/views/books/_book.json.jbuilder
+ create mode 100644 app/views/books/_form.html.erb
+ create mode 100644 app/views/books/edit.html.erb
+ create mode 100644 app/views/books/index.html.erb
+ create mode 100644 app/views/books/index.json.jbuilder
+ create mode 100644 app/views/books/new.html.erb
+ create mode 100644 app/views/books/show.html.erb
+ create mode 100644 app/views/books/show.json.jbuilder
+ create mode 100644 db/migrate/20180814100037_create_books.rb
+ss@office:~/rails_projects/osvita$ 
+
+
+*/- 4
+ss@office:~/rails_projects/osvita$ git co -b part
+Switched to a new branch 'part'
+
+Теперь сгенерирую ТЕМЫ - Part;
+В отличии от Book, 
+буду делать ТОЛЬКО модель (а не "польный фарш").
+Основная причина в том,
+что Part у меня будет "подчиненный" по отношению к Book.
+Это значит, что я НЕ БУДУ делать отдельного контроллера для Part,
+а буду делать нужные экшены (для Part) ВНУТРИ контроллера Book; **//- "-1/4" см."**//-1/4" в п.4.1 ниже;
+
+*/- 4.1
+Поскольку Show для Book фактически не несет никакой функциональной нагрузки,
+то я использую КНОПКУ 'Show' и ЭКШЕН 'Show' для ДОБАВЛЕНИЯ "тем" в "предмет";
+**//- 1/4 и именно в этом месте я решил сделать все-таки делать scaffold и для Part.
+      Потом удалю лишнее.
+По образцу
+rails generate scaffold Book book:string --no-test-framework
+
+rails generate scaffold Part part:string book:references --no-test-framework
+ss@office:~/rails_projects/osvita$ rails generate scaffold Part part:string book:references --no-test-framework
+Running via Spring preloader in process 4502
+      invoke  active_record
+      create    db/migrate/20180814124015_create_parts.rb
+      create    app/models/part.rb
+      invoke  resource_route
+       route    resources :parts
+      invoke  scaffold_controller
+      create    app/controllers/parts_controller.rb
+      invoke    erb
+      create      app/views/parts
+      create      app/views/parts/index.html.erb
+      create      app/views/parts/edit.html.erb
+      create      app/views/parts/show.html.erb
+      create      app/views/parts/new.html.erb
+      create      app/views/parts/_form.html.erb
+      invoke    helper
+      create      app/helpers/parts_helper.rb
+      invoke    jbuilder
+      create      app/views/parts/index.json.jbuilder
+      create      app/views/parts/show.json.jbuilder
+      create      app/views/parts/_part.json.jbuilder
+      invoke  assets
+      invoke    coffee
+      create      app/assets/javascripts/parts.coffee
+      invoke    scss
+      create      app/assets/stylesheets/parts.scss
+      invoke  scss
+   identical    app/assets/stylesheets/scaffolds.scss
+ss@office:~/rails_projects/osvita$ 
+
+*/- 4.2
+ss@office:~/rails_projects/osvita$ bundle exec rake db:migrate
+== 20180814124015 CreateParts: migrating ======================================
+-- create_table(:parts)
+   -> 0.3553s
+== 20180814124015 CreateParts: migrated (0.3554s) =============================
+
+*/- 4.3
+Проверяю /db/migrate/20180814124015_create_parts.rb ... есть references!!!!
+
+class CreateParts < ActiveRecord::Migration[5.2]
+  def change
+    create_table :parts do |t|
+      t.string :part
+      t.references :book, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+
+*/- 4.4
+Проверяю /app/models/part.rb ... есть belongs_to :book!!!!
+class Part < ApplicationRecord
+  belongs_to :book
+end
+
+*/- 4.5
+Добавляю в ... 
+class Book < ApplicationRecord
+end
+
+стало
+class Book < ApplicationRecord
+  has_many :part
+end
+
+*/- 4.6
+http://localhost:3000/rails/info/routes
+
+parts_path     	GET   	/parts(.:format) 	          parts#index
+              	POST 	  /parts(.:format) 	          parts#create
+new_part_path 	GET 	  /parts/new(.:format) 	      parts#new
+edit_part_path 	GET 	  /parts/:id/edit(.:format) 	parts#edit
+part_path     	GET 	  /parts/:id(.:format) 	      parts#show
+              	PATCH 	/parts/:id(.:format) 	      parts#update
+              	PUT 	  /parts/:id(.:format) 	      parts#update
+              	DELETE 	/parts/:id(.:format)        parts#destroy
+              	
+*/- 5
+Теперь вернусь к идее из п.4.1 выше - 
+использую 
+- КНОПКУ 'Show' из /app/views/books/index.html.erb
+- и ЭКШЕН 'Show' из  /app/controllers/books_controller.rb
+для ДОБАВЛЕНИЯ "тем" в "предмет";
+
+*/- 5.1
+Для добавления НОВОЙ темы, "привязанной" к конкретному предмету,
+воспользуюсь в качестве образца ТО,
+как я добавлял счет (ордер) к профилю:
+
+Смотрю "кнопку" ... в Главном меню
+            <%= link_to 'Получить счет на оплату', new_order_path, class: "dropdown-item" %>
+
+*/- 5.2
+Значит, вызывается экшен 'new' в контроллере orders_controller.rb:
+
+  def new
+    #@order = Order.new
+    @profile = current_user.profile
+    @order = @profile.orders.create(order_num: Order.count + 1,
+                   date_at: Time.now,
+                   date_end: 3.months.from_now,
+                   content: "За тестирование",
+                   suma: 25.75)
+  end
+
+*/- 5.3
+Значит, у меня нужно "залезать" в контроллер parts_controller.rb
+и делать то же самое в экшене
+  def new
+    @part = Part.new
+  end
+
+ТАМ @profile - ЗДЕСЬ @book
+Т.е., мне нужно "зафиксировать" ПРЕДМЕТ (="учебную дисциплину").
+
+*/- 5.4
+Буду использаовать для этого как раз экшен 'show' из books_controller.rb!!!! 
+Он имеет вид
+  def show
+  end
+
+На самом деле он (def show) не пустой!!!!
+поскольку
+  before_action :set_book, only: [:show, :edit, :update, :destroy]
+а
+    def set_book
+      @book = Book.find(params[:id])
+    end
+
+Значит, когда я нажимаю кнопку 'show' в списке предметов,
+то первым делом выбирается ТЕКУЩАЯ ЗАПИСЬ в БД Book - это и есть "фиксирование" ПРЕДМЕТА;
+
+Затем, по умолчанию, управление передается на вьюэр books#show,
+но мне этого не надо - мне нужно перейти в СПИСОК ТЕМ, это - 'parts#index';
+
+*/- 5.5 (это "шаг 2", см.п.6.2 ниже)
+Для этого использую
+  redirect_to parts_path	#parts#index
+  
+и тогда в books_controller.rb
+  def show
+    redirect_to parts_path	#parts#index
+  end
+
+*/- 5.6
+Но не просто в 'parts#index',
+а на "коллекцию" это зафиксированной  @book!!!! - Аналогичную коллекцию я "выводил" на экран в Профиле - выписанные счета!!!!
+
+1)
+Сейчас в 
+  def index
+    @parts = Part.all
+  end
+
+2)
+Для вывода "коллекции" счетов в /app/controllers/users/sessions_controller.rb
+я использовал метод
+
+  def show_profile
+    @profile = current_user.profile
+    @orders = @profile.orders
+    # byebug
+  end
+
+3)
+Значит, в parts_controller.rb
+  def index
+    # @parts = Part.all
+    @parts = @book.parts
+  end
+
+4) после этого def index
+    процесс пойдет на вьюэр /app/views/parts/index.html.erb
+и уже в нем ДОБАВЛЯТЬ новую тему, и она будет "привязана" к @book!!!!
+
+
+*/- 6
+Собираю все вместе:
+
+*/- 6.1 шаг 1 (см.п.5 выше)
+"- КНОПКУ 'Show' из /app/views/books/index.html.erb"
+Беру /app/views/books/index.html.erb
+      <tr>
+        <td><%= book.book %></td>
+        <td><%= link_to 'Show', book %></td>
+        <td><%= link_to 'Edit', edit_book_path(book) %></td>
+        <td><%= link_to 'Destroy', book, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+меняю на
+      <tr>
+        <td><%= book.book %></td>
+        <td><%= link_to 'Edit', edit_book_path(book) %></td>
+        <td><%= link_to 'Destroy', book, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'ТЕМЫ', book %></td>
+      </tr>
+=> вызывается экшен 'books#show'
+
+*/- 6.2 шаг 2 (см.п.5.5 выше)
+и тогда в books_controller.rb
+  def show
+    redirect_to parts_path	#parts#index
+  end
+
+=> вызывается экшен 'parts#index'
+
+*/- 6.3 шаг 3 (см.пп."3)" в п.5.6 выше)
+Значит, в parts_controller.rb
+  def index
+    #@parts = Part.all
+    @parts = @book.parts
+  end
+
+=> вызывается вьюэр 'parts#index'
+
+*/- 6.4 шаг 4 (см.пп."4)" в п.5.6 выше)
+Сейчас /app/views/parts/index.html.erb
+
+<p id="notice"><%= notice %></p>
+
+<h1>Parts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Book_id</th>
+      <th>Part</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @parts.each do |part| %>
+      <tr>
+        <td><%= part.book_id %></td>
+        <td><%= part.part %></td>
+        <td><%= link_to 'Show', part %></td>
+        <td><%= link_to 'Edit', edit_part_path(part) %></td>
+        <td><%= link_to 'Destroy', part, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Part', new_part_path %>
+
+Здесь,
+из-за belongs_to,
+есть 
+  <td><%= part.book %></td>
+
+Заменю это на part.book_id 
+и поставлю в 1-ю колонку;
+
+*/- 6.5 шаг 5 
+По аналогии с п.5.2
+записываю в 
+вместо
+  def new
+    @part = Part.new
+  end
+записываю
+  def new
+    #@part = Part.new
+    @part = @book.parts.create()
+  end
+
+*/- 7.1
+Запускаю - ошибка
+
+NoMethodError in PartsController#index
+undefined method `parts' for nil:NilClass
+Extracted source (around line #8):
+
+
+  def index
+    #@parts = Part.all
+    @parts = @book.parts
+  end
+
+  # GET /parts/1
+
+Rails.root: /home/ss/rails_projects/osvita
+
+*/- 7.2
+Запустил 
+ss@office:~/rails_projects/osvita$ bundle exec rake db:migrate
+- не помогло.
+
+*/- 7.3
+Добавлю byebug
+- в var instance нет @book
+
+*/- 7.4
+Добавлю
+  def index
+    #@parts = Part.all
+    @book = Book.find(params[:id])    
+byebug
+    @parts = @book.parts
+  end
+
+- ошибка, т.к. нет ID!!
+
+ActiveRecord::RecordNotFound in PartsController#index
+Couldn't find Book without an ID
+Extracted source (around line #8):
+
+*/- 7.5
+Запишу просто
+    @book = Book.find(1)    
+
+- теперь
+(byebug) var instance
+@_action_has_layout = true
+@_action_name = "index"
+@_config = {}
+@_lookup_context = #<ActionView::LookupContext:0x007fbdc5235ca0 @details_key=nil, @cache=true, @prefixes=["parts", "application"], @rendered_format=nil, @det...
+@_params = <ActionController::Parameters {"locale"=>"en", "controller"=>"parts", "action"=>"index"} permitted: false>
+@_request = #<ActionDispatch::Request:0x007fbdc5292658 @env={"rack.version"=>[1, 3], "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>true, "rack.multiproc...
+@_response = #<ActionDispatch::Response:0x007fbdc5236768 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Thread::Mutex:0x007fbdc52366a0>, @header={"X-Frame-Option...
+@_response_body = nil
+@_routes = nil
+@book = #<Book id: 1, book: "Математика", created_at: "2018-08-14 10:49:10", updated_at: "2018-08-14 10:49:10">
+@marked_for_same_origin_verification = true
+(byebug) 
+
+Но после continue
+
+NoMethodError in PartsController#index
+undefined method `parts' for #<Book:0x007fbdc5d07a20> Did you mean? part part=
+Extracted source (around line #11):
+
+    @book = Book.find(1)
+byebug
+    @parts = @book.parts
+  end
+
+  # GET /parts/1
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:11:in `index'
+
+*/- 7.6
+Попробую вручную внести несколько тем через консоль:
+2.4.1 :001 > @book = Book.find(2)
+  Book Load (0.3ms)  SELECT  "books".* FROM "books" WHERE "books"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<Book id: 2, book: "Физика", created_at: "2018-08-14 10:49:32", updated_at: "2018-08-14 10:49:32"> 
+
+2.4.1 :002 > @part = @book.parts.create(part: "Механика")
+NoMethodError: undefined method `parts' for #<Book:0x00000005e5c9f0>
+Did you mean?  part
+               part=
+	from (irb):2
+2.4.1 :003 > 
+
+Почему не распознает метод 'parts' ?
+
+Ведь в [3], п.5.9 работало!!
+И в разделе "6.1.15. collection.create(attributes = {})"
+приводится такой же пример:
+@book = @author.books.create(published_at: Time.now,
+                                 book_number: "A12345")
+                                 
+для
+class Author < ApplicationRecord
+  has_many :books
+end
+
+*/- 7.7
+Еще раз проверяю /app/models/book.rb - НАШЕЛ!!!!
+нужно во МНОЖЕСТВЕННОМ числе!!!!
+Было
+class Book < ApplicationRecord
+	has_many :part
+end
+                                
+исправил на 
+class Book < ApplicationRecord
+	has_many :parts
+end
+
+*/- 7.8
+На всякий случай сделаю
+ss@office:~/rails_projects/osvita$ bundle exec rake db:migrate
+
+*/- 7.9
+ПОЛУЧИЛОСЬ!!!!
+
+2.4.1 :002 > @book = Book.find(2)
+  Book Load (0.3ms)  SELECT  "books".* FROM "books" WHERE "books"."id" = $1 LIMIT $2  [["id", 2], ["LIMIT", 1]]
+ => #<Book id: 2, book: "Физика", created_at: "2018-08-14 10:49:32", updated_at: "2018-08-14 10:49:32"> 
+2.4.1 :003 > @part = @book.parts.create(part: "Механика")
+   (0.2ms)  BEGIN
+  Part Create (27.6ms)  INSERT INTO "parts" ("part", "book_id", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id"  [["part", "Механика"], ["book_id", 2], ["created_at", "2018-08-14 15:30:17.911664"], ["updated_at", "2018-08-14 15:30:17.911664"]]
+   (25.1ms)  COMMIT
+ => #<Part id: 1, part: "Механика", book_id: 2, created_at: "2018-08-14 15:30:17", updated_at: "2018-08-14 15:30:17"> 
+2.4.1 :004 > 
+
+
+2.4.1 :004 > @part = @book.parts.create(part: "Динамика")
+   (0.1ms)  BEGIN
+  Part Create (0.4ms)  INSERT INTO "parts" ("part", "book_id", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id"  [["part", "Динамика"], ["book_id", 2], ["created_at", "2018-08-14 15:31:15.335727"], ["updated_at", "2018-08-14 15:31:15.335727"]]
+   (54.5ms)  COMMIT
+ => #<Part id: 2, part: "Динамика", book_id: 2, created_at: "2018-08-14 15:31:15", updated_at: "2018-08-14 15:31:15"> 
+2.4.1 :005 > 
+
+*/- 8.1
+В целях отладки 
+укажу в parts_controller.rb
+
+  def index
+    #@parts = Part.all
+    #@book = Book.find(params[:id])    
+    @book = Book.find(2)
+#byebug
+    @parts = @book.parts
+  end
+
+*/- 8.2
+Получаю
+Parts
+Part 	Book 	
+Механика 	#<Book:0x007f79a617cb78> 	Show 	Edit 	Destroy
+Динамика 	#<Book:0x007f79a617cb78> 	Show 	Edit 	Destroy
+
+New Part
+
+
+*/- 8.3
+Нажимаю для добавления New Part
+- получаю ошибку
+
+NoMethodError in PartsController#new
+undefined method `parts' for nil:NilClass
+Extracted source (around line #22):
+
+  def new
+    #@part = Part.new
+    @part = @book.parts.create()
+  end
+
+  # GET /parts/1/edit
+
+(byebug) var instance
+@_action_has_layout = true
+@_action_name = "new"
+@_config = {}
+@_lookup_context = #<ActionView::LookupContext:0x007f79a6068d18 @details_key=nil, @cache=true, @prefixes=["parts", "application"], @rendered_format=nil, @det...
+@_params = <ActionController::Parameters {"locale"=>"en", "controller"=>"parts", "action"=>"new"} permitted: false>
+@_request = #<ActionDispatch::Request:0x007f79a61417d0 @env={"rack.version"=>[1, 3], "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>true, "rack.multiproc...
+@_response = #<ActionDispatch::Response:0x007f79a60691f0 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Thread::Mutex:0x007f79a60691a0>, @header={"X-Frame-Option...
+@_response_body = nil
+@_routes = nil
+@marked_for_same_origin_verification = true
+(byebug) 
+
+- нет @book
+
+*/- 8.4
+В целях отладки добавлю
+  def new
+    #@part = Part.new
+byebug   
+    @book = Book.find(2)
+    @part = @book.parts.create()
+  end
+
+Получаю
+Parts
+Book_id 	Part 	
+2 	Механика 	Show 	Edit 	Destroy
+2 	Динамика 	Show 	Edit 	Destroy
+2 	Оптика 	Show 	Edit 	Destroy
+
+*/- 8.5
+Ввожу через кнопку New Part - ПОЛУЧИЛОСЬ!!!!
+
+
+
+
+Part was successfully updated.
+
+Part was successfully updated.
+
+Part: Электричество
+
+Book: #<Book:0x007f79a5b4ec10>
+Edit | Back
+
+*/- 8.6
+... и затем Back - ОТРАБОТАЛО!!!! 
+
+Parts
+Book_id 	Part 	
+2 	Механика 	Show 	Edit 	Destroy
+2 	Динамика 	Show 	Edit 	Destroy
+2 	Оптика 	Show 	Edit 	Destroy
+2 	Электричество 	Show 	Edit 	Destroy
+
+New Part
+
+Значит, проблема в том, чтобы передать @book в parts_controller.rb
+
+**** 2018.08.15 ****
+*/- 9
+Попробую передавать ':id', а не сам @book;
+
+*/- 9.1
+[6, 15] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+    6:   def index
+    7:     #@parts = Part.all
+    8:     id_book = params[:id]
+    9:  byebug
+   10:     #@book = Book.find(params[:id])
+=> 11:     @book = Book.find(params[:id])        
+   12:     @book = Book.find(2)
+   13:     @parts = @book.parts
+   14:   end
+   15: 
+(byebug) var local
+id_book = nil
+self = #<PartsController:0x007f8e4dc28a20>
+(byebug) 
+
+Т.е., таким способом id не передается.
+
+*/- 9.2
+При этом я ОсВ на ...
+http://localhost:3000/books/2?locale=en
+
+а именно: "2", что означает 'id', находится ПОСЛЕ "?";
+Я имею в виду (ЯвВ), что в "4. Параметры", вводная часть, указано, 
+"...параметры, посланные как часть URL, называемые параметрами строки запроса. Строка запроса всегда следует после "?" в URL."
+
+*/- 9.3
+Затем в "4.3. Параметры роутинга" нашел такой пример:
+
+get '/clients/:status' => 'clients#index', foo: 'bar'
+
+и дальше "... params[:foo] также будет установлен в "bar""
+
+(ЯтД, именно так я делал в /pisma)
+
+*/- 9.4
+Выписываю из
+http://localhost:3000/rails/info/routes
+
+book_path 	    GET 	/books/:id(.:format) 	      books#show
+и
+parts_path     	GET   	/parts(.:format) 	          parts#index
+
+и составляю так:
+    get '/books/:id' =>  'parts#index'. book_id: :id
+
+*/- 9.5
+Заодно переношу в локаль маршруты:
+
+Было
+Rails.application.routes.draw do
+  resources :parts
+  get '/books/:id' =>  'parts#index', book_id: :id
+  resources :books
+  resources :payments
+  # scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+  scope "(:locale)", locale: /en|ru/ do
+    get 'profile', to: 'profiles#show'
+    resources :profiles
+    resources :orders
+    as :user do
+      get "profileshow", to: "users/sessions#show_profile"
+    end
+    # devise_for :users
+    # devise_for :users, controllers: { sessions: 'users/sessions' }
+    devise_for :users, controllers: { sessions: 'users/sessions', registrations: 'users/registrations' }
+    # get '/:locale' => 'welcome#index'
+    root 'welcome#index'
+    get 'welcome/index'
+  end
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+Переписал
+Rails.application.routes.draw do
+  # scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+  scope "(:locale)", locale: /en|ru/ do
+    resources :parts
+    get '/books/:id' =>  'parts#index'. book_id: :id
+    resources :books
+    resources :payments
+    get 'profile', to: 'profiles#show'
+    resources :profiles
+    resources :orders
+    as :user do
+      get "profileshow", to: "users/sessions#show_profile"
+    end
+    # devise_for :users
+    # devise_for :users, controllers: { sessions: 'users/sessions' }
+    devise_for :users, controllers: { sessions: 'users/sessions', registrations: 'users/registrations' }
+    # get '/:locale' => 'welcome#index'
+    root 'welcome#index'
+    get 'welcome/index'
+  end
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+*/- 9.8
+Обновляю - вылезла ошибка
+
+NameError in PartsController#index
+undefined local variable or method `book_id' for #<PartsController:0x007fbbd640d550> Did you mean? book_url
+Extracted source (around line #9):
+
+    #@parts = Part.all
+    #@book = Book.find(params[:id])
+    @book_id = book_id
+ byebug
+    @book = Book.find(@book_id)
+    #@book = Book.find(2)
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:9:in `index'
+
+Request
+
+Parameters:
+
+{"book_id"=>:id, "locale"=>"en", "id"=>"2"}
+
+*/- 9.9
+ОсВ на 
+Parameters:
+
+{"book_id"=>:id, "locale"=>"en", "id"=>"2"}
+
+Поменяю
+    get '/books/:id' =>  'parts#index', book_id: :id
+на
+    get '/clients/:status' => 'clients#index', foo: 'bar'
+    get '/books/:id' =>  'parts#index', book_id: 'id'
+
+*/- 9.10
+
+GET 	(/:locale)/books/:id(.:format) 	parts#index {:book_id=>"id", :locale=>/en|ru/}
+
+*/- 9.11
+[6, 15] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+    6:   def index
+    7:     #@parts = Part.all
+    8:     #@book = Book.find(params[:id])
+    9:  byebug
+   10:     @book_id = params[:book_id]
+=> 11:     @book = Book.find(@book_id)
+   12:     #@book = Book.find(2)
+   13:     @parts = @book.parts
+   14:   end
+   15: 
+(byebug) var instance
+@_action_has_layout = true
+@_action_name = "index"
+@_config = {}
+@_lookup_context = #<ActionView::LookupContext:0x007f8f1a52d248 @details_key=nil, @cache=true, @prefixes=["parts", "application"], @rendered_format=nil, @det...
+@_params = <ActionController::Parameters {"book_id"=>"id", "controller"=>"parts", "action"=>"index", "locale"=>"en", "id"=>"2"} permitted: false>
+@_request = #<ActionDispatch::Request:0x007f8f187c5ac0 @env={"rack.version"=>[1, 3], "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>true, "rack.multiproc...
+@_response = #<ActionDispatch::Response:0x000000011d0910 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Thread::Mutex:0x000000011a5008>, @header={"X-Frame-Option...
+@_response_body = nil
+@_routes = nil
+@book_id = "id"
+@marked_for_same_origin_verification = true
+(byebug) 
+
+*/- 9.12
+В итоге долгих вариантов 
+я заменил
+    #get '/books/:id' =>  'parts#index', book_id: 'id'
+    get '/books/:id' =>  'parts#index'
+
+и все сдаботало, как и прежде:
+
+'parts#index' отрабатывает, поскольку сюда передается params[:id]
+  def index
+    @book_id = params[:id]
+    @book = Book.find(@book_id)
+    @parts = @book.parts
+  end
+
+а ... НЕ отрабатывает, поскольку @book_id НЕ СОХРАНЯЕТСЯ на следующий цикл работы,
+а УМИРАЕТ вместе с окончанием работы ЭКЗЕМПЛЯРА контроллера, запущенного 'parts#index';
+
+Как бы сделать ХЕЛПЕР подобный current_user ??
+
+*/- 9.13
+... но вернусь к передачи id;
+По аналогии с /pisma/app/views/overlooks/new.html.erb
+  <%= link_to "Copy", controller: "overlooks", action: "edit", id: i %>
+  
+в /osvita/app/views/parts/index.html.erb
+
+для перехода на
+new_part_path 	GET 	  /parts/new(.:format) 	      parts#new
+
+поменяю
+<%= link_to 'New Part', new_part_path %>
+на
+<%= link_to 'New Part', controller: "parts", action: "new", id: @book_id %>
+
+- РАБОТАЕТ!!!!
+
+*/- 9.14
+... а также в /app/views/parts/new.html.erb,
+где было
+<h1>New Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Back', parts_path %>
+
+меняю
+<%= link_to 'Back', parts_path %>
+
+на
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+После этого,
+когда нажимаю 'Back' (т.е.я передумал вводить новую тему, и решил вернуться в список тем),
+то вылезает ошибка в экшене 'parts#index', хотя раньше он работал!!
+
+ActiveRecord::RecordNotFound in PartsController#index
+Couldn't find Book without an ID
+Extracted source (around line #12):
+
+    #@book_id = params[:book_id]
+    @book_id = params[:id]
+    @book = Book.find(@book_id)
+    #@book = Book.find(2)
+    @parts = @book.parts
+  end
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:12:in `index'
+
+ЯтП, когда теперь я захожу в него "через другую дверь",
+то НЕ ПЕРЕДАЕТСЯ :id!!
+
+*/- 9.15
+Поменяю "первую дверь" и сделаю как и во "второй".
+"Первая дверь" - это когда нажимаю "ТЕМЫ" в списке ПРЕДМЕТОВ.
+Эту кнопку я поставил на место 'Show' -  см.п.6.1;
+        <td><%= link_to 'ТЕМЫ', book %></td>
+
+Кроме того, в п.9.4, 9.5 я меняю маршруты:
+    get '/books/:id' =>  'parts#index', book_id: :id
+
+а потом поменял это в п.9.12 на
+    get '/books/:id' =>  'parts#index'
+    
+Т.е.,
+Вход через "первую дверь" - это из 'books#index' через "бывшую" кнопку 'Show' (переименована в "ТЕМЫ") в 'parts#index';
+а вход через "вторую дверь" - это из 'parts#new' через кнопку 'Back' в 'parts#index'; "первой ..." передача id организавана в роутере 'book',
+во "второй " - во вьюэре 'part';
+
+Значит,
+сделаю в "первой" через вьюэр, где кнопка "ТЕМЫ":
+Т.е. в /app/views/books/index.html.erb, 
+вместо
+        <td><%= link_to 'ТЕМЫ', book %></td>
+
+по аналониии с
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+указываю
+        <td><%= link_to 'ТЕМЫ', controller: "parts", action: "index", id: book.id %>
+
+
+*/- 9.16
+Меняю 'Back' в 'Show':
+Было
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Part:</strong>
+  <%= @part.part %>
+</p>
+
+<p>
+  <strong>Book:</strong>
+  <%= @part.book %>
+</p>
+
+<%= link_to 'Edit', edit_part_path(@part) %> |
+<%= link_to 'Back', parts_path %>
+
+Делаю
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Part:</strong>
+  <%= @part.part %>
+</p>
+
+<p>
+  <strong>Book:</strong>
+  <%= @part.book %>
+</p>
+
+<%= link_to 'Edit', edit_part_path(@part) %> |
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+
+*/- 9.17
+Меняю в /app/views/parts/edit.html.erb
+<h1>Editing Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Show', @part %> |
+<%= link_to 'Back', parts_path %>
+
+на
+<h1>Editing Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Show', @part %> |
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+... и в
+  def edit
+  end
+  
+добавляю
+  def edit
+    @book_id = @part.book_id
+  end
+
+Ну СЛАВА БОГУ!!!!
+В части добавления ТЕМ к ПРЕДМЕТУ
+ВСЕ РАБОТАЕТ!!!!
+
+*/- 9.17
+Добавлю кнопку "Назад к списку ПРЕДМЕТОВ" в "Список ТЕМ";
+Кнопку поставлю рядом с 'New Part' - значит, в /app/views/parts/index.html.erb;
+
+В маршрутах выбираю 
+books_path 	    GET 	/books(.:format) 	          books#index
+
+Поскольку id передавать не надо,
+записываю в форме
+
+<%= link_to 'Назад к списку ПРЕДМЕТОВ', books_path %>
+
+РАБОТАЕТ!!!!
+
+
+*/- 10.1
+Теперь еще поменяю в def new
+'create' на 'build'
+
+РАБОТАЕТ!!!!
+
+*/- 10.2
+Теперь добавлю к заголовку списка ТЕМ название ПРЕДМЕТА,
+а вывод 'id' в каждой строчке убираю. Также убираю кнопку 'Show';
+
+Было
+<p id="notice"><%= notice %></p>
+
+<h1>Parts</h1>
+<h5>Предмет: <%= @book.book %> </h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>Book_id</th>
+      <th>Part</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @parts.each do |part| %>
+      <tr>
+        <td><%= part.book_id %></td>
+        <td><%= part.part %></td>
+        <td><%= link_to 'Show | ', part %></td>
+        <td><%= link_to 'Edit | ', edit_part_path(part) %></td>
+        <td><%= link_to 'Destroy', part, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Part', controller: "parts", action: "new", id: @book_id %> | 
+<%= link_to 'Назад к списку ПРЕДМЕТОВ', books_path %>
+
+*/- 10.2
+В /app/views/parts/edit.html.erb
+убираю кнопку 'Show'...
+
+Было
+<h1>Editing Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Show', @part %> |
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+*/- 10.3
+... а затем в /app/views/parts/_form.html.erb
+- убираю поле 'part.book_id' из редактирования,
+- и выношу его просто как вывод инф-цмм:
+
+Было
+<%= form_with(model: part, local: true) do |form| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+
+      <ul>
+      <% part.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :part %>
+    <%= form.text_field :part %>
+  </div>
+
+  <div class="field">
+    <%= form.label :book_id %>
+    <%= form.text_field :book_id %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+
+*/- 10.4
+В этом месте решил добавить темы к ХИМИИ,
+где у меня пусто,
+но выскочила ошибка:
+New Part
+1 error prohibited this part from being saved:
+
+    Book must exist
+
+Part
+
+Book_id:
+Back
+
+--- !ruby/object:ActionController::Parameters
+parameters: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  utf8: "✓"
+  authenticity_token: dAH1DQ/XqyhSO4USO+o/KOj+sN4ZjXuT0LbOKC7RzrjMz3K80SvFwNnklxokClh3vRjGPZQdirZ9xuRbDRmtSg==
+  part: !ruby/object:ActionController::Parameters
+    parameters: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      part: Вещество
+    permitted: false
+  commit: Create Part
+  controller: parts
+  action: create
+  locale: en
+permitted: false
+
+Причины мне понятны:
+в  def create
+указано
+    @part = Part.new(part_params),
+а связи с Book нет.
+
+Ставлю так:
+  def create
+    #@part = Part.new(part_params)
+    @part = @book.parts.build(part_params)
+
+*/- 10.5
+После этого выскочила другая ошибка ... смысл которой мне тоже понятен(!!!!)
+- в метод не передан @book:
+
+
+NoMethodError in PartsController#create
+undefined method `parts' for nil:NilClass
+Extracted source (around line #44):
+
+  def create
+    #@part = Part.new(part_params)
+    @part = @book.parts.build(part_params)
+
+    respond_to do |format|
+      if @part.save
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:44:in `create'    
+
+
+*/- 10.6
+Мне непонятно, ОТКУДА управление передается в def create ??
+По логике - из def new.
+Но это - "крупный" шаг, на уровне ЭТАПОВ.
+А конкретный шаг заключается в том, 
+что из def new управление передается на /app/views/parts/new.html.erb,
+в котором ничего не делается,
+а сразу же вызывается /app/views/parts/_form.html.erb,
+где уже заполняется html-форма;
+Причет, эта _form.html.erb вызывается и для НОВОЙ записи, и для РЕДАКТИВОВАНИЯ существующей записи;
+для НОВОЙ записи работает связка экшенов 'new' -> 'create';
+а для существующей - 'edit' -> 'update';
+
+*/- 10.7
+Первое, что я подумал - зачем в def create создавать объекст, если я его уже создал в def new ?
+Поэтому, с закоментировал как "ихнее", так и "мое":
+  def create
+    #@part = Part.new(part_params)
+    #@part = @book.parts.build(part_params)
+
+--- вылезла ошибка при сохранении: - но это м.б. "строгие параметры"!
+
+NoMethodError in PartsController#create
+undefined method `save' for nil:NilClass
+Extracted source (around line #47):
+
+46    respond_to do |format|
+47      if @part.save
+48        format.html { redirect_to @part, notice: 'Part was successfully created.' }
+49        format.json { render :show, status: :created, location: @part }
+50      else
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:47:in `block in create'
+app/controllers/parts_controller.rb:46:in `create'
+
+Request
+
+Parameters:
+
+{"utf8"=>"✓", "authenticity_token"=>"Q5Q7IcMh67bq6q5eAkJxi0lgtIX9xzerz/OeKYRSSNn7WryQHd2FXmE1vFYdohbUHIbCZnBXxo5ig7Rap5orKw==", "part"=>{"part"=>"Материя"}, "commit"=>"Create Part", "locale"=>"en"}
+
+
+*/- 10.8
+Поменяю в 
+  def new
+///
+    @part = @book.parts.build()
+///
+  end
+на 
+@part = @book.parts.build(part_params)
+
+
+...выскочила ошибка
+
+ActionController::ParameterMissing in PartsController#new
+param is missing or the value is empty: part
+Extracted source (around line #89):
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+    def part_params
+      params.require(:part).permit(:part, :book_id)
+    end
+end
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:89:in `part_params'
+app/controllers/parts_controller.rb:31:in `new'
+
+Request
+
+Parameters:
+
+{"id"=>"3", "locale"=>"en"}
+
+*/- 10.9
+Как вариант, перенесу из def new ВСЕ в def create:
+
+... выскочила ошибка, которую я никак не могу прокоментировать:
+
+NoMethodError in Parts#new
+
+Showing /home/ss/rails_projects/osvita/app/views/parts/_form.html.erb where line #2 raised:
+
+undefined method `errors' for nil:NilClass
+
+Extracted source (around line #2):
+
+1
+2
+3
+4
+5
+6
+              
+
+	
+
+<%= form_with(model: part, local: true) do |form| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+
+      <ul>
+
+Trace of template inclusion: app/views/parts/new.html.erb
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+
+*/- 10.10
+В качестве эксперимента
+верну в def new
+@part = @book.parts.create()
+которую я заменил на 'build' в п.10.1
+
+- ВСЕ ОПЯТЬ РАБОТАЕТ!!!!
+
+*/- 10.11
+Еше, В качестве эксперимента,
+добавлю (сюда же) - опять выскочила ошибка с ...
+
+
+ActionController::ParameterMissing in PartsController#new
+param is missing or the value is empty: part
+Extracted source (around line #90):
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def part_params
+      params.require(:part).permit(:part, :book_id)
+    end
+end
+
+Rails.root: /home/ss/rails_projects/osvita
+
+*/- 11 
+поэтому, 
+возвращаю в def new
+@part = @book.parts.create()
+
+делаю коммт, пуш:
+
+ss@office:~/rails_projects/osvita$ git status
+On branch part
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/controllers/books_controller.rb
+	modified:   app/models/book.rb
+	modified:   app/views/books/index.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/javascripts/parts.coffee
+	app/assets/stylesheets/parts.scss
+	app/controllers/parts_controller.rb
+	app/helpers/parts_helper.rb
+	app/models/part.rb
+	app/views/parts/
+	db/migrate/20180814124015_create_parts.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ss@office:~/rails_projects/osvita$ git add .
+ss@office:~/rails_projects/osvita$ git commit -m "part-14of: Model Part"
+[part 2b0fe09] part-14of: Model Part
+ 18 files changed, 209 insertions(+), 3 deletions(-)
+ create mode 100644 app/assets/javascripts/parts.coffee
+ create mode 100644 app/assets/stylesheets/parts.scss
+ create mode 100644 app/controllers/parts_controller.rb
+ create mode 100644 app/helpers/parts_helper.rb
+ create mode 100644 app/models/part.rb
+ create mode 100644 app/views/parts/_form.html.erb
+ create mode 100644 app/views/parts/_part.json.jbuilder
+ create mode 100644 app/views/parts/edit.html.erb
+ create mode 100644 app/views/parts/index.html.erb
+ create mode 100644 app/views/parts/index.json.jbuilder
+ create mode 100644 app/views/parts/new.html.erb
+ create mode 100644 app/views/parts/show.html.erb
+ create mode 100644 app/views/parts/show.json.jbuilder
+ create mode 100644 db/migrate/20180814124015_create_parts.rb
+ss@office:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+ss@office:~/rails_projects/osvita$ git merge part
+Updating 4c25704..2b0fe09
+Fast-forward
+ app/assets/javascripts/parts.coffee       |  3 +
+ app/assets/stylesheets/parts.scss         |  3 +
+ app/controllers/books_controller.rb       |  1 +
+ app/controllers/parts_controller.rb       | 92 +++++++++++++++++++++++++++++++
+ app/helpers/parts_helper.rb               |  2 +
+ app/models/book.rb                        |  1 +
+ app/models/part.rb                        |  3 +
+ app/views/books/index.html.erb            |  2 +-
+ app/views/parts/_form.html.erb            | 28 ++++++++++
+ app/views/parts/_part.json.jbuilder       |  2 +
+ app/views/parts/edit.html.erb             |  6 ++
+ app/views/parts/index.html.erb            | 29 ++++++++++
+ app/views/parts/index.json.jbuilder       |  1 +
+ app/views/parts/new.html.erb              |  6 ++
+ app/views/parts/show.html.erb             | 14 +++++
+ app/views/parts/show.json.jbuilder        |  1 +
+ config/routes.rb                          |  8 ++-
+ db/migrate/20180814124015_create_parts.rb | 10 ++++
+ 18 files changed, 209 insertions(+), 3 deletions(-)
+ create mode 100644 app/assets/javascripts/parts.coffee
+ create mode 100644 app/assets/stylesheets/parts.scss
+ create mode 100644 app/controllers/parts_controller.rb
+ create mode 100644 app/helpers/parts_helper.rb
+ create mode 100644 app/models/part.rb
+ create mode 100644 app/views/parts/_form.html.erb
+ create mode 100644 app/views/parts/_part.json.jbuilder
+ create mode 100644 app/views/parts/edit.html.erb
+ create mode 100644 app/views/parts/index.html.erb
+ create mode 100644 app/views/parts/index.json.jbuilder
+ create mode 100644 app/views/parts/new.html.erb
+ create mode 100644 app/views/parts/show.html.erb
+ create mode 100644 app/views/parts/show.json.jbuilder
+ create mode 100644 db/migrate/20180814124015_create_parts.rb
+ss@office:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+fatal: unable to access 'https://github.com/SS-Gaj/osvita.git/': Could not resolve host: github.com
+ss@office:~/rails_projects/osvita$ 
+
+ss@office:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.gitUsername for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 62, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (55/55), done.
+Writing objects: 100% (62/62), 6.99 KiB | 0 bytes/s, done.
+Total 62 (delta 30), reused 0 (delta 0)
+remote: Resolving deltas: 100% (30/30), completed with 12 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   955caaf..2b0fe09  master -> master
+ss@office:~/rails_projects/osvita$ 
+
+ss@office:~/rails_projects/osvita$ git log --pretty=format:"%h %s" -5
+2b0fe09 part-14of: Model Part
+4c25704 book-13of: Model Book
+955caaf payment-12srv: model Payment
+2e5deab order2-11srv: associations User-Profile-Order
+1cabf0f profile2-10srv: add category to Profile
+ss@office:~/rails_projects/osvita$ 
+
+**** 2018.08.16 ****
+*/- 12
+Просматриваю пункты (тестирую)
+
+*/- 12.1
+Выскакивает ошибка при создании новой книги (строка 12),
+т.к.нет id для новой записи:
+
+ActiveRecord::RecordNotFound in PartsController#index
+Couldn't find Book with 'id'=new
+Extracted source (around line #12):
+
+10    #@book_id = params[:book_id]
+11    @book_id = params[:id]
+12    @book = Book.find(@book_id)
+13    #@book = Book.find(2)
+14    @parts = @book.parts
+15  end
+
+Rails.root: /home/ss/rails_projects/osvita
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/parts_controller.rb:12:in `index'
+
+*/- 12.2
+Посмотрел в /app/controllers/books_controller.rb
+def new (из которого все начинается, по идее, после нажатия кнопки "New Book" в спмске предметов),
+там
+  # GET /books/new
+  def new
+    @book = Book.new
+  end
+
+Потдверждением того, что "с него начинается" 
+является и адрес в браузере = http://localhost:3000/en/books/new,
+который совпадает с коммент.перед def new;
+
+*/- 12.3
+Вспоминая вчерашние "исследования" цепочки 'new' -> 'create' в контроллере 'profile',
+и посмотрел feg create здесь:
+  def create
+    @book = Book.new(book_params)
+
+    respond_to do |format|
+      if @book.save
+
+и поскольку здесь тоже есть Book.new,
+решил закомент.такое же в def new:
+  def new
+    #@book = Book.new
+  end
+
+- не помогла, та же ошибка;
+
+*/- 12.4
+Но почему ошибка возникает в 'parts#index'?
+Ведь по идее должна работать цепочка:
+экшен 'books#new' -> вьюэр 'books#new' -> партиал 'books#_form' -> экшен 'books#create' ...
+
+Когда в этой цепочке происходит переход на 'parts#index', 
+т.е.СПИСОК ТЕМ, который ("список тем") запускается именно этим экшеном 'parts#index' ?
+
+*/- 13
+Проработаю такой вариант рассуждений:
+Предполагаю, что причина в сформировании маршрута.
+
+*/- 13.1
+Смотрю на роутер:
+1 scope "(:locale)", locale: /en|ru/ do
+2     resources :parts
+3     get '/books/:id' =>  'parts#index'
+4     resources :books
+
+*/- 13.2
+Запускаю http://localhost:3000/rails/info/routes
+
+1   parts_path 	GET 	(/:locale)/parts(.:format) parts#index {:locale=>/en|ru/}
+2   		        POST 	(/:locale)/parts(.:format) 	parts#create {:locale=>/en|ru/}
+
+3   new_part_path 	GET 	(/:locale)/parts/new(.:format) 	parts#new {:locale=>/en|ru/}
+4   edit_part_path 	GET 	(/:locale)/parts/:id/edit(.:format) 	parts#edit {:locale=>/en|ru/}
+5   part_path 	GET 	(/:locale)/parts/:id(.:format) 	parts#show {:locale=>/en|ru/}
+6             	PATCH 	(/:locale)/parts/:id(.:format) 	parts#update {:locale=>/en|ru/}
+7             	PUT 	(/:locale)/parts/:id(.:format) 	parts#update {:locale=>/en|ru/}
+8             	DELETE 	(/:locale)/parts/:id(.:format) 	parts#destroy {:locale=>/en|ru/}
+9             	GET 	(/:locale)/books/:id(.:format) 	parts#index {:locale=>/en|ru/}
+
+10  books_path 	GET 	(/:locale)/books(.:format) 	books#index {:locale=>/en|ru/}
+11            	POST 	(/:locale)/books(.:format) 	books#create {:locale=>/en|ru/}
+	
+12  new_book_path 	GET 	(/:locale)/books/new(.:format) 	books#new {:locale=>/en|ru/}
+13  edit_book_path 	GET 	(/:locale)/books/:id/edit(.:format) 	books#edit {:locale=>/en|ru/}
+14  book_path 	GET 	(/:locale)/books/:id(.:format) 	books#show {:locale=>/en|ru/}
+15  	PATCH 	(/:locale)/books/:id(.:format) 	books#update {:locale=>/en|ru/}
+16  	PUT 	(/:locale)/books/:id(.:format) 	books#update {:locale=>/en|ru/}
+17  	DELETE 	(/:locale)/books/:id(.:format)books#destroy {:locale=>/en|ru/}
+
+Т.о., 
+1) мой "спец.маршрут",
+который я "создал" для перехода из СПИСКА ПРЕДМЕТОВ в СПИСОК ТЕМ,
+расположен в роутере в строке №3 п.13.1,
+
+а хелпер и маршрут, которые он создает, указан в строке №9 п.13.2;
+
+2) когда я хочу посмотреть список тем в каком то ПРЕДМЕТЕ,
+    то нажимаю кнопку "ТЕМЫ";
+    При этом формируется маршрут 'books/1', например, 
+    выбирается маршрут из строчки №9 п.13.2
+    и упр-е передается на parts#index;
+
+3)  а когда я выбираю 'New Book' на СПИСКЕ ПРЕДМЕТОВ,
+    то формируется 'books/new' (как бы "так и надо"),
+    но он "перехватывается" маршрутом из строки №9,
+    и не доходит до "соответствующей" ему строки №12!!!!
+
+Значит, нужно 
+- либо менять маршрут для списка тем,
+- либо менять маршрут для 'New Book';
+
+*/- 13.3
+Сначала попробую добавить маршрут для 'new', 
+который поставлю РАНЬШЕ (в строке №4),
+чем "старый" маршрут (в строке №5):
+ 
+1  scope "(:locale)", locale: /en|ru/ do
+2    resources :parts
+3    #get '/books/:id' =>  'parts#index', book_id: 'id'
+4    get '/books/new' =>  'books#new'
+5    get '/books/:id' =>  'parts#index'
+6    resources :books
+
+*/- 13.4
+Проверяю - выскакивали сначала ошибки,
+которые я исправляю в def new и def create (создание нового объекта)
+и добился РАБОТЫ!!!!
+ от такой комбинации:
+
+  def new
+    @book = Book.new
+  end
+
+  def create
+    @book = Book.new(book_params)
+
+*/- 13.5
+Теперь 
+- создается НОВАЯ книга (ПРЕДМЕТ)
+  после нажатия 'New Book' на СПИСКЕ ПРЕДМЕТОВ;
+- в этой форме кнопка CREAT (а не UPDATE, как в ТЕМАХ);
+- если передумал вводить, и вернулься назад, то пустая строка в СПИСКЕ ПРЕДМЕТОВ не появляется;
+- после CREAT и SHOW (на вьюэре 'show') можно вернуться к СПИСКУ ПРЕДМЕТОВ через кнопку 'Back';
+
+Т.е. - ВСЕ ХОРОШО!!!!
+
+Но эту цепочку нужно ПЕРЕДЕЛАТЬ,
+поскольку она сделана некорректно:
+- как минимум, нет "строгого списка";
+- был случай, когда 
+    -- после ошибки я перегрузил сервер, 
+    -- в Главном меню исчезли пункты для админа,
+    -- а СПИСОК ПРЕДМЕТОВ остался и доступ к нему и все функции - тоже остались;
+    
+
+*/- 14
+Заполню (для красоты!!) страницу "Свободный просмотр"!!
+
+*/- 14.1
+В /app/controllers/welcome_controller.rb
+добавляю
+  def free
+  end
+
+*/- 14.2
+Добавляю маршрут
+
+по образцу из /pisma/config/routes.rb
+match '/anonce',    to: 'static_pages#anonce',    via: 'get'
+
+пишу в /osvita/config/routes.rb
+match '/free',    to: 'welcome#free',    via: 'get'
+
+Проверяю - есть
+free_path 	GET 	(/:locale)/free(.:format) 	welcome#free {:locale=>/en|ru/}
+
+*/- 14.3
+Добавляю вьюэр /app/views/welcome/free.html.erb
+
+*/- 14.4
+Вставляю в Главное меню (/app/views/layouts/_header.html.erb):
+      <li class="nav-item">
+        <a class="nav-link" href="<%= free_path %>">Свободный просмотр</a>
+      </li>
+
+Запускаю - РАБОТАЕТ!!!!
+
+*/- 15
+коммит, пуш
+
+ss@office:~/rails_projects/osvita$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/controllers/welcome_controller.rb
+	modified:   app/views/layouts/_header.html.erb
+	modified:   config/routes.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/views/welcome/free.html.erb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ss@office:~/rails_projects/osvita$ git add .
+ss@office:~/rails_projects/osvita$ git commit -m "naster-15of: correct create book"
+[master ab80d22] naster-15of: correct create book
+ 4 files changed, 8 insertions(+), 1 deletion(-)
+ create mode 100644 app/views/welcome/free.html.erb
+ss@office:~/rails_projects/osvita$ git log --pretty=format:"%h %s" -5
+ab80d22 naster-15of: correct create book
+2b0fe09 part-14of: Model Part
+4c25704 book-13of: Model Book
+955caaf payment-12srv: model Payment
+2e5deab order2-11srv: associations User-Profile-Order
+ss@office:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 12, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (12/12), 1.09 KiB | 0 bytes/s, done.
+Total 12 (delta 8), reused 0 (delta 0)
+remote: Resolving deltas: 100% (8/8), completed with 8 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   2b0fe09..ab80d22  master -> master
+ss@office:~/rails_projects/osvita$ 
+
+*/- 16
+Меняю название файла этого файла of2-osvita17-180814(book)
+на of2-osvita17-180816(book)
+(чтобы не спуталось с уже отправленными по почте).
+

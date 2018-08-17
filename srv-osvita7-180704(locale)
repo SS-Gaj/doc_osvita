@@ -1,0 +1,425 @@
+**** 2018.07.04 ****
+
+Пред.файл [1] - srv-osvita7-180622(mailer);
+
+Здесь буду делать локализацию;
+При этом буду руководствоваться ЮТ № 4;
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* master
+alex@www:~/rails_projects/osvita$ git checkout -b locale
+Switched to a new branch 'locale'
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2.1
+Нахожу /home/alex/rails_projects/osvita/config/locales/en.yml
+Копирую в папку /home/alex/Documents/my_projects/osvita/en.yml для последующего перевода;
+
+*/- 2.2
+Захожу в /home/alex/rails_projects/osvita/config/application.rb
+и добавляю соотв ЮТ 2:00
+    config.time_zone = 'Kyiv'
+    config.i18n.default_locale = :ru
+  
+*/- 2.3
+Согласно ЮТ 2:50
+Создаю /home/alex/rails_projects/osvita/config/locales/ru.yml
+(копирую файл en.yml и переименовывою в ru.yml,
+затем редактирую:
+ru:
+  hello: "Привет"
+
+*/- 2.4
+Согласно ЮТ 3:50
+создаю
+alex@www:~$ touch /home/alex/rails_projects/osvita/config/locales/activerecord.ru.yml
+
+*/- 2.5
+Согласно ЮТ 4:15
+открываю вьюху 
+/home/alex/rails_projects/osvita/app/views/devise/registrations/new.html.erb
+чтобы посмотреть поля БД,
+
+*/- 2.6
+Ввожу в /config/locales/activerecord.ru.yml
+alex@www:~$ cat /home/alex/rails_projects/osvita/config/locales/activerecord.ru.yml
+ru:
+  activerecord:
+    models:
+      user: 'Пользователь'
+    attributes:
+      user:
+        email: 'Электронный адрес'
+        password: 'Пароль'
+        password_confirmation: 'Подтверждение пароля'
+        
+alex@www:~$ 
+
+*/- 2.7
+Перегружаю сервер,
+захожу на страницу "Рег-я" - там РУС.ЗАГОЛОВКИ ПОЛЕЙ!!!!
+
+На пункте "Вход" - ТОЖЕ!!!!
+
+*/- 3.1
+Согласно ЮТ 8:40
+дописываю в ru.yml
+ru:
+  users:
+    new:
+      title: 'Регистрация'
+
+*/- 3.2
+Согласно ЮТ 6:30 
+захожу в /home/alex/rails_projects/osvita/app/views/devise/registrations/new.html.erb
+и исправляю:
+было
+<h2>Регистрация</h2>
+исправляю на 
+<h2><%= I18n.t('users.new.title') %></h2>
+
+*/- 3.3
+Перезагружаю сервер (может уже и не надо, а только при первом создании ru.yml?),
+обновляю браузер - ПОЛУЧИЛОСЬ!!!!
+
+Т.е., заголовок "Рег-я" вывелся, но через файл перевода!!!!
+
+*/- 4.1
+Согласно ЮТ 10:15
+"регистрирую" пустые поля - получаю такую же ошибку, как в ЮТ!!!!
+
+*/- 4.2 
+В файл activerecord.ru.yml
+добавляю errors: ... blank (ЮТ 11:20);
+
+
+*/- 4.3
+По образцу ЮТ 9:30
+нахожу в своем /home/alex/rails_projects/osvita/app/views/devise/registrations/new.html.erb
+строку с 'error'
+  <%= devise_error_messages! %>
+
+но не соображу, как мне это записать у себя (??)
+Пока напишу  непосредственно ПЕРЕД 
+  <%= devise_error_messages! %>
+  <h5><%= I18n.t('common.errors') %></h5>
+
+*/- 4.4
+Дальше,
+согласно ЮТ 12:15
+в файле ru.yml
+создаю блок
+common:
+    errors: 'При заполнении формы возникли ошибки:'
+    
+
+Обновляю (с пустыми полями регистрации)-
+- мое сообщени добавилось, но англ.комментарии не исчезли:
+
+Регистрация
+При заполнении формы возникли ошибки:
+translation missing: ru.errors.messages.not_saved
+
+    Электронный адрес не может быть пустым
+    Пароль не может быть пустым
+
+
+*/- 4.5
+согласно ЮТ 14:00
+вместо
+    <%= f.submit "Sign up" %>
+пишу
+    <%= f.submit I18n.t('users.new.submit') %>
+
+а в ru.yml
+      submit: 'Сохранить'
+      
+Обновляю - ЕСТЬ!!!!
+
+*/- 4.6
+Дальше на ЮТ 18:10
+идет перевод по условию - "Создать" или "Изменить";
+Буду помнить, но пока некуда вставить;
+
+*/ - 4.7
+Аналогично ЮТ 19:50
+в /home/alex/rails_projects/osvita/app/views/devise/registrations/edit.html.erb
+вместо
+<h2>Edit <%= resource_name.to_s.humanize %></h2>
+пишу
+<h2><%= I18n.t('users.edit.title') %> <%= resource_name.to_s.humanize %></h2>
+
+а в ru.yml
+    new:
+      title: 'Регистрация'
+      submit: 'Сохранить'
+    edit:
+      title: 'Внести изменения'
+
+Но потом оказалось, что это не пункт "Вход" главного меню))
+
+*/- 4.8
+Начал искать нужную мне вьюху (для пункта "Вход") путем пересмотра всех папок,
+но потом меня осенило(!!!!),
+что можно посмотреть на debug-инф на экране:
+--- !ruby/object:ActionController::Parameters
+parameters: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  controller: devise/sessions
+  action: new
+permitted: false
+
+Значит, смотреть нужно в папке  devise/sessions!!!!
+
+*/- 4.9
+Нахожу ... (он в папке единственный)
+/home/alex/rails_projects/osvita/app/views/devise/sessions/new.html.erb
+
+и вставляю в 1-ю строку ... (это я поспешил)
+<h2><%= I18n.t('users.edit.title') %></h2>
+
+Обновляю - и получаю на вьюхе "Вход" заголовок "Внести изменения"!!
+
+Из этого делаю вывод,
+что в Переводчик I18n ПРОСТО СЛЕДУЕТ УКАЗАННОМУ ПУТИ,
+и "не соображает", ЭТО new или edit!!
+
+Также я ОсВ,
+что упомянутые ПУТИ в файле ru.yml не совсем придерживаются структуры папки /view;
+Например,
+ко вьюхе регистрации путь 
+/osvita/app/views/devise/registrations/new.html.erb
+
+а уровни в ru.yml
+users:
+    new:
+    
+и в командах я указываю I18n.t('users.new.title');
+
+Теперь поскольку у меня имя вьюхи для пункта "Вход" = 'new',
+и для пункта "Регистрация" тоже 'new', только в другой папке,
+то я попробую ЭТИ папки в /view указать также и в ru.yml 
+соответственно пути:
+                  /views/devise/sessions/new.html.erb
+users:
+    new:
+      title: 'Регистрация'
+      submit: 'Сохранить'
+    edit:
+      title: 'Внести изменения'
+    sessions:
+      new:
+        title: 'Вход'
+
+А в /home/alex/rails_projects/osvita/app/views/devise/sessions/new.html.erb
+вместо недавно введенного
+ <h2><%= I18n.t('users.edit.title') %></h2>      
+запишу
+ <h2><%= I18n.t('users.sessions.new.title') %></h2>      
+
+Обновляю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 4.10
+Аналогично п.4.5 меняю кнопку на вьюхе "Вход":
+было
+    <%= f.submit "Log in" %>
+пишу
+    <%= f.submit I18n.t('users.sessions.new.submit') %>
+    
+а в ru.yml добавляю
+    sessions:
+      new:
+        title: 'Вход'
+        submit: 'Войти'
+Обновляю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 4.11
+Поскольку мне придется "интернационализировать" на многих вьюхах,
+то приведу к указанной иерархии 
+и сделанные ранее пути:
+Было
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/config/locales/ru.yml
+ru:
+  common:
+    errors: 'При заполнении формы возникли ошибки:'
+  users:
+    new:
+      title: 'Регистрация'
+      submit: 'Сохранить'
+    edit:
+      title: 'Внести изменения'
+    sessions:
+      new:
+        title: 'Вход'
+        submit: 'Войти'
+
+Стало
+alex@www:~/rails_projects/osvita$ cat /home/alex/rails_projects/osvita/config/locales/ru.yml
+ru:
+  common:
+    errors: 'При заполнении формы возникли ошибки:'
+  users:
+    registrations:
+      new:
+        title: 'Регистрация'
+        submit: 'Сохранить'
+      edit:
+        title: 'Внести изменения'
+    sessions:
+      new:
+        title: 'Вход'
+        submit: 'Войти'
+      
+
+
+*/- 4.12
+... а также в команды вызова, типа
+<h2><%= I18n.t('users.registrations.new.title') %></h2>
+
+*/- 5
+Попробую перевести сообщение на окне регистрации:
+Пароль (6 characters minimum)
+
+*/- 5.1
+Во вьюхе
+/home/alex/rails_projects/osvita/app/views/devise/registrations/new.html.erb
+нахожу
+    <em>(<%= @minimum_password_length %> characters minimum)</em>
+и заменю его на
+    <em>(<%= @minimum_password_length %> <%= I18n.t('users.registrations.new.password') %>)</em>
+
+... а также добавлю в ru.yml
+    registrations:
+      new:
+        title: 'Регистрация'
+        submit: 'Сохранить'
+        password: 'символов минимум'
+
+Обновляю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 6
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* locale
+  master
+alex@www:~/rails_projects/osvita$ git status
+On branch locale
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/views/devise/registrations/edit.html.erb
+	modified:   app/views/devise/registrations/new.html.erb
+	modified:   app/views/devise/sessions/new.html.erb
+	modified:   config/application.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	config/locales/activerecord.ru.yml
+	config/locales/ru.yml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git log -5
+commit c3784540088427a622f514835b097a021efcb5b1
+Merge: 254bb99 10fb64b
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 3 16:27:53 2018 +0300
+
+    Merge branch 'devise'
+    
+    After correcting conflicts
+
+commit 10fb64b2245df23dd4d37035ecd4fe1f1e944847
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 3 16:26:45 2018 +0300
+
+    devise-5srv: merge with master
+
+commit 254bb9944a3c9a1e031830eb2d329faab6ac586f
+Merge: 48cb792 031fd6b
+Author: alex <alex@www>
+Date:   Fri Jun 29 16:51:35 2018 +0300
+
+    master 7 + devise-4srv: 365day
+
+commit 031fd6bfde865883517a3d0a3c59e54db7dbfd18
+:...skipping...
+commit c3784540088427a622f514835b097a021efcb5b1
+Merge: 254bb99 10fb64b
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 3 16:27:53 2018 +0300
+
+    Merge branch 'devise'
+    
+    After correcting conflicts
+
+commit 10fb64b2245df23dd4d37035ecd4fe1f1e944847
+Author: alex <oo.gaydar@gmail.com>
+Date:   Tue Jul 3 16:26:45 2018 +0300
+
+    devise-5srv: merge with master
+
+commit 254bb9944a3c9a1e031830eb2d329faab6ac586f
+Merge: 48cb792 031fd6b
+Author: alex <alex@www>
+Date:   Fri Jun 29 16:51:35 2018 +0300
+
+    master 7 + devise-4srv: 365day
+
+commit 031fd6bfde865883517a3d0a3c59e54db7dbfd18
+Author: alex <alex@www>
+Date:   Fri Jun 29 16:17:36 2018 +0300
+
+    devise-4srv: 365day
+
+commit 42340f7ca003017b8e122068e5d70048a7eed873
+Author: alex <alex@www>
+Date:   Tue Jun 26 17:16:07 2018 +0300
+
+    devise-3srv: mailer
+~
+~
+~
+alex@www:~/rails_projects/osvita$ git commit -m "locale-6srv: ru:"
+[locale 5cf99e9] locale-6srv: ru:
+ 6 files changed, 38 insertions(+), 6 deletions(-)
+ create mode 100644 config/locales/activerecord.ru.yml
+ create mode 100644 config/locales/ru.yml
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 5 commits.
+  (use "git push" to publish your local commits)
+alex@www:~/rails_projects/osvita$ git merge locale
+Updating c378454..5cf99e9
+Fast-forward
+ app/views/devise/registrations/edit.html.erb |  2 +-
+ app/views/devise/registrations/new.html.erb  |  7 ++++---
+ app/views/devise/sessions/new.html.erb       |  4 ++--
+ config/application.rb                        |  2 ++
+ config/locales/activerecord.ru.yml           | 13 +++++++++++++
+ config/locales/ru.yml                        | 16 ++++++++++++++++
+ 6 files changed, 38 insertions(+), 6 deletions(-)
+ create mode 100644 config/locales/activerecord.ru.yml
+ create mode 100644 config/locales/ru.yml
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/SS-Gaj/osvita.git/'
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Counting objects: 15, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (15/15), 1.81 KiB | 0 bytes/s, done.
+Total 15 (delta 8), reused 0 (delta 0)
+remote: Resolving deltas: 100% (8/8), completed with 7 local objects.
+To https://github.com/SS-Gaj/osvita.git
+   c378454..5cf99e9  master -> master
+alex@www:~/rails_projects/osvita$ 
+    
+

@@ -1,0 +1,87 @@
+**** 2018.07.11 ****
+Это вспомогательный файл к srv-osvita12-180712(lprofile)
+
+Здесь выведены маршруты ДО изменений по п.2.9 и ПОСЛЕ;
+
+*/- 1
+alex@www:~/rails_projects/osvita$ rails routes
+                   Prefix Verb   URI Pattern                                                                              Controller#Action
+                   orders GET    (/:locale)/orders(.:format)                                                              orders#index {:locale=>/en|ru/}
+                          POST   (/:locale)/orders(.:format)                                                              orders#create {:locale=>/en|ru/}
+                new_order GET    (/:locale)/orders/new(.:format)                                                          orders#new {:locale=>/en|ru/}
+               edit_order GET    (/:locale)/orders/:id/edit(.:format)                                                     orders#edit {:locale=>/en|ru/}
+                    order GET    (/:locale)/orders/:id(.:format)                                                          orders#show {:locale=>/en|ru/}
+                          PATCH  (/:locale)/orders/:id(.:format)                                                          orders#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/orders/:id(.:format)                                                          orders#update {:locale=>/en|ru/}
+                          DELETE (/:locale)/orders/:id(.:format)                                                          orders#destroy {:locale=>/en|ru/}
+         new_user_session GET    (/:locale)/users/sign_in(.:format)                                                       devise/sessions#new {:locale=>/en|ru/}
+             user_session POST   (/:locale)/users/sign_in(.:format)                                                       devise/sessions#create {:locale=>/en|ru/}
+     destroy_user_session DELETE (/:locale)/users/sign_out(.:format)                                                      devise/sessions#destroy {:locale=>/en|ru/}
+        new_user_password GET    (/:locale)/users/password/new(.:format)                                                  devise/passwords#new {:locale=>/en|ru/}
+       edit_user_password GET    (/:locale)/users/password/edit(.:format)                                                 devise/passwords#edit {:locale=>/en|ru/}
+            user_password PATCH  (/:locale)/users/password(.:format)                                                      devise/passwords#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/users/password(.:format)                                                      devise/passwords#update {:locale=>/en|ru/}
+                          POST   (/:locale)/users/password(.:format)                                                      devise/passwords#create {:locale=>/en|ru/}
+ cancel_user_registration GET    (/:locale)/users/cancel(.:format)                                                        devise/registrations#cancel {:locale=>/en|ru/}
+    new_user_registration GET    (/:locale)/users/sign_up(.:format)                                                       devise/registrations#new {:locale=>/en|ru/}
+   edit_user_registration GET    (/:locale)/users/edit(.:format)                                                          devise/registrations#edit {:locale=>/en|ru/}
+        user_registration PATCH  (/:locale)/users(.:format)                                                               devise/registrations#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/users(.:format)                                                               devise/registrations#update {:locale=>/en|ru/}
+                          DELETE (/:locale)/users(.:format)                                                               devise/registrations#destroy {:locale=>/en|ru/}
+                          POST   (/:locale)/users(.:format)                                                               devise/registrations#create {:locale=>/en|ru/}
+    new_user_confirmation GET    (/:locale)/users/confirmation/new(.:format)                                              devise/confirmations#new {:locale=>/en|ru/}
+        user_confirmation GET    (/:locale)/users/confirmation(.:format)                                                  devise/confirmations#show {:locale=>/en|ru/}
+                          POST   (/:locale)/users/confirmation(.:format)                                                  devise/confirmations#create {:locale=>/en|ru/}
+          new_user_unlock GET    (/:locale)/users/unlock/new(.:format)                                                    devise/unlocks#new {:locale=>/en|ru/}
+              user_unlock GET    (/:locale)/users/unlock(.:format)                                                        devise/unlocks#show {:locale=>/en|ru/}
+                          POST   (/:locale)/users/unlock(.:format)                                                        devise/unlocks#create {:locale=>/en|ru/}
+                     root GET    /(:locale)(.:format)                                                                     welcome#index {:locale=>/en|ru/}
+            welcome_index GET    (/:locale)/welcome/index(.:format)                                                       welcome#index {:locale=>/en|ru/}
+       rails_service_blob GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                               active_storage/blobs#show
+rails_blob_representation GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations#show
+       rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                              active_storage/disk#show
+update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                      active_storage/disk#update
+     rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                           active_storage/direct_uploads#create
+alex@www:~/rails_projects/osvita$ 
+
+*/- 2
+alex@www:~/rails_projects/osvita$ rails routes
+                   Prefix Verb   URI Pattern                                                                              Controller#Action
+                   orders GET    (/:locale)/orders(.:format)                                                              orders#index {:locale=>/en|ru/}
+                          POST   (/:locale)/orders(.:format)                                                              orders#create {:locale=>/en|ru/}
+                new_order GET    (/:locale)/orders/new(.:format)                                                          orders#new {:locale=>/en|ru/}
+               edit_order GET    (/:locale)/orders/:id/edit(.:format)                                                     orders#edit {:locale=>/en|ru/}
+                    order GET    (/:locale)/orders/:id(.:format)                                                          orders#show {:locale=>/en|ru/}
+                          PATCH  (/:locale)/orders/:id(.:format)                                                          orders#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/orders/:id(.:format)                                                          orders#update {:locale=>/en|ru/}
+                          DELETE (/:locale)/orders/:id(.:format)                                                          orders#destroy {:locale=>/en|ru/}
+         new_user_session GET    (/:locale)/users/sign_in(.:format)                                                       users/sessions#new {:locale=>/en|ru/}
+             user_session POST   (/:locale)/users/sign_in(.:format)                                                       users/sessions#create {:locale=>/en|ru/}
+     destroy_user_session DELETE (/:locale)/users/sign_out(.:format)                                                      users/sessions#destroy {:locale=>/en|ru/}
+        new_user_password GET    (/:locale)/users/password/new(.:format)                                                  devise/passwords#new {:locale=>/en|ru/}
+       edit_user_password GET    (/:locale)/users/password/edit(.:format)                                                 devise/passwords#edit {:locale=>/en|ru/}
+            user_password PATCH  (/:locale)/users/password(.:format)                                                      devise/passwords#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/users/password(.:format)                                                      devise/passwords#update {:locale=>/en|ru/}
+                          POST   (/:locale)/users/password(.:format)                                                      devise/passwords#create {:locale=>/en|ru/}
+ cancel_user_registration GET    (/:locale)/users/cancel(.:format)                                                        devise/registrations#cancel {:locale=>/en|ru/}
+    new_user_registration GET    (/:locale)/users/sign_up(.:format)                                                       devise/registrations#new {:locale=>/en|ru/}
+   edit_user_registration GET    (/:locale)/users/edit(.:format)                                                          devise/registrations#edit {:locale=>/en|ru/}
+        user_registration PATCH  (/:locale)/users(.:format)                                                               devise/registrations#update {:locale=>/en|ru/}
+                          PUT    (/:locale)/users(.:format)                                                               devise/registrations#update {:locale=>/en|ru/}
+                          DELETE (/:locale)/users(.:format)                                                               devise/registrations#destroy {:locale=>/en|ru/}
+                          POST   (/:locale)/users(.:format)                                                               devise/registrations#create {:locale=>/en|ru/}
+    new_user_confirmation GET    (/:locale)/users/confirmation/new(.:format)                                              devise/confirmations#new {:locale=>/en|ru/}
+        user_confirmation GET    (/:locale)/users/confirmation(.:format)                                                  devise/confirmations#show {:locale=>/en|ru/}
+                          POST   (/:locale)/users/confirmation(.:format)                                                  devise/confirmations#create {:locale=>/en|ru/}
+          new_user_unlock GET    (/:locale)/users/unlock/new(.:format)                                                    devise/unlocks#new {:locale=>/en|ru/}
+              user_unlock GET    (/:locale)/users/unlock(.:format)                                                        devise/unlocks#show {:locale=>/en|ru/}
+                          POST   (/:locale)/users/unlock(.:format)                                                        devise/unlocks#create {:locale=>/en|ru/}
+                     root GET    /(:locale)(.:format)                                                                     welcome#index {:locale=>/en|ru/}
+            welcome_index GET    (/:locale)/welcome/index(.:format)                                                       welcome#index {:locale=>/en|ru/}
+       rails_service_blob GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                               active_storage/blobs#show
+rails_blob_representation GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations#show
+       rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                              active_storage/disk#show
+update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                      active_storage/disk#update
+     rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                           active_storage/direct_uploads#create
+alex@www:~/rails_projects/osvita$ 
+

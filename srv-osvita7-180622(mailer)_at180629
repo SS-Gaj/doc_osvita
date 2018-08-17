@@ -1,0 +1,1509 @@
+**** 2018.06.22 ****
+Пред.файл 
+[1] - srv-osvita6-180620(devise2);
+
+см.также
+[2] - http://rusrails.ru/action-mailer-basics
+      "Основы Action Mailer"
+      
+В этом файле буду делать натройку Mail'ера
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+
+*/- 2
+Сначала просмотрю логин:
+../osvita/log/development.log
+
+*/- 2.1
+При регистрации oo.gaydar@gmail.com
+
+
+Devise::Mailer#confirmation_instructions: processed outbound mail in 1823.4ms
+Sent mail to oo.gaydar@gmail.com (373.5ms)
+Date: Tue, 19 Jun 2018 18:53:43 +0300
+From: please-change-me-at-config-initializers-devise@example.com
+Reply-To: please-change-me-at-config-initializers-devise@example.com
+To: oo.gaydar@gmail.com
+Message-ID: <5b2927071f674_150922a75b8334d8@www.mail>
+Subject: Confirmation instructions
+Mime-Version: 1.0
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>Welcome oo.gaydar@gmail.com!</p>
+
+<p>You can confirm your account email through the link below:</p>
+
+<p><a href="http://localhost:3000/users/confirmation?confirmation_token=ZCknyehPxx_1NpEpQjPe">Confirm my account</a></p>
+
+Redirected to http://localhost:3000/
+Completed 302 Found in 3061ms (ActiveRecord: 29.3ms)
+
+
+*/- 2.2
+Started GET "/" for 127.0.0.1 at 2018-06-19 18:53:43 +0300
+Processing by WelcomeController#index as HTML
+
+
+*/- 2.3
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-19 18:54:30 +0300
+Processing by Devise::SessionsController#new as HTML
+...
+Completed 200 OK in 131ms (Views: 112.4ms | ActiveRecord: 0.0ms)
+
+
+
+*/- 2.4
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-19 18:54:43 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"H+cMqogCR9hmUCGbDpxU3O/s9OPHLpy0E0/HO5WEs79t+TRGCQvhwkKVw/32J4bpBxWKMzX8a8fkv31VXzXjvA==", "user"=>{"email"=>"oo.gaydar@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"1"}, "commit"=>"Log in"}
+ ...
+ 
+ Completed 401 Unauthorized in 443ms (ActiveRecord: 3.8ms)
+
+
+
+*/- 3.1
+
+Devise::Mailer#confirmation_instructions: processed outbound mail in 133.7ms
+Sent mail to user01@gmail.com (140.3ms)
+Date: Wed, 20 Jun 2018 17:52:21 +0300
+From: please-change-me-at-config-initializers-devise@example.com
+Reply-To: please-change-me-at-config-initializers-devise@example.com
+To: user01@gmail.com
+Message-ID: <5b2a6a25a28de_3a0126b8a6c10324@www.mail>
+Subject: Confirmation instructions
+Mime-Version: 1.0
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>Welcome user01@gmail.com!</p>
+
+<p>You can confirm your account email through the link below:</p>
+
+<p><a href="http://localhost:3000/users/confirmation?confirmation_token=J3_1tf2k95JvTXjHm5kz">Confirm my account</a></p>
+
+Redirected to http://localhost:3000/
+Completed 302 Found in 1260ms (ActiveRecord: 13.3ms)
+
+*/- 3.2
+Started GET "/" for 127.0.0.1 at 2018-06-20 17:52:21 +0300
+Processing by WelcomeController#index as HTML
+...
+
+Completed 200 OK in 90ms (Views: 86.2ms | ActiveRecord: 0.0ms)
+
+
+*/- 3.3
+В этом месте я отклонился в сторону,
+чтобы разместить на Heroku сделанную ранее часть Приложения /osvita$
+- см.файлы
+ hm-osvita8-180626(heroku) - srv-osvita8-180626(heroku);
+
+*/- 3.4
+Возвращаюсь к этой ветке после отклонения по п.3.3 выше;
+
+*/- 4
+Обсудил с Маратом.
+Он сказал, что 
+- в моем Приложении д.б. настройки почтового сервера;
+- ... в общем случае - и для отправления (SMTP),
+- ... и для получения (POP3);
+
+*/- 4.1 в API Rails я нашел  
+в разделе "Action Mailer Basics"
+
+"6.2 Action Mailer Configuration for Gmail"
+
+As Action Mailer now uses the Mail gem, this becomes as simple as adding to your config/environments/$RAILS_ENV.rb file:
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.smtp_settings = {
+  address:              'smtp.gmail.com',
+  port:                 587,
+  domain:               'example.com',
+  user_name:            '<username>',
+  password:             '<password>',
+  authentication:       'plain',
+  enable_starttls_auto: true }
+
+*/- 4.2
+Марат дал мне данные для нашей почты:
+
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.smtp_settings = {
+  address:              'mail.daplus.net.ua',
+  port:                 2525,
+  domain:               'daplus.net.ua',
+  user_name:            'gaydarenko@daplus.net.ua',
+  password:             '1qaz2wsx',
+  authentication:       'plain',
+  enable_starttls_auto: true }
+
+*/- 4.3
+ЯтД, что
+config/environments/$RAILS_ENV.rb
+- это ../osvita/config/environments/development.rb
+
+Тем  более, что там имеется строка
+# config.action_mailer.delivery_method = :letter_opener
+
+для перехвата,
+а в нашей конфигурации - это указанная выше
+config.action_mailer.delivery_method = :smtp
+
+Поэтому, вставляю весь Маратов блок  в файл /config/environments/development.rb
+
+*/- 4.4
+Обновляюсь,
+Регистрирую нового пользователя 
+gaydarenko@daplus.net.ua
+osvita
+
+На экране выводит
+"A message with a confirmation link has been sent to your email address. Please follow the link to activate your account."
+
+- но на мою почту пока ничего так и не пришло((
+
+Надо подробнее изучить
+http://rusrails.ru/action-mailer-basics
+и
+http://guides.rubyonrails.org/action_mailer_basics.html
+
+**** 2018.06.29 ****
+*/- 4.5
+Прочитал достаточно много о Мейлере в док-и Rails -
+см./home/alex/Documents/Rails/Mailer/Mailers_rusrails.doc;
+
+*/- 5
+Дополнительно родилась мысль убрать модуль подтверждения из Devise;
+Пока еще не Гуглил такой запрос,
+
+но "со своей стороны" я подумал, 
+что было бы лучше управлять этим внутри контроллера:
+- закоментировать "что надо",
+- разобраться с почтой, а за это время работать без регистрации,
+- а затем раскомментировать;
+Попробую...
+
+*/- 5.1
+Читаю, как "достать изнутри" контроллеры Devise:
+- см.раздел "Configuring controllers"
+части "Getting started"
+док-и https://github.com/plataformatec/devise\
+
+*/- 5.2
+В предположении,
+что такой вопрос у кого то возникал,
+прошел по ссылкам
+1)
+https://github.com/plataformatec/devise/wiki
+2)
+"How-To" Articles - 128 articles and growing!
+3)
+How To: Add :confirmable to Users
+
+... где в последнем разделе "Allowing Unconfirmed Access" (=Разрешение неподтвержденного доступа)
+приведено 2 варианта:
+
+1-й вар = установить "льготный период", когда пользователь может входить в систему без подтверждения;
+  Период задается в днях:
+  # in Devise Initializer
+config.allow_unconfirmed_access_for = 365.days
+
+2-й вар = пропустить необходимое подтверждение:
+# in User.rb
+protected
+def confirmation_required?
+  false
+end
+
+*/- 5.3
+Проверяю ветку
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+
+*/- 5.4
+Захожу в браузет,
+загружаю Приложение /osvita
+пытаюсь войти под oo.gaydar - требует подтверждения;
+... под user01 - успешно вхожу:
+Значит, все работает (как раньше);
+
+*/- 5.5
+В файле /home/alex/rails_projects/osvita/config/initializers/devise.rb
+нахожу строку
+  # config.allow_unconfirmed_access_for = 2.days
+и меняю на
+config.allow_unconfirmed_access_for = 365.days
+
+*/- 5.6
+Перегружаю сайт,
+пытаюсь войти под oo.gaydar - ВОШЕЛ!!!!
+
+*/- 6
+
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+alex@www:~/rails_projects/osvita$ git status
+On branch devise
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   config/environments/development.rb
+	modified:   config/initializers/devise.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "devise-4srv: 365day"
+[devise 031fd6b] devise-4srv: 365day
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 2 files changed, 11 insertions(+)
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+
+alex@www:~/rails_projects/osvita$ git merge devise
+Auto-merging config/initializers/devise.rb
+
+CONFLICT (content): Merge conflict in config/initializers/devise.rb
+Auto-merging Gemfile.lock
+
+CONFLICT (content): Merge conflict in Gemfile.lock
+Auto-merging Gemfile
+
+CONFLICT (content): Merge conflict in Gemfile
+Automatic merge failed; 
+fix conflicts and then commit the result.
+
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Everything up-to-date
+alex@www:~/rails_projects/osvita$ 
+
+************** 1-й терминал НАЧАЛО
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Puma starting in single mode...
+* Version 3.11.4 (ruby 2.4.1-p111), codename: Love Song
+* Min threads: 5, max threads: 5
+* Environment: development
+* Listening on tcp://0.0.0.0:3000
+Use Ctrl-C to stop
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:50:44 +0300
+   (24.5ms)  SELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (4.0ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (8.7ms)
+Completed 200 OK in 1136ms (Views: 1087.1ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:50:53 +0300
+Processing by Devise::SessionsController#new as HTML
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (4.1ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (62.6ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (1.4ms)
+Completed 200 OK in 303ms (Views: 124.0ms | ActiveRecord: 73.5ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:50:59 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"5U7PzU2PJ1K1PdBFp7WiUZgK/gE9OO0fzKWXHSV+6z+BG7EdX3Kskh14IY7111BubtNbypKBj+tzk6F3P2yu4g==", "user"=>{"email"=>"oo.gaydar@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+  User Load (46.2ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "oo.gaydar@gmail.com"], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Completed 401 Unauthorized in 443ms (ActiveRecord: 46.8ms)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:50:59 +0300
+Processing by Devise::SessionsController#new as HTML
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (3.5ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (14.7ms)
+  Rendered layouts/_shim.html.erb (0.8ms)
+  Rendered layouts/_header.html.erb (2.0ms)
+Completed 200 OK in 91ms (Views: 88.2ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:51:43 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"i4hBBU5UUzyc+51vTh/Zv+hwA4PgHhfWfDmSKKKij/W1mKfHl6TNwujnv75v88xh1tcXxLCgXxs2/feC+56U0Q==", "user"=>{"email"=>"user01@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+  User Load (6.7ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "user01@gmail.com"], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (1.0ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+  User Update (0.9ms)  UPDATE "users" SET "current_sign_in_at" = $1, "last_sign_in_at" = $2, "sign_in_count" = $3, "updated_at" = $4 WHERE "users"."id" = $5  [["current_sign_in_at", "2018-06-29 12:51:43.634867"], ["last_sign_in_at", "2018-06-26 15:15:04.157080"], ["sign_in_count", 4], ["updated_at", "2018-06-29 12:51:43.638715"], ["id", 2]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (13.3ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 361ms (ActiveRecord: 21.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:51:43 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (0.7ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 2], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (4.9ms)
+Completed 200 OK in 78ms (Views: 74.6ms | ActiveRecord: 0.8ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+^C- Gracefully stopping, waiting for requests to finish
+=== puma shutdown: 2018-06-29 15:57:13 +0300 ===
+- Goodbye!
+Exiting
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Puma starting in single mode...
+* Version 3.11.4 (ruby 2.4.1-p111), codename: Love Song
+* Min threads: 5, max threads: 5
+* Environment: development
+* Listening on tcp://0.0.0.0:3000
+Use Ctrl-C to stop
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:57:40 +0300
+   (1.2ms)  SELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (1.3ms)
+  Rendered layouts/_shim.html.erb (0.8ms)
+  User Load (2.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 2], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (90.3ms)
+Completed 200 OK in 692ms (Views: 661.3ms | ActiveRecord: 13.9ms)
+
+
+Started GET "/welcome/index" for 127.0.0.1 at 2018-06-29 15:57:43 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (8.7ms)
+  Rendered layouts/_shim.html.erb (0.5ms)
+  User Load (0.8ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 2], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (6.1ms)
+Completed 200 OK in 118ms (Views: 111.5ms | ActiveRecord: 0.8ms)
+
+
+Started DELETE "/users/sign_out" for 127.0.0.1 at 2018-06-29 15:57:46 +0300
+Processing by Devise::SessionsController#destroy as HTML
+  Parameters: {"authenticity_token"=>"M3ZhasJ2bYksH8IBlce6kBGzW/Y4n9VJ8P0rq6dcA8OqTKabknkG5m47jOZ7fBmyFHV0n1cbZBCvzZKAw+ErNw=="}
+  User Load (1.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 2], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.6ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 24ms (ActiveRecord: 2.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:57:46 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (0.9ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (8.6ms)
+Completed 200 OK in 65ms (Views: 62.0ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:57:50 +0300
+Processing by Devise::SessionsController#new as HTML
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (15.9ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (33.5ms)
+  Rendered layouts/_shim.html.erb (0.7ms)
+  Rendered layouts/_header.html.erb (2.0ms)
+Completed 200 OK in 156ms (Views: 145.6ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-29 15:57:54 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"SMqTMowHoDap83DMM7yUKFmDTXJF1okNgafSCsUcbllS8zGh1G+SJbC4e/GABQasduSJGCqEv5NehWbpkjoLRQ==", "user"=>{"email"=>"oo.gaydar@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+  User Load (3.4ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "oo.gaydar@gmail.com"], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+  User Update (0.8ms)  UPDATE "users" SET "failed_attempts" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["failed_attempts", 0], ["updated_at", "2018-06-29 12:57:54.375843"], ["id", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (17.3ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.2ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+  User Update (0.9ms)  UPDATE "users" SET "sign_in_count" = $1, "current_sign_in_at" = $2, "last_sign_in_at" = $3, "current_sign_in_ip" = $4, "last_sign_in_ip" = $5, "updated_at" = $6 WHERE "users"."id" = $7  [["sign_in_count", 1], ["current_sign_in_at", "2018-06-29 12:57:54.399385"], ["last_sign_in_at", "2018-06-29 12:57:54.399385"], ["current_sign_in_ip", "127.0.0.1/32"], ["last_sign_in_ip", "127.0.0.1/32"], ["updated_at", "2018-06-29 12:57:54.401025"], ["id", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (8.6ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 344ms (ActiveRecord: 31.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:57:54 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (0.7ms)
+  Rendered layouts/_shim.html.erb (0.8ms)
+  User Load (1.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 1], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (7.3ms)
+Completed 200 OK in 65ms (Views: 62.2ms | ActiveRecord: 1.1ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started DELETE "/users/sign_out" for 127.0.0.1 at 2018-06-29 15:59:32 +0300
+Processing by Devise::SessionsController#destroy as HTML
+  Parameters: {"authenticity_token"=>"4sakNs72BaiYpF1/U7QFpjhEqHtzMEFTYv8yBi0nMfPeCoopHvXG3HY957a5+r9oEwxUqL2TnAUZsf5QCRbwaw=="}
+  User Load (1.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 1], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 21ms (ActiveRecord: 1.7ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 15:59:32 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (0.7ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (1.8ms)
+Completed 200 OK in 72ms (Views: 69.8ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+^C- Gracefully stopping, waiting for requests to finish
+=== puma shutdown: 2018-06-29 16:15:48 +0300 ===
+- Goodbye!
+Exiting
+alex@www:~/rails_projects/osvita$ 
+
+**** 1-Й КОНЕЦ
+
+****2-й терм НАЧАЛО
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+alex@www:~/rails_projects/osvita$ git status
+On branch devise
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   config/environments/development.rb
+	modified:   config/initializers/devise.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "devise-4srv: 365day"
+[devise 031fd6b] devise-4srv: 365day
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 2 files changed, 11 insertions(+)
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+
+alex@www:~/rails_projects/osvita$ git merge deviseAuto-merging config/initializers/devise.rb
+CONFLICT (content): Merge conflict in config/initializers/devise.rb
+Auto-merging Gemfile.lock
+
+CONFLICT (content): Merge conflict in Gemfile.lock
+Auto-merging Gemfile
+
+CONFLICT (content): Merge conflict in Gemfile
+Automatic merge failed; fix conflicts and then commit the result.
+
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Everything up-to-date
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* master
+alex@www:~/rails_projects/osvita$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+
+Changes to be committed:
+
+	renamed:    app/assets/stylesheets/custom.scss -> app/assets/stylesheets/custom.css.scss
+	modified:   config/environments/development.rb
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+	both modified:   Gemfile
+	both modified:   Gemfile.lock
+	both modified:   config/initializers/devise.rb
+
+alex@www:~/rails_projects/osvita$ bundle install
+
+[!] There was an error parsing `Gemfile`: syntax error, unexpected <<, expecting keyword_end - <<<<<<< HEAD
+  ^
+/home/alex/rails_projects/osvita/Gemfile:61: syntax error, unexpected ===, expecting end-of-input
+=======
+   ^. Bundler cannot continue.
+
+ #  from /home/alex/rails_projects/osvita/Gemfile:59
+ #  -------------------------------------------
+ #    gem 'listen', '>= 3.0.5', '< 3.2'
+ >  <<<<<<< HEAD
+ #    gem "letter_opener", '~> 1.6.0'
+ #  -------------------------------------------
+alex@www:~/rails_projects/osvita$ bundle install
+Your Gemfile.lock contains merge conflicts.
+Run `git checkout HEAD -- Gemfile.lock` first to get a clean lock.
+alex@www:~/rails_projects/osvita$ git checkout HEAD -- Gemfile.lock
+alex@www:~/rails_projects/osvita$ bundle install
+Using rake 12.3.1
+Using concurrent-ruby 1.0.5
+Using i18n 1.0.1
+Using minitest 5.11.3
+Using thread_safe 0.3.6
+Using tzinfo 1.2.5
+Using activesupport 5.2.0
+Using builder 3.2.3
+Using erubi 1.7.1
+Using mini_portile2 2.3.0
+Using nokogiri 1.8.2
+Using rails-dom-testing 2.0.3
+Using crass 1.0.4
+Using loofah 2.2.2
+Using rails-html-sanitizer 1.0.4
+Using actionview 5.2.0
+Using rack 2.0.5
+Using rack-test 1.0.0
+Using actionpack 5.2.0
+Using nio4r 2.3.1
+Using websocket-extensions 0.1.3
+Using websocket-driver 0.7.0
+Using actioncable 5.2.0
+Using globalid 0.4.1
+Using activejob 5.2.0
+Using mini_mime 1.0.0
+Using mail 2.7.0
+Using actionmailer 5.2.0
+Using activemodel 5.2.0
+Using arel 9.0.0
+Using activerecord 5.2.0
+Using mimemagic 0.3.2
+Using marcel 0.3.2
+Using activestorage 5.2.0
+Using public_suffix 3.0.2
+Using addressable 2.5.2
+Using io-like 0.3.0
+Using archive-zip 0.11.0
+Using execjs 2.7.0
+Using autoprefixer-rails 8.6.2
+Using bcrypt 3.1.12
+Using bindex 0.5.0
+Using msgpack 1.2.4
+Using bootsnap 1.3.0
+Using popper_js 1.12.9
+Using rb-fsevent 0.10.3
+Using ffi 1.9.25
+Using rb-inotify 0.9.10
+Using sass-listen 4.0.0
+Using sass 3.5.6
+Using bootstrap 4.1.1
+Using bundler 1.16.2
+Using byebug 10.0.2
+Using xpath 3.1.0
+Using capybara 3.2.1
+Using childprocess 0.9.0
+Using chromedriver-helper 1.2.0
+Using coffee-script-source 1.12.2
+Using coffee-script 2.4.1
+Using method_source 0.9.0
+Using thor 0.20.0
+Using railties 5.2.0
+Using coffee-rails 4.2.2
+Using orm_adapter 0.5.0
+Using responders 2.4.0
+Using warden 1.2.7
+Using devise 4.4.3
+Using multi_json 1.13.1
+Using jbuilder 2.7.0
+Using jquery-rails 4.3.3
+Using launchy 2.4.3
+Using letter_opener 1.6.0
+Using ruby_dep 1.5.0
+Using listen 3.1.5
+Using pg 1.0.0
+Using puma 3.11.4
+Using sprockets 3.7.1
+Using sprockets-rails 3.2.1
+Using rails 5.2.0
+Using rubyzip 1.2.1
+Using tilt 2.0.8
+Using sass-rails 5.0.7
+Using selenium-webdriver 3.12.0
+Using spring 2.0.2
+Using spring-watcher-listen 2.0.1
+Using turbolinks-source 5.1.0
+Using turbolinks 5.1.1
+Using uglifier 4.1.11
+Using web-console 3.6.2
+Bundle complete! 24 Gemfile dependencies, 89 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Exiting
+/home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:50:in `load': /home/alex/rails_projects/osvita/config/initializers/devise.rb:22: syntax error, unexpected <<, expecting keyword_end (SyntaxError)
+<<<<<<< HEAD
+  ^
+/home/alex/rails_projects/osvita/config/initializers/devise.rb:24: syntax error, unexpected ===, expecting end-of-input
+=======
+   ^
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:50:in `load'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:277:in `block in load'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:249:in `load_dependency'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:277:in `load'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/engine.rb:657:in `block in load_config_initializer'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/notifications.rb:170:in `instrument'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/engine.rb:656:in `load_config_initializer'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/engine.rb:614:in `block (2 levels) in <class:Engine>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/engine.rb:613:in `each'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/engine.rb:613:in `block in <class:Engine>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:32:in `instance_exec'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:32:in `run'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:61:in `block in run_initializers'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:228:in `block in tsort_each'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:350:in `block (2 levels) in each_strongly_connected_component'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:422:in `block (2 levels) in each_strongly_connected_component_from'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:431:in `each_strongly_connected_component_from'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:421:in `block in each_strongly_connected_component_from'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:50:in `each'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:50:in `tsort_each_child'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:415:in `call'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:415:in `each_strongly_connected_component_from'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:349:in `block in each_strongly_connected_component'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:347:in `each'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:347:in `call'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:347:in `each_strongly_connected_component'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:226:in `tsort_each'
+	from /home/alex/.rvm/rubies/ruby-2.4.1/lib/ruby/2.4.0/tsort.rb:205:in `tsort_each'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/initializable.rb:60:in `run_initializers'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/application.rb:361:in `initialize!'
+	from /home/alex/rails_projects/osvita/config/environment.rb:5:in `<main>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `block in require_with_bootsnap_lfi'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/loaded_features_index.rb:65:in `register'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:20:in `require_with_bootsnap_lfi'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:29:in `require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `block in require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:249:in `load_dependency'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:44:in `require_relative'
+	from config.ru:3:in `block in <main>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/builder.rb:55:in `instance_eval'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/builder.rb:55:in `initialize'
+	from config.ru:in `new'
+	from config.ru:in `<main>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/builder.rb:49:in `eval'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/builder.rb:49:in `new_from_string'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/builder.rb:40:in `parse_file'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/server.rb:319:in `build_app_and_options_from_config'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/server.rb:219:in `app'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:27:in `app'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/rack-2.0.5/lib/rack/server.rb:354:in `wrapped_app'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:89:in `log_to_stdout'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:51:in `start'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:147:in `block in perform'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:142:in `tap'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands/server/server_command.rb:142:in `perform'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/thor-0.20.0/lib/thor/command.rb:27:in `run'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/thor-0.20.0/lib/thor/invocation.rb:126:in `invoke_command'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/thor-0.20.0/lib/thor.rb:387:in `dispatch'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/command/base.rb:65:in `perform'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/command.rb:46:in `invoke'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/railties-5.2.0/lib/rails/commands.rb:18:in `<main>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:21:in `block in require_with_bootsnap_lfi'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/loaded_features_index.rb:65:in `register'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:20:in `require_with_bootsnap_lfi'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/bootsnap-1.3.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:29:in `require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `block in require'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:249:in `load_dependency'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/activesupport-5.2.0/lib/active_support/dependencies.rb:283:in `require'
+	from /home/alex/rails_projects/osvita/bin/rails:9:in `<top (required)>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/rails.rb:28:in `load'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/rails.rb:28:in `call'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client/command.rb:7:in `call'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/client.rb:30:in `run'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/bin/spring:49:in `<top (required)>'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/binstub.rb:31:in `load'
+	from /home/alex/.rvm/gems/ruby-2.4.1/gems/spring-2.0.2/lib/spring/binstub.rb:31:in `<top (required)>'
+	from /home/alex/rails_projects/osvita/bin/spring:15:in `require'
+	from /home/alex/rails_projects/osvita/bin/spring:15:in `<top (required)>'
+	from bin/rails:3:in `load'
+	from bin/rails:3:in `<main>'
+alex@www:~/rails_projects/osvita$ rails server
+=> Booting Puma
+=> Rails 5.2.0 application starting in development 
+=> Run `rails server -h` for more startup options
+Puma starting in single mode...
+* Version 3.11.4 (ruby 2.4.1-p111), codename: Love Song
+* Min threads: 5, max threads: 5
+* Environment: development
+* Listening on tcp://0.0.0.0:3000
+Use Ctrl-C to stop
+Started GET "/" for 127.0.0.1 at 2018-06-29 16:27:25 +0300
+   (1.5ms)  SELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (1.6ms)
+  Rendered layouts/_shim.html.erb (0.8ms)
+  Rendered layouts/_header.html.erb (12.3ms)
+Completed 200 OK in 831ms (Views: 814.1ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-29 16:27:28 +0300
+Processing by Devise::SessionsController#new as HTML
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (3.5ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (17.0ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (1.5ms)
+Completed 200 OK in 165ms (Views: 73.4ms | ActiveRecord: 18.1ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-29 16:27:31 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"/Gp0TB4zOushM79dz+kyG1gXLsLX4RCHn9BP7kn0F7HqXRl9Ijl3oK2TGNYbMMVBJMSy/McVtGOiYXYCeEJEuw==", "user"=>{"email"=>"oo.gaydar@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+  User Load (3.5ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "oo.gaydar@gmail.com"], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+  User Update (0.9ms)  UPDATE "users" SET "current_sign_in_at" = $1, "sign_in_count" = $2, "updated_at" = $3 WHERE "users"."id" = $4  [["current_sign_in_at", "2018-06-29 13:27:31.546433"], ["sign_in_count", 2], ["updated_at", "2018-06-29 13:27:31.548824"], ["id", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (7.9ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 288ms (ActiveRecord: 12.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 16:27:31 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (1.8ms)
+  Rendered layouts/_shim.html.erb (0.5ms)
+  User Load (1.2ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 1], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (7.7ms)
+Completed 200 OK in 59ms (Views: 56.4ms | ActiveRecord: 1.2ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started DELETE "/users/sign_out" for 127.0.0.1 at 2018-06-29 16:27:34 +0300
+Processing by Devise::SessionsController#destroy as HTML
+  Parameters: {"authenticity_token"=>"ovJjZyfPKc9WpC3Z9pj07xGHtclNchy9/IQ7OpYkIG68zzWV2aw7bjMUcszjBaHU/q6HCcp2U8S9XUV56IcZGg=="}
+  User Load (3.0ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 1], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.5ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (5.1ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 39ms (ActiveRecord: 8.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 16:27:35 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (0.7ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (1.8ms)
+Completed 200 OK in 55ms (Views: 53.4ms | ActiveRecord: 0.0ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/users/sign_in" for 127.0.0.1 at 2018-06-29 16:27:37 +0300
+Processing by Devise::SessionsController#new as HTML
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (4.0ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (27.3ms)
+  Rendered layouts/_shim.html.erb (0.6ms)
+  Rendered layouts/_header.html.erb (1.7ms)
+Completed 200 OK in 134ms (Views: 130.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2018-06-29 16:28:11 +0300
+Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"sk+g7JKyP1PhSoOkPBFApWA00J5OFepVLxG+qsRXlpgIUKfW673s2WXboz69NV4yP1dpDyUGvk7dpHpyA63y/A==", "user"=>{"email"=>"user01@gmail.com", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Log in"}
+  User Load (1.3ms)  SELECT  "users".* FROM "users" WHERE "users"."email" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["email", "user01@gmail.com"], ["LIMIT", 1]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (0.3ms)  BEGIN
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+  User Update (0.9ms)  UPDATE "users" SET "current_sign_in_at" = $1, "last_sign_in_at" = $2, "sign_in_count" = $3, "updated_at" = $4 WHERE "users"."id" = $5  [["current_sign_in_at", "2018-06-29 13:28:11.446467"], ["last_sign_in_at", "2018-06-29 12:51:43.634867"], ["sign_in_count", 5], ["updated_at", "2018-06-29 13:28:11.449145"], ["id", 2]]
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+   (16.4ms)  COMMIT
+  ↳ /home/alex/.rvm/gems/ruby-2.4.1/gems/activerecord-5.2.0/lib/active_record/log_subscriber.rb:98
+Redirected to http://localhost:3000/
+Completed 302 Found in 312ms (ActiveRecord: 18.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2018-06-29 16:28:11 +0300
+Processing by WelcomeController#index as HTML
+  Rendering welcome/index.html.erb within layouts/application
+  Rendered welcome/index.html.erb within layouts/application (1.1ms)
+  Rendered layouts/_shim.html.erb (0.7ms)
+  User Load (0.9ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = $1 ORDER BY "users"."id" ASC LIMIT $2  [["id", 2], ["LIMIT", 1]]
+  ↳ app/views/layouts/_header.html.erb:12
+  Rendered layouts/_header.html.erb (6.6ms)
+Completed 200 OK in 81ms (Views: 75.9ms | ActiveRecord: 0.9ms)
+
+
+  
+ActionController::RoutingError (No route matches [GET] "/assets/stylesheets/custom.css.scss"):
+  
+actionpack (5.2.0) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.6.2) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.6.2) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.6.2) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.0) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.0) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.0) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `block in call'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:65:in `block (3 levels) in broadcast'
+activesupport (5.2.0) lib/active_support/logger_silence.rb:21:in `silence'
+activesupport (5.2.0) lib/active_support/logger.rb:63:in `block (2 levels) in broadcast'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:11:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.0) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.0) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.0) lib/rails/engine.rb:524:in `call'
+puma (3.11.4) lib/puma/configuration.rb:225:in `call'
+puma (3.11.4) lib/puma/server.rb:632:in `handle_request'
+puma (3.11.4) lib/puma/server.rb:446:in `process_client'
+puma (3.11.4) lib/puma/server.rb:306:in `block in run'
+puma (3.11.4) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+
+
+**** 2-й КОНЕЦ
+
+
+*/- 
+Запустил - РАБОТАЕТ!!!!
+
+*/-
+alex@www:~/rails_projects/osvita$ git merge devise
+error: merge is not possible because you have unmerged files.
+hint: Fix them up in the work tree, and then use 'git add/rm <file>'
+hint: as appropriate to mark resolution and make a commit, or use
+hint: 'git commit -a'.
+fatal: Exiting because of an unresolved conflict.
+alex@www:~/rails_projects/osvita$ 
+
+*/-
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.git
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+Username for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Everything up-to-date
+alex@www:~/rails_projects/osvita$ 
+
+
+*/- 
+git master push https://github.com/SS-Gaj/osvita.git
+
+
+
+****** 3-й нач
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* master
+alex@www:~/rails_projects/osvita$ git push master https://github.com/SS-Gaj/osvita.git
+fatal: remote part of refspec is not a valid name in https://github.com/SS-Gaj/osvita.git
+alex@www:~/rails_projects/osvita$ ^C
+alex@www:~/rails_projects/osvita$ remote part of refspec is not a valid name in https://github.com/SS-Gaj/osvita.git
+-bash: remote: command not found
+alex@www:~/rails_projects/osvita$ git master push https://github.com/SS-Gaj/osvita.git
+git: 'master' is not a git command. See 'git --help'.
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ git config --global push.default simple
+alex@www:~/rails_projects/osvita$ git push https://github.com/SS-Gaj/osvita.gitUsername for 'https://github.com': SS-Gaj
+Password for 'https://SS-Gaj@github.com': 
+Everything up-to-date
+alex@www:~/rails_projects/osvita$ ^C
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ 
+alex@www:~/rails_projects/osvita$ git log
+commit 48cb792541ee37413182f6c51e31796909dfaecf
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 16:06:17 2018 +0300
+
+    master-6: to heroku add prod-host
+
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+:...skipping...
+commit 48cb792541ee37413182f6c51e31796909dfaecf
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 16:06:17 2018 +0300
+
+    master-6: to heroku add prod-host
+
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+
+commit f9796ba0345f57742909c55a9b85ec8b31d607b5
+Author: alex <alex@www>
+Date:   Fri Jun 15 19:00:58 2018 +0300
+
+    master-2srv: home page
+
+commit c055dc163c48d135ec4933be06a764c658f5b3d2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Thu Jun 14 00:07:13 2018 +0300
+
+    master-1: start
+~
+alex@www:~/rails_projects/osvita$ git checkout devise
+Gemfile: needs merge
+config/initializers/devise.rb: needs merge
+error: you need to resolve your current index first
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+* master
+alex@www:~/rails_projects/osvita$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+
+Changes to be committed:
+
+	renamed:    app/assets/stylesheets/custom.scss -> app/assets/stylesheets/custom.css.scss
+	modified:   config/environments/development.rb
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+	both modified:   Gemfile
+	both modified:   config/initializers/devise.rb
+
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "master 7 + devise-4srv: 365day"
+[master 254bb99] master 7 + devise-4srv: 365day
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+alex@www:~/rails_projects/osvita$ Everything up-to-date
+-bash: Everything: command not found
+alex@www:~/rails_projects/osvita$ 
+
+alex@www:~/rails_projects/osvita$ git log devise
+commit 031fd6bfde865883517a3d0a3c59e54db7dbfd18
+Author: alex <alex@www>
+Date:   Fri Jun 29 16:17:36 2018 +0300
+
+    devise-4srv: 365day
+
+commit 42340f7ca003017b8e122068e5d70048a7eed873
+Author: alex <alex@www>
+Date:   Tue Jun 26 17:16:07 2018 +0300
+
+    devise-3srv: mailer
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+
+commit f9796ba0345f57742909c55a9b85ec8b31d607b5
+Author: alex <alex@www>
+Date:   Fri Jun 15 19:00:58 2018 +0300
+
+    master-2srv: home page
+
+commit c055dc163c48d135ec4933be06a764c658f5b3d2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Thu Jun 14 00:07:13 2018 +0300
+
+    master-1: start
+alex@www:~/rails_projects/osvita$ 
+
+*******3-й кон

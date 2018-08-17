@@ -1,0 +1,378 @@
+**** 2018.08.02 ****
+Продолжаю разработку Профиля
+Пред.файл - srv-osvita12-180712(lprofile) = [1]
+     (hm-osvita12-180712(profile-pull) - это просто pull на НБ +heroku)
+
+Здесь планирую "добить" таки Профиль:
+- заходить в него из контроллера User (в пред.файле я сделал вход через контроллер Profile);
+
+Также здесь сделаю заполнение категории профиля СРАЗУ же после Регистрации;
+
+Буду использовать такие файлы:
+[2] - /home/alex/Documents/Rails/Devise/2.1.github_devise.doc; 
+[3] - ..2-1-3-Dev_Routing_Mapper.doc
+
+*/- 1
+Буду идти по шагам [2], раздел "Configuring controllers";
+Я это уже начинал делать в [1], см.2,
+но я сделал только часть, 
+а потом "свернул" с этого пути в сторону "отдельного" ресурса Profile - см.п.4 [1];
+
+*/- 1.1
+alex@www:~/rails_projects/osvita$ git branch
+  devise
+  locale
+  locale2
+* master
+  order
+  profile
+alex@www:~/rails_projects/osvita$ git co -b profile2
+Switched to a new branch 'profile2'
+
+*/- 1.2
+Пока не сделаю Профиль через User,
+старый (но работающий) путь (через Profile) удалять не буду.
+Даже оставлю его пункт в Главном меню.
+
+Поэтому добавлю в Глачное меню новый пункт - "Профиль 2",
+просто скопирую "Профиль":
+
+*/- 1.3   шаг 1
+Теперь согласно шагов на [2], см.п.1,
+нужно сгенерировать свой контроллер - это сделано в [1], п.2.1;
+
+*/- 1.4
+Из всех сгенерированных контроллеров 
+(см. папку /app/controllers/users;
+поскольку дальше буду менять некоторые контроллеры,
+то сохраню их исходный вид в папке /Documents/my_projects/osvita/app/users)
+
+выбираю sessions_controller.rb,
+поскольку вход в Профиль я представляю ТОЛЬКО после "Входа",
+а не после "Регистрации".
+
+Здесь имеются 3 закоментированных экшена
+  # def new
+  # def create
+  # def destroy
+
+а show нет;
+
+Поэтому, 
+во-1х, для реализации Профиля мне нужно ДОБАВИТЬ СВОЙ экшен 
+  (а не просто изменить имеющийся);
+и во-2х, я назову его show_profile:
+
+  def show_profile
+  end
+  
+*/- 1.5 шаг 2
+Далее согласно шагов на [2], см.п.2,
+нужно "сообщить роутеру" новый маршрут,
+и для этого приводится 
+
+devise_for :users, controllers: { sessions: 'users/sessions' }
+
+Я это сделал в [1] п.2.9;
+и это привело к замене 
+devise/sessions#new         на    users/sessions#new
+devise/sessions#create      на    users/sessions#create
+devise/sessions#destroy     на    users/sessions#destroy
+
+Т.е., указанная команда меняет маршруты для экшенов "из коробки";
+А поскольку я ДОБАВЛЯЮ СВОЙ экшен,
+то нужно руководствоваться [3], 
+в описании метода devise_for,
+в разделе "Adding custom actions to override controllers";
+
+В этом разделе идет ссылка на конкретный, предназначенный 
+для этого случая (в том числе, но не только) МЕТОД devise_scope;
+
+А как им конкретно пользоваться - описано дальше 
+и есть пример:
+as :user do
+  get "sign_in", to: "devise/sessions#new"
+end
+
+а у меня это будет:
+as :user do
+  get "profileshow", to: "users/sessions#show_profile"
+end
+
+Прим: 
+  сначала я написал
+    get "profile", to: "users/sessions#show_profile"
+но когда посмотрел в routes.rb, то оказалось, что такой URL уже указан мною для 'Profile':
+    get 'profile', to: 'profiles#show'
+
+Причем, в /config/routes.rb этот код нужно указать раньше,
+чем 
+  devise_for :users, controllers: { sessions: 'users/sessions' }
+
+*/- 1.6
+Проверяю ...
+http://localhost:3000/rails/info/routes
+
+нахожу!!!!
+profileshow_path 	GET 	(/:locale)/profileshow(.:format) 	
+users/sessions#show_profile {:locale=>/en|ru/}
+
+*/- 1.7 шаг 3
+Далее согласно шагов на [2], см.п.3,
+нужно скопировать вьюэры из  devise/sessions в users/sessions;
+Также сказано, что
+"... с момента, когда контроллер был изменен, он не сможет использовать вьюэры, расположенные в папке devise/sessions"
+
+Сейчас в папке /app/views/devise/sessions
+есть только один вьюэр:
+alex@www:~/rails_projects/osvita$ ls /home/alex/rails_projects/osvita/app/views/devise/sessions
+new.html.erb
+
+Пока не буду его переносить,
+а просто создам папку
+/app/views/users/sessions:
+
+alex@www:~/rails_projects/osvita$ mkdir app/views/users
+alex@www:~/rails_projects/osvita$ mkdir app/views/users/sessions
+
+и запишу в нее файл 
+alex@www:~/rails_projects/osvita$ cat app/views/users/sessions/show_profile.html.erb
+<h1>
+  <strong> Профиль Пользователя</strong>
+</h1>
+
+<p> Вход через User </p>
+
+alex@www:~/rails_projects/osvita$ 
+
+*/- 1.8 шаг 4
+Далее согласно шагов на [2], см.п.4,
+нужно внести нужные изменения в контроллер,
+но я пока оставлю ПУСТО,
+чтобы просто проверить саму цепочку;
+
+*/- 1.9
+И в финале,
+вставляю маршрут 'profileshow_path' 
+в пункт "Профиль 2";
+
+Запускаю - РАБОТАЕТ!!!!
+
+Значит,
+я на правильном пути!!!!
+
+**** 2018.08.03 ****
+*/- 2
+Таепаерь добавлю данные из User и Profile;
+
+*/- 2.1
+Беру за образец profiles_controller.rb:
+
+def show
+    if user_signed_in?
+      @user = User.find(@current_user.id)
+#byebug
+      #@profile = @user.account
+      @profile = Profile.find_by user_id: @current_user.id
+    else
+      @profile = Profile.find(1)
+    end
+  end
+
+и записываю в /app/controllers/users/sessions_controller.rb свой код:
+
+С учетом того, что 'current_user' у меня уже имеется, как объект,
+мне не нужно его "добывать" из БД;
+Т.е., я могу прямо его использовать во вьюэре без всякой подготовки в экшене 'show_profile';
+
+  def show
+  end
+
+*/- 2.2
+Для образца использую вьюэр /app/views/profiles/show.html.erb
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Пользователь:</strong>
+  <%= @profile.user.email %>
+</p>
+
+<p>
+  <strong>Категория:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>Дата регистрации:</strong>
+  <%= @profile.user.created_at %>
+</p>
+
+<% unless @profile.category == "admin" %>
+<p>
+  <strong>Оплаченный счет:</strong>
+</p>
+<% end %>
+
+*/- 2.3
+... запишу так:
+<p id="notice"><%= notice %></p>
+<p> Вход через User </p>
+
+<h2>
+  <strong> Профиль Пользователя</strong>
+</h2>
+
+<p>
+  <strong>Пользователь:</strong>
+  <%= current_user.email %>
+</p>
+
+Загружаю - ПОЛУЧИЛОСЬ!!!!
+
+*/- 3
+Теперь добавлю категорию из 'Profile';
+Предполагаю, что нужно добавить "разрешенные параметры",
+но попробую без этого;
+
+*/- 3.1
+В п.7.8 [1] я пробовал это уже сделать:
+
+  def show
+    @user = User.find(current_user.id)
+    @profile = @user.account	
+  end
+
+Теперь в экшене напишу 
+
+  def show_profile
+    @profile = current_user.account	
+  end
+
+а во вьюэре добавлю
+
+<p>
+  <strong>Категория:</strong>
+  <%= @profile.category %>
+</p>
+
+<p>
+  <strong>Дата регистрации:</strong>
+  <%= current_user.created_at %>
+</p>
+
+<% unless @profile.category == "admin" %>
+<p>
+  <strong>Оплаченный счет:</strong>
+</p>
+<% else %>
+<h3>
+  <strong> Права администратора </strong>
+</h3>
+
+<% end %>
+
+Обновляю - ОШИБКА!!??
+Причем, как и в прошлый раз!!??
+
+NoMethodError in Users::SessionsController#show_profile
+undefined method `account' for #<User:0x007f8f74055cc0>
+Extracted source (around line #22):
+
+  def show_profile
+    @profile = current_user.account
+  end
+
+*/- 3.2
+Попробую по другому;
+Несмотря на то, что 'current_user' видится везде и возпринимается,
+допишу
+    @user = User.find(current_user.id)
+
+и поменяю соотв. во вьюэре:
+
+Обновляю - та же ошибка.
+Хотя это и может быть из за "строгих параментров"!!
+
+*/- 3.3
+Добавлю в
+  before_action :configure_permitted_parameters, if: :devise_controller?
+т.к. имеющийся там закоментированный 
+  # before_action :configure_sign_in_params, only: [:create]
+мне не подходит;
+
+Далее, вместо имеющегося в 
+закоментированного 
+  # def configure_sign_in_params
+  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
+  # end
+
+напишу по образцу из [2]
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
+  end
+
+запишу для своего случая
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:show_profile, keys: [:category])
+  end
+
+Обновляю - та же ошибка!!
+
+*/- 3.4
+Запишу в 
+вместо
+    # @profile = @user.account
+    @profile = Profile.find_by user_id: @current_user.id
+
+... и все получилось!!
+РАБОТАЕТ!!!!
+
+*/- 3.5
+Более того,
+закоментирую все свои добавления по строгим спискам - а оно опять РАБОТАЕТ!!!!
+
+class Users::SessionsController < Devise::SessionsController
+  # before_action :configure_sign_in_params, only: [:create]
+  #  before_action :configure_permitted_parameters, if: :devise_controller?
+///
+  # protected
+
+  # If you have extra params to permit, append them to the sanitizer.
+  # def configure_sign_in_params
+  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
+  # end
+  # def configure_permitted_parameters
+     # devise_parameter_sanitizer.permit(:show_profile, keys: [:category])
+     # devise_parameter_sanitizer.permit(:profileshow, keys: [:category])
+  # end
+
+Непонятно!!
+
+*/- 3.6
+... и только когда начал пересматривать док-ю по API на англ.языке,
+до меня дошло(!!!!), что 'account' - это НЕ МЕТОД, возникающий из ассоциации!!!!
+Это ПРИМЕР такого метода, поскольку в API рассматривается 
+
+class Supplier < ApplicationRecord
+  has_one :account
+end
+
+а у меня то
+class User < ApplicationRecord
+  # has_many :orders
+  has_one :profile
+
+Значит, мне нужно писать
+    @profile = current_user.profile
+
+Записал - РАБОТАЕТ!!!!
+
+*/- 3.7
+Можно был бы попробавать,
+работает ли этот метод в 'Profile' 
+
+Ну ладно, перейду к добавлению категории при регистраации.
+
+След.файл srv-osvita14-180803(category)
+

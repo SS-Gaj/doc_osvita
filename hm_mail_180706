@@ -1,0 +1,16 @@
+7.4.4 Развертывание приложения на сервере с SSL
+шаг 1: "Листинг 7.29. Конфигурирование приложения для использования SSL в продакшен.",
+
+/osvita/config/environments/production.rb
+    # config.force_ssl = true
+
+  gem "letter_opener", '~> 1.6.0'
+
+Листинг 7.33. ERb для flash в шаблоне сайта использующий content_tag.
+app/views/layouts/application.html.erb
+
+
+https://salty-harbor-78667.herokuapp.com/
+
+
+

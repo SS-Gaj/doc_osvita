@@ -1,0 +1,211 @@
+**** 2018.06.26 ****
+
+Предыдущий файл
+[1] - hm-osvita8-180626(heroku)
+[2] - hm-osvita8-180626(heroku-1)
+[3] - hm-osvita8-180626(heroku-2)
+
+... в котором я запушил master-ветку на heroku;
+
+Поскольку я там нахомутал -
+проведя подготовительные для запушивания на heroku действия на новой ветке 'heroku',
+ее же (а не мастер) и запушил на Гитхаб, (но не на heroku!!!!);
+
+Затем слил heroku с master и сделал как надо - запушил master;
+
+Но теперь хочу запулить сюла на сервер эту master,
+чтобы убедиться, что все работает,
+и эти хомуты не повлияли;
+
+*/ 1.1
+alex@www:~/rails_projects/osvita$ git branch
+* devise
+  master
+
+*/- 1.2 
+Это я поспешил - перехожу на master,
+в то время, как на devise незакоммит-е изменения;
+Но в таких случаях меня раньше просто не пускало переключиться??!!
+
+alex@www:~/rails_projects/osvita$ git checkout master
+M	Gemfile
+M	Gemfile.lock
+D	app/assets/stylesheets/custom.scss
+M	config/environments/development.rb
+M	config/initializers/devise.rb
+Switched to branch 'master'
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
+
+*/- 1.3
+Думая, этим списком меня проинформировало об отличиях на верках master здесь и на Гитхабе,
+запускаю pull - хорошо, что не отработало!!!!
+
+alex@www:~/rails_projects/osvita$ git pull origin master
+remote: Counting objects: 12, done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 12 (delta 9), reused 12 (delta 9), pack-reused 0
+Unpacking objects: 100% (12/12), done.
+From git://github.com/SS-Gaj/osvita
+ * branch            master     -> FETCH_HEAD
+   c055dc1..48cb792  master     -> origin/master
+Updating 2bc170b..48cb792
+error: Your local changes to the following files would be overwritten by merge:
+	Gemfile
+	Gemfile.lock
+	config/initializers/devise.rb
+Please, commit your changes or stash them before you can merge.
+Aborting
+alex@www:~/rails_projects/osvita$ git status
+On branch master
+Your branch is behind 'origin/master' by 2 commits, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   Gemfile.lock
+	deleted:    app/assets/stylesheets/custom.scss
+	modified:   config/environments/development.rb
+	modified:   config/initializers/devise.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/stylesheets/custom.css.scss
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git checkout devise
+M	Gemfile
+M	Gemfile.lock
+D	app/assets/stylesheets/custom.scss
+M	config/environments/development.rb
+M	config/initializers/devise.rb
+Switched to branch 'devise'
+alex@www:~/rails_projects/osvita$ git status
+On branch devise
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Gemfile
+	modified:   Gemfile.lock
+	deleted:    app/assets/stylesheets/custom.scss
+	modified:   config/environments/development.rb
+	modified:   config/initializers/devise.rb
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	app/assets/stylesheets/custom.css.scss
+
+no changes added to commit (use "git add" and/or "git commit -a")
+alex@www:~/rails_projects/osvita$ git add .
+alex@www:~/rails_projects/osvita$ git commit -m "devise-3srv: mailer"
+[devise 42340f7] devise-3srv: mailer
+ Committer: alex <alex@www>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 5 files changed, 4 insertions(+), 8 deletions(-)
+ rename app/assets/stylesheets/{custom.scss => custom.css.scss} (100%)
+alex@www:~/rails_projects/osvita$ git checkout master
+Switched to branch 'master'
+Your branch is behind 'origin/master' by 2 commits, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+alex@www:~/rails_projects/osvita$ git pull
+From git://github.com/SS-Gaj/osvita
+ * [new branch]      heroku     -> origin/heroku
+Updating 2bc170b..48cb792
+Fast-forward
+ Gemfile                           | 6 +++---
+ Gemfile.lock                      | 6 +++---
+ config/environments/production.rb | 4 ++++
+ config/initializers/devise.rb     | 3 ++-
+ 4 files changed, 12 insertions(+), 7 deletions(-)
+alex@www:~/rails_projects/osvita$ git log
+commit 48cb792541ee37413182f6c51e31796909dfaecf
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 16:06:17 2018 +0300
+
+    master-6: to heroku add prod-host
+
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+:...skipping...
+commit 48cb792541ee37413182f6c51e31796909dfaecf
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 16:06:17 2018 +0300
+
+    master-6: to heroku add prod-host
+
+commit 65c92236f3b76a0a8c94690437c8e7ba56d8dfe2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Tue Jun 26 13:40:04 2018 +0300
+
+    master-5: to heroku
+
+commit 2bc170b6a202792849cca4da7a6edc778dcf3eea
+Author: alex <alex@www>
+Date:   Thu Jun 21 13:32:51 2018 +0300
+
+    devise-2srv: flash add
+
+commit d289c9237d773238646d279aa5a5127f90023208
+Author: alex <alex@www>
+Date:   Tue Jun 19 19:30:52 2018 +0300
+
+    devise-1srv: devise install
+
+commit f9796ba0345f57742909c55a9b85ec8b31d607b5
+Author: alex <alex@www>
+Date:   Fri Jun 15 19:00:58 2018 +0300
+
+    master-2srv: home page
+
+commit c055dc163c48d135ec4933be06a764c658f5b3d2
+Author: Alex <sashagajdarenko@gmail.com>
+Date:   Thu Jun 14 00:07:13 2018 +0300
+
+    master-1: start
+~
+alex@www:~/rails_projects/osvita$ 
+
+*/- 1.4
+Запускаю в браузере - ВСЕ РАБОТАЕТ!!!!
+Значит, 
+- из НБ на Гитхаб запушилась нужная ветка master (хотя я запушил и heroku);
+- из Гитхаба на серввер запулилась она же "нужная ветка master"
+  по обычной команде git pull,
+  хотя там (на Гитхаб) была в этом репозитории и другая ветка - heroku
+  
+Т.о.,
+Проблемма с почтой не дает и разворачивать на Heroku,
+поэтому возвращаюсь на ветку devise для продолжения разбирательства с почтой
+
+След.файл - п.3.4 srv-osvita7-180622(mailer)
+
