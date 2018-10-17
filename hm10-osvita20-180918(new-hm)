@@ -1,0 +1,1135 @@
+**** 2018.09.18 ****
+Пред.файл
+/1/ - of4-osvita19-180821(new);
+/2/ - of2-osvita17-180816(book);
+      /home/ss/Документы/Rails/API
+/3/ - ../FormHelper.doc;
+/4/ - https://guides.rubyonrails.org/index.html -> Views:"Action View Overview" 
+      -> 6.8 FormHelper";
+      
+
+*/- 1
+Цель этого файла такая же, как и предыдущего:
+Написать "правильное" создание новой записи в БД - через 'new',
+поскольку у меня идет не 'create', а 'update';
+
+*/- 1.1
+Этот файл создаю после того,
+как Марат запушил мне из оф-ПК в Лондон те изменения, которые я сделал на оф-ПК,
+но не закоммитил и не запушил.
+Теперь это сделано (Маратом),
+а Я это запулил на свой НБ.
+
+При написании "правильного"  'new' нужно смотреть /2/, т.к. я там мнго чего менял;
+
+*/- 1.2
+ss@DEBIAN:~/Документы/git_doc/doc_osvita$ git pull
+remote: Counting objects: 4, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 4 (delta 2), reused 4 (delta 2), pack-reused 0
+Unpacking objects: 100% (4/4), done.
+From https://github.com/SS-Gaj/doc_osvita
+   8946546..6b6727e  master     -> origin/master
+Updating 8946546..6b6727e
+Fast-forward
+ of2-osvita17-180816(book) |   2 +-
+ of4-osvita19-180821(new)  | 108 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 109 insertions(+), 1 deletion(-)
+ create mode 100644 of4-osvita19-180821(new)
+ss@DEBIAN:~/Документы/git_doc/doc_osvita$ 
+
+*/- 1.3
+Изменений было немного - всего один файл /1/;
+
+Втобы разобраться, что я менял, я создал еще -osvita19-180821(new)_p,
+
+но изменений в Проекте фактически не было,
+я только создал новую ветвь,
+что либо поменять в коде так и не успел.
+
+Это судя по записям в /1/;
+Завтра проверю с Маратом, есть ли изменения в /osvita,
+- см./home/ss/Документы/GitHub/is_change.doc
+
+... и если их нет,
+тогда новую ветку 'new' просто "забуду",
+а здесь сделаю другую "новую" ветку - 'new-hm';
+
+*/- 2
+Пока нет данных от Марата (были ли незапушенные изменения в Проекте)
+восстановлю в памяти картину, как у меня реализовано добавление новых записей.
+
+*/- 2.1   books_controller.rb
+Здесь функция 'new' работает правильно (+ см.в /2/ п.13,5):
+- на форме висит кнопка "Создать",
+- если отказалься от создания, то пустая запись не сохраняется;
+
+  # GET /books/new
+  def new
+    @book = Book.new
+  end
+
+  # POST /books
+  # POST /books.json
+  def create
+    @book = Book.new(book_params)
+
+    respond_to do |format|
+      if @book.save
+        format.html { redirect_to @book, notice: 'Book was successfully created.' }
+        format.json { render :show, status: :created, location: @book }
+      else
+        format.html { render :new }
+        format.json { render json: @book.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /books/1
+  # PATCH/PUT /books/1.json
+  def update
+    respond_to do |format|
+      if @book.update(book_params)
+        format.html { redirect_to @book, notice: 'Book was successfully updated.' }
+        format.json { render :show, status: :ok, location: @book }
+      else
+        format.html { render :edit }
+        format.json { render json: @book.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_book
+      @book = Book.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def book_params
+      params.require(:book).permit(:book)
+    end
+
+
+  before_action :set_book, only: [:show, :edit, :update, :destroy]
+
+*/- 2.2   parts_controller.rb
+
+
+  # GET /parts/new
+  def new
+    #@part = Part.new
+#byebug   
+    #@book = Book.find(@book_id)
+    #@book = Book.find(2)
+    @book = Book.find(params[:id])
+    @part = @book.parts.create()
+    #@part = @book.parts.build(part_params)
+    @book_id = @part.book_id   
+  end
+
+  # POST /parts
+  # POST /parts.json
+  def create
+    #@part = Part.new(part_params)
+    #@part = @book.parts.build(part_params)
+    
+    respond_to do |format|
+      if @part.save
+        format.html { redirect_to @part, notice: 'Part was successfully created.' }
+        format.json { render :show, status: :created, location: @part }
+      else
+        format.html { render :new }
+        format.json { render json: @part.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /parts/1
+  # PATCH/PUT /parts/1.json
+  def update
+    respond_to do |format|
+      if @part.update(part_params)
+        format.html { redirect_to @part, notice: 'Part was successfully updated.' }
+        format.json { render :show, status: :ok, location: @part }
+      else
+        format.html { render :edit }
+        format.json { render json: @part.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_part
+      @part = Part.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def part_params
+      params.require(:part).permit(:part, :book_id)
+    end
+
+  before_action :set_part, only: [:show, :edit, :update, :destroy]
+
+*/- 2.3
+Здесь, поскольку установлена ассоциация,
+то я созданю НОВЫЙ экземпляр @part не при помощи метода 'new' на класс Рart,
+а при помощи СПЕЦАЛЬНОГО метода 
+
+    @part = @book.parts.create()
+
+который "подтягивается" при создании ассоциации;
+
+Но чтобы ЭТОТ метод применить, 
+нужно сначала ИДЕНТИФИЦИРОВАТЬ "родителя", 
+т.е. КНИГУ (@book), к которой должен относиться этот новый экземпляр - @part ("ТЕМА");
+
+Это я делаю при помощи 
+    @book = Book.find(params[:id])
+поскольку ':id' КНИГИ передается через params ;
+
+Но здесь, 
+  в отличии от def new в books_controller.rb, 
+новый экземпляр СРАЗУ же и СОХРАНЯЕТСЯ в БД !!
+
+Поэтому дальше управление передается на 
+  def update
+а не на
+  def create
+как это было в books_controller.rb ;
+
+Поэтому и выводится кнопка "Update" на форме !!
+
+Значит, 
+мне нужно применять ДРУГОЙ метод создания нового ассоциированного объекта - 'build';
+
+Я нашел в /2/, что этот метод у меня даже работал, см.п.10.1;
+Почему потом перестало работать - не занаю.
+Место, где это произошло, искать не буду. Т.к.может оказаться, что быстрее сделать заноыо!!
+
+*/- 3
+Прежде, чем менять 'create' на 'build',
+нужно "подтянуть" теорию-:) - см./3/;
+
+*/- 3.1
+В /3/ я конспектирую fields_for;
+Там в разделе "One-to-many", в §7  есть Пример:
+
+class Person < ActiveRecord::Base
+  has_many :projects
+  accepts_nested_attributes_for :projects
+end
+
+а у меня в /app/models/book.rb
+class Book < ApplicationRecord
+	has_many :parts
+end
+
+*/- 3.2
+В этот момент я подумал,
+что ЭТО НЕ МОЙ СЛУЧАЙ!!
+потому, что ЗДЕСЬ имеется в виду, насколько я понимаю, 
+что действие происходит в контроллере "родителя",
+где наряду с заполнением полей "родителя" также заполняются поля "чилдрена";
+
+А у меня же "ТЕМЫ" добавляются в контроллере ТЕМ, а не ПРЕДМЕТА;
+ТЕМА просто привязана к ПРЕДМЕТУ, а ПРЕДМЕТ остается ТОТ ЖЕ;
+
+Но затем в §8 есть Пример, где есть только поля "чилдрена",
+а полей "родителя" нет!!
+
+Поэтому ЯтП, что это приемлемо и для меня.
+
+Я так и не понял, что хотели сказать в §9 и §10;
+
+Интересные данные изложены в §13 (метод для определения индекса элемента коллекции),
+и §14 (где сказано, что в ФОРМЕ хранится id, ЯтП, "родителя");
+
+*/- 4.1
+При работе в Приложении 
+по цепочке
+ПРЕДМЕТЫ - Edit - 
+обнаружил пункт Show,
+при нажатии которого происходит переход в список ТЕМ.
+А это неправильно - убираю это Show в /app/views/books/edit.html.erb:
+
+ss@DEBIAN:~/rails_projects/osvita$ git branch
+  heroku
+* master
+ss@DEBIAN:~/rails_projects/osvita$ git checkout -b new-hm
+Switched to a new branch 'new-hm'
+ss@DEBIAN:~/rails_projects/osvita$ 
+
+*/- 4.2
+Теперь пункта Show на вьюэре редактирования НЕТ!!!!
+
+Но теперь 
+в случае исправления
+опять выводится список ТЕМ!!
+
+Причина в том, что в def update контроллера books_controller.rb
+есть переадресовка
+и это выходит на def show,
+в котором идет переадресовка на Список Тем:
+
+    respond_to do |format|
+      if @book.update(book_params)
+        format.html { redirect_to @book, notice: 'Book was successfully updated.' }
+        format.json { render :show, status: :ok, location: @book }
+      else
+...
+
+Сделаю переадресовку на Список Предметов:
+        format.html { redirect_to books_path, notice: 'Book was successfully updated.' }
+ПОЛУЧИЛОСЬ!!!!
+
+*/- 4.3
+Для замены 'create' на 'update' в def new контроллера parts_controller.rb
+нахожу образец 
+на сайте http://rusrails.ru/active-record-associations
+в части "Связи (ассоциации) Active Record",
+раздел "4.1. Методы, добавляемые belongs_to"
+
+class Book < ApplicationRecord
+  belongs_to :author
+end
+
+а у меня 
+class Part < ApplicationRecord
+  belongs_to :book
+end
+
+*/- 4.4
+Затем нахожу МЕТОДЫ,
+выбираю 
+build_association(attributes = {})
+
+ОсВ, на Примечание на розовом:
+"Когда устанавливаете новую связь has_one или belongs_to, следует использовать префикс build_ для построения связи, в отличие от метода association.build, используемый для связей has_many или has_and_belongs_to_many. Чтобы создать связь, используйте префикс create_.
+"
+... а я писал !!
+  @part = @book.parts.create()
+
+а нужно ??
+  @part = @book.parts.create()
+
+Однако дальше, когда я почитал ПРИМЕНЕНИЕ этого метода,
+то засомневался, что мой "сегодняшний" вывод правильный:
+
+"4.1.3. build_association(attributes = {})"
+
+@author = @book.build_author(author_number: 123,
+                                  author_name: "John Doe")
+                                  
+Похоже, что здесь создается "родитель", а не "чилдрен";
+
+*/- 4.5
+Нахожу 
+"Подробная информация по связи has_many",
+"6.1.14. collection.build(attributes = {}, ...)"
+
+@book = @author.books.build(published_at: Time.now,
+                                book_number: "A12345")
+
+У меня 
+@part = @book.parts.build()
+
+... а также в 
+def create
+    @part = Part.new(part_params)
+    
+Запускаю добавление новой темы - на форме кнопка Create!!!!
+Это обнадеживает!!!!
+
+Но при ее нажатии вывело ошибку:
+1 error prohibited this part from being saved
+1 ошибка запретила эту часть сохранять
+
+и еше инф-ю отладчика:
+ --- !ruby/object:ActionController::Parameters
+parameters: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  utf8: "✓"
+  authenticity_token: t4dXjYibYu+lPRg970reZFRUMz2S2QeMqpB8EgHc4bsicI6HLSGrKTjlqeyGwJH9dq1PZ/yvPpmCCirxrPxnow==
+  part: !ruby/object:ActionController::Parameters
+    parameters: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      part: Материальная точка
+    permitted: false
+  commit: Create Part
+  controller: parts
+  action: create
+  locale: en
+permitted: false
+
+*/- 4.6
+Попробую добавить, как это указано 
+в /3/
+"fields_for"
+"Nested Attributes Examples"
+"One-to-many"
+
+class Person < ActiveRecord::Base
+  has_many :projects
+  accepts_nested_attributes_for :projects
+end
+
+У меня соответственно
+class Book < ApplicationRecord
+	has_many :parts
+  accepts_nested_attributes_for :parts
+end
+
+НЕ ПОМОГЛО !!
+
+*/- 4.7
+ОсВ,
+что после сообщения об ошибке
+1 error prohibited this part from being saved:
+
+еще идет
+Book must exist
+
+а ниже кнопки "Create Part"
+"Book_id:"
+
+т.е.нет id
+
+*/- 4.8
+Пробую
+  def new
+    @book = Book.find(params[:id])
+    @part = @book.parts.build()
+    @book_id = @part.book_id       
+  end
+
+и
+
+  def create
+    @book = Book.find(@book_id)
+    @part = @book.parts.build(part_params)
+    #@part = Part.new(part_params)
+    #@part = @book.parts.build(part_params)
+    
+    respond_to do |format|
+      if @part.save
+
+вывело ошибку
+Не удалось найти книгу без идентификатора
+  def create
+    @book = Book.find (@book_id)
+    @part = @ book.parts.build (part_params)
+    
+*/- 4.9
+Пробую
+def new
+    @book = Book.find(params[:id])
+    #@book_id = @part.book_id
+    @book_id = @book.id    
+    @part = @book.parts.build()    
+  end
+
+вывело ошибку
+Не удалось найти книгу без идентификатора
+  def create
+    @book = Book.find (@book_id)
+    @part = @book.parts.build (part_params)
+
+*/- 4.10
+Пробую
+  def create
+    @book = Book.find (params [: id])
+    # @ book = Book.find (@book_id)
+
+та же ошибка:
+Не удалось найти книгу без идентификатора
+
+  def create
+    @book = Book.find (params [: id])
+    # @ book = Book.find (@book_id)
+    @part = @book.parts.build (part_params)
+    # @ part = Part.new (part_params)
+
+*/- 4.11
+Пробую
+  def create
+    @book = Book.find(2)
+СОЗДАЕТ!!!!
+
+Значит, вопрос в том, чтобы в parts_controller.rb
+  передавать id ПРЕДМЕТА (@book) 
+    из  def new
+    в def create !!!!
+
+Причем здесь никакие глобальные переменные не помогут!!
+Передавать нужно через ФОРМУ вьюэра !!!!
+
+*/- 5.1
+Попробую передавать через параметры build !!!!
+
+После многочисленных экспериментов 
+
+   45:     @book_id = params[:part][:book_id]
+   45:     @book_id = part_params[:part][:book_id]
+
+... добился
+
+   44:   def create
+   45:     part_name = params[:part][:part]
+   46: byebug   
+=> 47:     @book = Book.find(params[:book_id])
+   48:     #@book = Book.find(@part.book_id)
+   49:     #@book = Book.find(2)
+   50:     #@book = Book.find(@book_id)
+   51:     @part = @book.parts.build(part_params)
+(byebug) var local
+part_name = Оптика
+self = #<PartsController:0x007f587dc92340>
+(byebug) 
+
+После этого попробовал 
+part_name = part_params [: part] [: part]
+
+- тоже ошибка.
+
+*/- 5.2
+Затем я выяснил, что 
+part_params = {"part"=>"Оптика"}
+
+[42, 51] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+   42:   # POST /parts
+   43:   # POST /parts.json
+   44:   def create
+   45:     part_name = part_params
+   46: byebug   
+=> 47:     @book = Book.find(params[:book_id])
+   48:     #@book = Book.find(@part.book_id)
+   49:     #@book = Book.find(2)
+   50:     #@book = Book.find(@book_id)
+   51:     @part = @book.parts.build(part_params)
+(byebug) var local
+part_name = {"part"=>"Оптика"}
+self = #<PartsController:0x007f97fdc9d870>
+(byebug) 
+
+*/- 5.3
+Дальше я выяснил, что 
+params - это хэш, 
+который содержит 
+"utf8"
+"authenticity_token"
+и 
+"part"=><ActionC...
+
+
+[44, 53] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+   44:   def create
+   45:     part_name = part_params
+   46:     param_name = params
+   47:     
+   48: byebug   
+=> 49:     @book = Book.find(params[:book_id])
+   50:     #@book = Book.find(@part.book_id)
+   51:     #@book = Book.find(2)
+   52:     #@book = Book.find(@book_id)
+   53:     @part = @book.parts.build(part_params)
+(byebug) var local
+param_name = {"utf8"=>"✓", "authenticity_token"=>"to0Qa6td4L8JMeohjdd2FXLUaJ/SNZvrnK0A+8mH8UyWSGgMvIb5kT7RodrKSxDAdj65/K5q1o1C3gN+0OeIeQ==", "part"=><ActionC...
+part_name = {"part"=>"Оптика"}
+self = #<PartsController:0x007f7a261b8e40>
+(byebug) 
+
+*/- 5.4
+... а затем выбрал из хэша params часть про part:
+params = {"part"=>"Оптика"}
+
+[45, 54] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+   45:     part_name = part_params
+   46:     param_name = params
+   47:     param_name1 = params[:part]
+   48:     
+   49: byebug   
+=> 50:     @book = Book.find(params[:book_id])
+   51:     #@book = Book.find(@part.book_id)
+   52:     #@book = Book.find(2)
+   53:     #@book = Book.find(@book_id)
+   54:     @part = @book.parts.build(part_params)
+(byebug) var local
+param_name = {"utf8"=>"✓", "authenticity_token"=>"cZ+sF4Oqto3VsDIj1XI2g/qTF6dWjDIdoMCUfBwg0hFRWtRwlHGvo+JQediS7lBW/nnGxCrTf3t+s5f5BUCrJA==", "part"=><ActionC...
+param_name1 = {"part"=>"Оптика"}
+part_name = {"part"=>"Оптика"}
+self = #<PartsController:0x007f0cc24d8d40>
+(byebug) 
+
+*/- 5.5
+Т.е.,
+part_params = params[:part] = {"part"=>"Оптика"}
+
+и оба они содержать только ТО,
+ЧТО вводилось в ФОРМЕ!!
+
+
+*/- 6
+Попробую сделать по образцам из /3/ и /4/:
+1) в /3/, "form_for", "form_for with a model object", "Resource-oriented style", п."1асс":
+
+<%= form_for([@document, @comment]) do |f| %>
+ ...
+<% end %>
+Where @document = Document.find(params[:id]) and @comment = Comment.new.
+
+2) в /3/, "fields_for", "Nested Attributes Examples", §8
+
+<%= form_for @person do |person_form| %>
+  <%= person_form.fields_for :projects do |project_fields| %>
+    <% if project_fields.object.active? %>
+      Name: <%= project_fields.text_field :name %>
+    <% end %>
+  <% end %>
+  ...
+<% end %>
+
+*/- 6.1
+Сначала сохраню имеющиеся вьюэры:
+
+В /app/views/parts/ вьюэры такие: 
+
+- new.html.erb
+
+<h1>New Part</h1>
+<%= render 'form', part: @part %>
+<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
+
+-_form.html.erb
+
+<%= form_with(model: part, local: true) do |form| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:
+      </h2>
+
+      <ul>
+      <% part.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :part %>
+    <%= form.text_field :part %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+
+<p>
+  <strong>Book_id:</strong>
+  <%= @part.book_id %>
+</p>
+
+*/- 6.2
+... и соотв.HTML-код для ФОРМЫ (этот код получен из метода form_for):
+
+<form action="/en/parts" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="sGekyn8kVHofz2QYXbp+6O+o714LUv02wm68mds/Zv6XjML5moGCW7B7BZiQ83GAU0YXQwTwqYCjLU/YAkjn9A==" />
+
+  <div class="field">
+    <label for="part_part">Part</label>
+    <input type="text" name="part[part]" id="part_part" />
+  </div>
+
+  <div class="actions">
+    <input type="submit" name="commit" value="Create Part" data-disable-with="Create Part" />
+  </div>
+</form>
+<p>
+  <strong>Book_id:</strong>
+  2
+</p>
+
+ОсВ, что:
+1) есть поля type="hidden", которые тоже сохраняются в хэше params;
+2) хотя на этом этапе new-экземпляр еще не сохранен в БД,
+    @part.book_id уже имеет нужное значение (= id @book);
+    
+*/- 6.3
+Изменения нужно делать в "_form.html.erb";
+Сначала попробую код из п.6-"1)";
+- фактически это просто замена первой строки:
+было
+<%= form_with(model: part, local: true) do |form| %>
+стало
+<%= form_for([@book, @part]) do |form| %>
+
+Но это выдало ошибку
+undefined method `book_parts_path' for #<#<Class:0x007fb70a109348>:0x007fb7096834c8>
+Did you mean?  book_path
+
+ЯтП, что Rails сам построил путь (url), 
+            куда будет передаваться управлеление после нажатия кнопки 'Submit',
+самостоятельно.
+А поскольку передается 2 объекта (@book и @part),
+то и путь получился book_parts_path;
+Попробую указать url явно = 'parts_path';
+
+<%= form_for([@book, @part]), url: parts_path do |form| %>
+
+выдало ошибку
+
+SyntaxError in PartsController#new
+/home/ss/rails_projects/osvita/app/views/parts/_form.html.erb:1: syntax error, unexpected tLABEL form_for([@book, @part]), url: parts_path do |form| @output_ ^
+
+*/- 6.4
+Попробую другой вариант -  код из п.6-"2)";
+
+- сначала поменяю поля в образце на "свои":
+<%= form_for @book do |book_form| %>
+  <%= book_form.fields_for :parts do |part_fields| %>
+    <% if part_fields.object.active? %>
+      Name: <%= part_fields.text_field :name %>
+    <% end %>
+  <% end %>
+  ...
+<% end %>
+
+- а затем встрою это в _form.html.erb:
+<%= form_for @book do |book_form| %>
+  <%= book_form.fields_for :part do |part_fields| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+
+      <ul>
+      <% part.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= part_fields.label :part %>
+    <%= part_fields.text_field :part %>
+  </div>
+
+  <div class="actions">
+    <%= part_fields.submit %>
+  </div>
+<% end %>
+<% end %>
+
+<p>
+  <strong>Book_id:</strong>
+  <%= @part.book_id %>
+  <%= @book.id %>
+</p>
+
+*/- 6.5
+... форму для ввода выводит,
+что обнадеживает!!!!
+но на кнопке недпись "Save Book[part],
+что озадачивает!!
+
+После нажатия ТЕМА не сохраняется;
+На экран выводится список ПРЕДМЕТОВ
+плюс сообщение "Book was successfully updated.".
+
+Из сообщения делаю вывод,
+что сохраняется 'book'))
+
+ЯтД, что это потому,
+что "верхним" циклом является form_for @book;
+
+*/- 6.6
+Сделаю верхним циклом @part (во вьюэре "_form.html.erb"):
+#<%= form_for @book do |book_form| %>
+<%= form_with(model: part, local: true) do |part_form| %>
+  <%= part_form.fields_for :book do |book_fields| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+
+      <ul>
+      <% part.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= part_form.label :part %>
+    <%= part_form.text_field :part %>
+  </div>
+
+  <div class="actions">
+    <%= part_form.submit %>
+  </div>
+<% end %>
+<% end %>
+
+<p>
+  <strong>Book_id:</strong>
+  <%= @part.book_id %>
+  <%= @book.id %>
+</p>
+
+*/- 6.7
+... теперь на форме для ввода кнопка имеет надпись Create Part,
+что обнадеживает!!!!
+но после нажатия кнопки выскакивает ТА ЖЕ СТАРАЯ ошибка,
+
+
+[45, 54] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+   45:     part_name = part_params
+   46:     param_name = params
+   47:     param_name1 = params[:part]
+   48:     
+   49: byebug   
+=> 50:     @book = Book.find(params[:book_id])
+   51:     #@book = Book.find(@part.book_id)
+   52:     #@book = Book.find(2)
+   53:     #@book = Book.find(@book_id)
+   54:     @part = @book.parts.build(part_params)
+(byebug) var local
+param_name = {"utf8"=>"✓", "authenticity_token"=>"sqC/mjxMz/ewRjvS2ZUiZTja8K/4pzEM4v+bxo53jCkvhGjZJmjfz/1BTKKsMkNNpnK1yA+VBp7NKn0GjOn3Bg==", "part"=><ActionC...
+param_name1 = {"part"=>"Оптика"}
+part_name = {"part"=>"Оптика"}
+self = #<PartsController:0x007fb05cf24f18>
+(byebug) 
+
+ActiveRecord :: RecordNotFound в PartsController # create
+Не удалось найти книгу без идентификатора
+Извлеченный источник (вокруг строки # 49 ):
+              
+    param_name1 = params [: part]
+byebug   
+    @book = Book.find (params [: book_id])
+
+
+*/- 6.8
+Добавлю в форму поле для book_id
+  <div class="field">
+    <%= part_form.label :part %>
+    <%= part_form.text_field :part %>
+    <%= part_form.number_field :book_id %>
+  </div>
+
+... получаю
+[44, 53] in /home/ss/rails_projects/osvita/app/controllers/parts_controller.rb
+   44:   def create
+   45:     part_name = part_params
+   46:     param_name = params
+   47:     param_name1 = params[:part]
+   48: byebug   
+=> 49:     @book = Book.find(params[:part][:book_id])
+   50:     #@book = Book.find(@part.book_id)
+   51:     #@book = Book.find(2)
+   52:     #@book = Book.find(@book_id)
+   53:     @part = @book.parts.build(part_params)
+(byebug) var local
+param_name = {"utf8"=>"✓", "authenticity_token"=>"lV4Q/WVnGTM4miEKmFMzzi62SykDSw29LcxUt4AnGUR9hs4E4jqhv5dH540/AlsmzLsY210DAFEs7StHKK65Ow==", "part"=><ActionC...
+param_name1 = {"part"=>"о", "book_id"=>"2"}
+part_name = {"part"=>"о", "book_id"=>"2"}
+self = #<PartsController:0x007fb06818c520>
+(byebug) 
+
+*/- 6.9
+СЛАВА БОГУ!!!!
+Заработало после того,
+как я добавил во вьюэр _form.html.erb скрытое поле 'part.book_id',
+и после этого оно появилось в 'params'
+который (params[:part][:book_id]) стал доступен в контроллере!!!!
+
+*/- 7
+Коды рабочего варианта такие:
+
+*/- 7.1
+в контроллере  parts_controller.rb:
+  # GET /parts/new
+  def new
+    #@part = Part.new
+    @book = Book.find(params[:id])
+    #@book_id = @book.id    
+    @part = @book.parts.build()
+  end
+
+Перенаправление на список ТЕМ дает ошибку, 
+т.к. нет 'id';
+поэтому я вернул в зад - на show:
+  # POST /parts
+  # POST /parts.json
+  def create
+    @book = Book.find(params[:part][:book_id])
+    @part = @book.parts.build(part_params)    
+    respond_to do |format|
+      if @part.save
+        format.html { redirect_to @part, notice: 'Part was successfully created.' }
+        #format.html { redirect_to parts_path, notice: 'Part was successfully created.' }
+
+... аналогично в 
+  # PATCH/PUT /parts/1
+  # PATCH/PUT /parts/1.json
+  def update
+    respond_to do |format|
+      if @part.update(part_params)
+        format.html { redirect_to @part, notice: 'Part was successfully created.' }
+        #format.html { redirect_to parts_path, notice: 'Part was successfully created.' }
+
+*/- 7.2
+вьюэры:
+cat /home/ss/rails_projects/osvita/app/views/parts/new.html.erb 
+<h1>New Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Back', controller: "parts", action: "index", id: @part.book_id %>
+
+cat /home/ss/rails_projects/osvita/app/views/parts/edit.html.erb 
+<h1>Editing Part</h1>
+
+<%= render 'form', part: @part %>
+
+<%= link_to 'Back', controller: "parts", action: "index", id: @part.book_id %>
+
+cat /home/ss/rails_projects/osvita/app/views/parts/_form.html.erb 
+<%= form_with(model: part, local: true) do |part_form| %>
+  <%= part_form.fields_for :book do |book_fields| %>
+  <% if part.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+
+      <ul>
+      <% part.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= part_form.label :part %>
+    <%= part_form.text_field :part %>
+    <%= part_form.number_field :book_id, hidden: true %>
+  </div>
+
+  <div class="actions">
+    <%= part_form.submit %>
+  </div>
+<% end %>
+<% end %>
+
+*/- 7.3
+коммит
+ss@DEBIAN:~/rails_projects/osvita$ git branch
+  heroku
+  master
+* new-hm
+ss@DEBIAN:~/rails_projects/osvita$ git diff
+diff --git a/app/controllers/books_controller.rb b/app/controllers/books_controller.rb
+index 5e39ae8..8fa4a56 100644
+--- a/app/controllers/books_controller.rb
++++ b/app/controllers/books_controller.rb
+@@ -43,7 +43,7 @@ class BooksController < ApplicationController
+   def update
+     respond_to do |format|
+       if @book.update(book_params)
+-        format.html { redirect_to @book, notice: 'Book was successfully updated.' }
++        format.html { redirect_to books_path, notice: 'Book was successfully updated.' }
+         format.json { render :show, status: :ok, location: @book }
+       else
+         format.html { render :edit }
+diff --git a/app/controllers/parts_controller.rb b/app/controllers/parts_controller.rb
+index 2453ff0..85c88bd 100644
+--- a/app/controllers/parts_controller.rb
++++ b/app/controllers/parts_controller.rb
+@@ -5,7 +5,6 @@ class PartsController < ApplicationController
+   # GET /parts.json
+:...skipping...
+diff --git a/app/controllers/books_controller.rb b/app/controllers/books_controller.rb
+index 5e39ae8..8fa4a56 100644
+--- a/app/controllers/books_controller.rb
++++ b/app/controllers/books_controller.rb
+@@ -43,7 +43,7 @@ class BooksController < ApplicationController
+   def update
+     respond_to do |format|
+       if @book.update(book_params)
+-        format.html { redirect_to @book, notice: 'Book was successfully updated.' }
++        format.html { redirect_to books_path, notice: 'Book was successfully updated.' }
+         format.json { render :show, status: :ok, location: @book }
+       else
+         format.html { render :edit }
+diff --git a/app/controllers/parts_controller.rb b/app/controllers/parts_controller.rb
+index 2453ff0..85c88bd 100644
+--- a/app/controllers/parts_controller.rb
++++ b/app/controllers/parts_controller.rb
+@@ -5,7 +5,6 @@ class PartsController < ApplicationController
+   # GET /parts.json
+   def index
+     #@parts = Part.all
+-    #@book = Book.find(params[:id])
+  #byebug
+     #@book_id = params[:book_id]
+     @book_id = params[:id]
+@@ -23,14 +22,9 @@ class PartsController < ApplicationController
+   # GET /parts/new
+   def new
+     #@part = Part.new
+-#byebug   
+-    #@book = Book.find(@book_id)
+-    #@book = Book.find(2)
+     @book = Book.find(params[:id])
+-    @part = @book.parts.create()
+-    #@part = @book.parts.build(part_params)
+-    @book_id = @part.book_id   
+-    
++    #@book_id = @book.id    
++    @part = @book.parts.build()
+   end
+ 
+   # GET /parts/1/edit
+@@ -41,12 +35,12 @@ class PartsController < ApplicationController
+   # POST /parts
+   # POST /parts.json
+   def create
+-    #@part = Part.new(part_params)
+-    #@part = @book.parts.build(part_params)
+-    
++    @book = Book.find(params[:part][:book_id])
++    @part = @book.parts.build(part_params)    
+     respond_to do |format|
+       if @part.save
+         format.html { redirect_to @part, notice: 'Part was successfully created.' }
++        #format.html { redirect_to parts_path, notice: 'Part was successfully created.' }
+         format.json { render :show, status: :created, location: @part }
+       else
+         format.html { render :new }
+@@ -60,7 +54,8 @@ class PartsController < ApplicationController
+   def update
+     respond_to do |format|
+       if @part.update(part_params)
+-        format.html { redirect_to @part, notice: 'Part was successfully updated.' }
++        format.html { redirect_to @part, notice: 'Part was successfully created.' }
++        #format.html { redirect_to parts_path, notice: 'Part was successfully created.' }
+         format.json { render :show, status: :ok, location: @part }
+       else
+         format.html { render :edit }
+diff --git a/app/models/book.rb b/app/models/book.rb
+index c58d1e3..492688b 100644
+--- a/app/models/book.rb
++++ b/app/models/book.rb
+@@ -1,3 +1,4 @@
+ class Book < ApplicationRecord
+        has_many :parts
++  accepts_nested_attributes_for :parts
+ end
+diff --git a/app/views/books/edit.html.erb b/app/views/books/edit.html.erb
+index ff28963..98fa0d2 100644
+--- a/app/views/books/edit.html.erb
++++ b/app/views/books/edit.html.erb
+@@ -2,5 +2,4 @@
+ 
+ <%= render 'form', book: @book %>
+ 
+-<%= link_to 'Show', @book %> |
+ <%= link_to 'Back', books_path %>
+diff --git a/app/views/parts/_form.html.erb b/app/views/parts/_form.html.erb
+index e8025ee..5d6f458 100644
+--- a/app/views/parts/_form.html.erb
++++ b/app/views/parts/_form.html.erb
+@@ -1,4 +1,5 @@
+-<%= form_with(model: part, local: true) do |form| %>
++<%= form_with(model: part, local: true) do |part_form| %>
++  <%= part_form.fields_for :book do |book_fields| %>
+   <% if part.errors.any? %>
+     <div id="error_explanation">
+       <h2><%= pluralize(part.errors.count, "error") %> prohibited this part from being saved:</h2>
+@@ -12,17 +13,14 @@
+   <% end %>
+ 
+   <div class="field">
+-    <%= form.label :part %>
+-    <%= form.text_field :part %>
++    <%= part_form.label :part %>
++    <%= part_form.text_field :part %>
++    <%= part_form.number_field :book_id, hidden: true %>
+   </div>
+ 
+   <div class="actions">
+-    <%= form.submit %>
++    <%= part_form.submit %>
+   </div>
+ <% end %>
+-
+-<p>
+-  <strong>Book_id:</strong>
+-  <%= @part.book_id %>
+-</p>
++<% end %>
+ 
+diff --git a/app/views/parts/edit.html.erb b/app/views/parts/edit.html.erb
+index ed40f97..c9e95f9 100644
+--- a/app/views/parts/edit.html.erb
++++ b/app/views/parts/edit.html.erb
+@@ -2,5 +2,5 @@
+ 
+ <%= render 'form', part: @part %>
+ 
+-<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
++<%= link_to 'Back', controller: "parts", action: "index", id: @part.book_id %>
+ 
+diff --git a/app/views/parts/new.html.erb b/app/views/parts/new.html.erb
+index f3f36c9..1abdb3b 100644
+--- a/app/views/parts/new.html.erb
++++ b/app/views/parts/new.html.erb
+@@ -2,5 +2,5 @@
+ 
+ <%= render 'form', part: @part %>
+ 
+-<%= link_to 'Back', controller: "parts", action: "index", id: @book_id %>
++<%= link_to 'Back', controller: "parts", action: "index", id: @part.book_id %>
+ 
+ss@DEBIAN:~/rails_projects/osvita$ git status
+On branch new-hm
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/controllers/books_controller.rb
+	modified:   app/controllers/parts_controller.rb
+	modified:   app/models/book.rb
+	modified:   app/views/books/edit.html.erb
+	modified:   app/views/parts/_form.html.erb
+	modified:   app/views/parts/edit.html.erb
+	modified:   app/views/parts/new.html.erb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+ss@DEBIAN:~/rails_projects/osvita$ git add .
+ss@DEBIAN:~/rails_projects/osvita$ git log --pretty=format:'%h %s' -5
+ab80d22 naster-15of: correct create book
+2b0fe09 part-14of: Model Part
+4c25704 book-13of: Model Book
+955caaf payment-12srv: model Payment
+2e5deab order2-11srv: associations User-Profile-Order
+ss@DEBIAN:~/rails_projects/osvita$ git commit -m "new-hm-16: New def new"
+[new-hm 919a524] new-hm-16: New def new
+ 7 files changed, 18 insertions(+), 25 deletions(-)
+ss@DEBIAN:~/rails_projects/osvita$ git co master
+Switched to branch 'master'
+Your branch is up-to-date with 'origin/master'.
+ss@DEBIAN:~/rails_projects/osvita$ git merge new-hm
+Updating ab80d22..919a524
+Fast-forward
+ app/controllers/books_controller.rb |  2 +-
+ app/controllers/parts_controller.rb | 19 +++++++------------
+ app/models/book.rb                  |  1 +
+ app/views/books/edit.html.erb       |  1 -
+ app/views/parts/_form.html.erb      | 16 +++++++---------
+ app/views/parts/edit.html.erb       |  2 +-
+ app/views/parts/new.html.erb        |  2 +-
+ 7 files changed, 18 insertions(+), 25 deletions(-)
+ss@DEBIAN:~/rails_projects/osvita$ 
+
+

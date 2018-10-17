@@ -1,0 +1,61 @@
+**** 2018.08.21 ****
+Здесь намереваюсь записать "правильное" создание новой записи в БД,
+поскольку у меня идет не 'create', 'update'
+
+*/- 1
+
+ss@office:~/rails_projects/osvita$ git branch
+  book
+* master
+  part
+
+ss@office:~/rails_projects/osvita$ git co -b new
+
+*/- 2.1
+
+*/- 2.2
+
+*/- 2.3
+В parts_controller.rb (и не только - потом укажу все)
+мне удвлось создать "живое" (работающее) Приложение только путем 'update'.
+А 'create' у меня не получилось.
+Причина, ЯтД (теперь!!!!) в "строгих параметрах",
+поскоьку ЭТИ модели имеют ассоциации.
+
+См.также п. ... в [1], где я проводил исследования;
+
+*/- 3.1
+Открываю /app/controllers/parts_controller.rb
+Там
+  # GET /parts/new
+  def new
+    #@part = Part.new
+#byebug   
+    #@book = Book.find(@book_id)
+    #@book = Book.find(2)
+    @book = Book.find(params[:id])
+    @part = @book.parts.create()
+    #@part = @book.parts.build(part_params)
+    @book_id = @part.book_id   
+    
+  end
+  
+и
+  # POST /parts
+  # POST /parts.json
+  def create
+    #@part = Part.new(part_params)
+    #@part = @book.parts.build(part_params)
+    
+    respond_to do |format|
+      if @part.save
+        format.html { redirect_to @part, notice: 'Part was successfully created.' }
+        format.json { render :show, status: :created, location: @part }
+      else
+        format.html { render :new }
+        format.json { render json: @part.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+

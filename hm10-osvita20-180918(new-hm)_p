@@ -1,0 +1,290 @@
+**** 2018.09.18 ****
+Пред.файл
+/1/ - of4-osvita19-180821(new);
+/2/ - of2-osvita17-180816(book);
+      /home/ss/Документы/Rails/API
+/3/ - ../FormHelper.doc;
+
+*/- 1
+Цель этого файла такая же, как и предыдущего:
+Написать "правильное" создание новой записи в БД - через 'new',
+поскольку сейчас у меня идет не 'create', а 'update';
+
+*/- 1.1
+*/- 1.2
+ss@DEBIAN:~/Документы/git_doc/doc_osvita$ git pull
+
+*/- 1.3
+*/- 2
+восстановлю в памяти картину, 
+как у меня реализовано добавление новых записей.
+
+*/- 2.1   books_controller.rb
+Здесь функция 'new' работает правильно (+ см.в /2/ п.13,5):
+- на форме висит кнопка "Создать",
+- если отказалься от создания, то пустая запись не сохраняется;
+
+*/- 2.2   parts_controller.rb
+*/- 2.3
+Здесь, поскольку установлена ассоциация,
+то я созданю НОВЫЙ экземпляр @part не при помощи метода 'new' на класс Рart,
+а при помощи СПЕЦАЛЬНОГО метода 
+
+    @part = @book.parts.create()
+
+///* сначала фиксирую "родителя":
+    @book = Book.find(params[:id])
+
+Значит, 
+мне нужно применять ДРУГОЙ метод создания нового ассоциированного объекта - 'build';
+
+Я нашел в /2/, что этот метод у меня даже работал, см.п.10.1;
+Почему потом перестало работать - не занаю.
+
+*/- 3
+Прежде, чем менять 'create' на 'build',
+нужно "подтянуть" теорию-:) - см./3/;
+
+*/- 3.1
+В /3/ я конспектирую fields_for;
+///
+*/- 3.2
+///* даю небольшой обзор /3/
+
+*/- 4.1
+///* попутно убрал лищнее Show
+*/- 4.2
+///* попутно исправил переадресацию
+
+*/- 4.3
+///* 1-шаг замены: нахожу образец для замены 
+
+*/- 4.4
+///* 2-шаг замены: нахожу МЕТОДЫ в случае ассоциации
+
+*/- 4.5
+///* продолжаю шаг 2
+    
+Запускаю добавление новой темы - на форме кнопка Create!!!!
+Это обнадеживает!!!!
+
+Но при ее нажатии вывело ошибку:
+1 error prohibited this part from being saved
+1 ошибка запретила эту часть сохранять
+
+и еше инф-ю отладчика:
+
+*/- 4.6
+Попробую добавить, как это указано 
+в /3/
+  accepts_nested_attributes_for :parts
+НЕ ПОМОГЛО !!
+
+*/- 4.7
+ОсВ,
+что после сообщения об ошибке
+1 error prohibited this part from being saved:
+
+еще идет
+Book must exist
+
+а ниже кнопки "Create Part"
+"Book_id:"
+
+т.е.нет id
+
+*/- 4.8
+Пробую
+  def new
+и
+  def create
+
+вывело ошибку
+Не удалось найти книгу без идентификатора
+    
+*/- 4.9
+Пробую
+def new
+
+*/- 4.10
+Пробую
+  def create
+
+*/- 4.11
+Пробую
+  def create
+    @book = Book.find(2)
+СОЗДАЕТ!!!!
+
+Значит, вопрос в том, чтобы в parts_controller.rb
+  передавать id ПРЕДМЕТА (@book) 
+    из  def new
+    в def create !!!!
+
+Причем здесь никакие глобальные переменные не помогут!!
+Передавать нужно через ФОРМУ вьюэра !!!!
+
+*/- 5.1
+Попробую передавать через параметры build !!!!
+
+После многочисленных экспериментов 
+
+   45:     @book_id = params[:part][:book_id]
+   45:     @book_id = part_params[:part][:book_id]
+
+... добился
+
+   44:   def create
+   45:     part_name = params[:part][:part]
+   46: byebug   
+=> 47:     @book = Book.find(params[:book_id])
+   48:     #@book = Book.find(@part.book_id)
+   49:     #@book = Book.find(2)
+   50:     #@book = Book.find(@book_id)
+   51:     @part = @book.parts.build(part_params)
+(byebug) var local
+part_name = Оптика
+self = #<PartsController:0x007f587dc92340>
+(byebug) 
+
+После этого попробовал 
+part_name = part_params [: part] [: part]
+
+- тоже ошибка.
+
+*/- 5.2
+Затем я выяснил, что 
+part_params = {"part"=>"Оптика"}
+
+*/- 5.3
+Дальше я выяснил, что 
+params - это хэш, 
+который содержит 
+"utf8"
+"authenticity_token"
+и 
+"part"=><ActionC...
+
+*/- 5.4
+... а затем выбрал из хэша params часть про part:
+params = {"part"=>"Оптика"}
+
+*/- 5.5
+Т.е.,
+part_params = params[:part] = {"part"=>"Оптика"}
+
+и оба они содержать только ТО,
+ЧТО вводилось в ФОРМЕ!!
+
+*/- 6
+Попробую сделать по образцам из /3/ и /4/:
+1) в /3/, "form_for", "form_for with a model object", "Resource-oriented style", п."1асс":
+
+<%= form_for([@document, @comment]) do |f| %>
+ ...
+<% end %>
+Where @document = Document.find(params[:id]) and @comment = Comment.new.
+
+2) в /3/, "fields_for", "Nested Attributes Examples", §8
+
+<%= form_for @person do |person_form| %>
+  <%= person_form.fields_for :projects do |project_fields| %>
+    <% if project_fields.object.active? %>
+      Name: <%= project_fields.text_field :name %>
+    <% end %>
+  <% end %>
+  ...
+<% end %>
+
+*/- 6.1
+Сначала сохраню имеющиеся вьюэры:
+
+*/- 6.2
+... и соотв.HTML-код для ФОРМЫ (этот код получен из метода form_for):
+///
+ОсВ, что:
+1) есть поля type="hidden", которые тоже сохраняются в хэше params;
+2) хотя на этом этапе new-экземпляр еще не сохранен в БД,
+    @part.book_id уже имеет нужное значение, =е id @book;
+    
+*/- 6.3
+Изменения нужно делать в "_form.html.erb";
+Сначала попробую код из п.6-"1)";
+///
+Но это выдало ошибку
+undefined method `book_parts_path' for #<#<Class:0x007fb70a109348>:0x007fb7096834c8>
+
+ЯтП, что Rails сам построил путь (url), 
+            куда будет передаваться управлеление после нажатия кнопки 'Submit',
+самостоятельно.
+А поскольку передается 2 объекта (@book и @part),
+то и путь получился book_parts_path;
+
+Попробую указать url явно = 'parts_path';
+
+<%= form_for([@book, @part]), url: parts_path do |form| %>
+
+выдало ошибку
+
+SyntaxError in PartsController#new
+/home/ss/rails_projects/osvita/app/views/parts/_form.html.erb:1: syntax error, unexpected tLABEL form_for([@book, @part]), url: parts_path do |form| @output_ ^
+
+*/- 6.4
+Попробую другой вариант -  код из п.6-"2)";
+///
+
+*/- 6.5
+... форму для ввода выводит,
+что обнадеживает!!!!
+но на кнопке недпись "Save Book[part],
+что озадачивает!!
+
+После нажатия ТЕМА не сохраняется;
+На экран выводится список ПРЕДМЕТОВ
+плюс сообщение "Book was successfully updated.".
+
+Из сообщения делаю вывод,
+что сохраняется 'book'))
+
+ЯтД, что это потому,
+что "верхним" циклом является form_for @book;
+
+*/- 6.6
+Сделаю верхним циклом @part (во вьюэре "_form.html.erb"):
+///
+
+*/- 6.7
+... теперь на форме для ввода кнопка имеет надпись Create Part,
+что обнадеживает!!!!
+но после нажатия кнопки выскакивает ТА ЖЕ СТАРАЯ ошибка,
+///
+ActiveRecord :: RecordNotFound в PartsController # create
+Не удалось найти книгу без идентификатора
+
+*/- 6.8
+Добавлю в форму поле для book_id
+///
+
+*/- 6.9
+СЛАВА БОГУ!!!!
+Заработало после того,
+как я добавил во вьюэр _form.html.erb скрытое поле 'part.book_id',
+и после этого оно появилось в 'params'
+который (params[:part][:book_id]) стал доступен в контроллере!!!!
+
+*/- 7
+Коды рабочего варианта такие:
+
+*/- 7.1
+в контроллере  parts_controller.rb:
+  def new
+  def create
+  def update
+
+*/- 7.2
+вьюэры:
+cat /home/ss/rails_projects/osvita/app/views/parts/new.html.erb 
+cat /home/ss/rails_projects/osvita/app/views/parts/edit.html.erb 
+cat /home/ss/rails_projects/osvita/app/views/parts/_form.html.erb 
+
+
